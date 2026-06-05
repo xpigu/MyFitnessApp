@@ -1,0 +1,123 @@
+<resources>
+    <string name="app_name">MyFitnessApp</string>
+
+    <!-- 头部 -->
+    <string name="greeting_morning">早上好</string>
+    <string name="greeting_afternoon">下午好</string>
+    <string name="greeting_evening">晚上好</string>
+
+    <!-- 今日进度 -->
+    <string name="today_progress">今日进度</string>
+    <string name="steps">步数</string>
+    <string name="calories">卡路里</string>
+    <string name="sleep">睡眠</string>
+    <string name="steps_unit">步</string>
+    <string name="calories_unit">kcal</string>
+    <string name="sleep_unit">小时</string>
+
+    <!-- 心率 -->
+    <string name="heart_rate">心率</string>
+    <string name="bpm">bpm</string>
+    <string name="max_rate">最高 145</string>
+    <string name="min_rate">最低 58</string>
+
+    <!-- 活跃挑战 -->
+    <string name="active_challenges">活跃挑战</string>
+    <string name="challenge_weekend_warrior">周末战士</string>
+    <string name="challenge_fat_burner">燃脂达人</string>
+    <string name="challenge_walking">步行挑战</string>
+    <string name="challenge_morning_workout">早起运动</string>
+
+    <!-- 底部导航 -->
+    <string name="nav_health">健康</string>
+    <string name="nav_training">训练</string>
+    <string name="nav_stats">统计</string>
+    <string name="nav_profile">我的</string>
+
+    <!-- 训练页面 -->
+    <string name="training_title">训练</string>
+    <string name="training_subtitle">今日训练目标</string>
+    <string name="training_goal">目标消耗</string>
+    <string name="training_goal_kcal">500 kcal</string>
+    <string name="training_quick_start">快速开始</string>
+    <string name="workout_running">跑步</string>
+    <string name="workout_cycling">骑行</string>
+    <string name="workout_yoga">瑜伽</string>
+    <string name="workout_strength">力量</string>
+    <string name="workout_swimming">游泳</string>
+    <string name="workout_hiit">HIIT</string>
+    <string name="training_categories">训练分类</string>
+    <string name="category_cardio">有氧</string>
+    <string name="category_strength">力量</string>
+    <string name="category_flexibility">柔韧</string>
+    <string name="category_balance">平衡</string>
+    <string name="category_hiit">高强度</string>
+    <string name="recent_workouts">最近训练</string>
+    <string name="workout_duration_min">分钟</string>
+    <string name="start_workout">开始训练</string>
+
+    <!-- 统计页面 -->
+    <string name="stats_title">统计</string>
+    <string name="tab_day">日</string>
+    <string name="tab_month">月</string>
+    <string name="stats_total_workouts">运动次数</string>
+    <string name="stats_total_calories">总消耗</string>
+    <string name="stats_total_duration">总时长</string>
+    <string name="stats_avg_heart_rate">平均心率</string>
+
+    <!-- 底部弹窗详情 -->
+    <string name="detail_duration">运动时长</string>
+    <string name="detail_distance">距离</string>
+    <string name="detail_avg_speed">平均速度</string>
+    <string name="detail_pace">平均配速</string>
+    <string name="detail_calories">消耗热量</string>
+    <string name="detail_heart_rate_chart">心率曲线</string>
+    <string name="detail_km">公里</string>
+    <string name="detail_kmh">公里/小时</string>
+    <string name="detail_min_per_km">分钟/公里</string>
+
+    <!-- 我的页面 -->
+    <string name="profile_title">我的</string>
+    <string name="profile_edit">编辑资料</string>
+    <string name="profile_username">健身达人</string>
+    <string name="profile_bio">坚持运动，遇见更好的自己</string>
+    <string name="profile_total_workouts">总训练</string>
+    <string name="profile_active_days">活跃天数</string>
+    <string name="profile_level">运动等级</string>
+    <string name="profile_level_value">Lv.8</string>
+    <string name="profile_personal_info">个人资料</string>
+    <string name="profile_goal_setting">目标设置</string>
+    <string name="profile_achievements">成就徽章</string>
+    <string name="profile_notifications">通知提醒</string>
+    <string name="profile_privacy">隐私设置</string>
+    <string name="profile_theme">主题切换</string>
+    <string name="profile_about">关于我们</string>
+    <string name="profile_logout">退出登录</string>
+    <string name="profile_level_format">Lv.%d</string>
+
+    <!-- 运动追踪页面 -->
+    <string name="tracking_paused">已暂停</string>
+    <string name="tracking_running">运动中</string>
+    <string name="tracking_pause">暂停</string>
+    <string name="tracking_resume">继续</string>
+    <string name="tracking_stop">结束</string>
+    <string name="tracking_heart_rate">心率</string>
+    <string name="tracking_calories">热量</string>
+    <string name="tracking_distance">距离</string>
+    <string name="tracking_pace">配速</string>
+    <string name="tracking_bpm">bpm</string>
+    <string name="tracking_kcal">kcal</string>
+    <string name="tracking_km">公里</string>
+    <string name="tracking_min_per_km">分钟/公里</string>
+    <string name="summary_title">运动完成！</string>
+    <string name="summary_subtitle">本次运动数据摘要</string>
+    <string name="summary_duration">总时长</string>
+    <string name="summary_distance">总距离</string>
+    <string name="summary_calories">总热量</string>
+    <string name="summary_avg_heart_rate">平均心率</string>
+    <string name="summary_avg_pace">平均配速</string>
+    <string name="summary_save">保存记录</string>
+    <string name="summary_discard">放弃</string>
+    <string name="record_saved">记录已保存</string>
+    <string name="record_discarded">已放弃本次记录</string>
+</resources>

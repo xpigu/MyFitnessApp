@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    RecyclerView 列表单项模板
+    用于展示一条运动记录
+-->
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/item_sport_record"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true"
+    android:paddingStart="16dp"
+    android:paddingTop="14dp"
+    android:paddingEnd="16dp"
+    android:paddingBottom="14dp">
+
+    <!-- 运动类型图标 -->
+    <ImageView
+        android:id="@+id/iv_sport_type"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:background="@drawable/start_button_bg"
+        android:contentDescription="运动类型"
+        android:padding="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:src="@drawable/ic_running" />
+
+    <!-- 运动名称 -->
+    <TextView
+        android:id="@+id/tv_sport_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="14dp"
+        android:layout_marginEnd="8dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textColor="@color/text_primary"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toStartOf="@id/iv_arrow"
+        app:layout_constraintStart_toEndOf="@id/iv_sport_type"
+        app:layout_constraintTop_toTopOf="@id/iv_sport_type"
+        tools:text="户外跑步" />
+
+    <!-- 运动时间 -->
+    <TextView
+        android:id="@+id/tv_sport_time"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="14dp"
+        android:layout_marginTop="4dp"
+        android:textColor="@color/text_secondary"
+        android:textSize="12sp"
+        app:layout_constraintStart_toEndOf="@id/iv_sport_type"
+        app:layout_constraintTop_toBottomOf="@id/tv_sport_name"
+        tools:text="早上 08:30" />
+
+    <!-- 核心数据简报 -->
+    <TextView
+        android:id="@+id/tv_sport_summary"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="14dp"
+        android:layout_marginTop="2dp"
+        android:textColor="@color/indigo_primary"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toEndOf="@id/iv_sport_type"
+        app:layout_constraintTop_toBottomOf="@id/tv_sport_time"
+        tools:text="5.2 公里 / 450 千卡" />
+
+    <!-- 右箭头 -->
+    <ImageView
+        android:id="@+id/iv_arrow"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:contentDescription="查看详情"
+        android:src="@drawable/ic_arrow_right"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- 底部分割线 -->
+    <View
+        android:layout_width="0dp"
+        android:layout_height="0.5dp"
+        android:layout_marginStart="14dp"
+        android:background="@color/gray_200"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/iv_sport_type" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
