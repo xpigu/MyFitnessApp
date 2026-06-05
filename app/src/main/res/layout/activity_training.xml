@@ -80,119 +80,7 @@
             </LinearLayout>
 
             <!-- ============================================================
-                 2. 今日训练目标卡片 (Today's Goal)
-                 ============================================================ -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/cv_training_goal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardBackgroundColor="@color/indigo_primary"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="4dp"
-                app:contentPadding="20dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <!-- 左侧：圆形进度 -->
-                    <FrameLayout
-                        android:layout_width="90dp"
-                        android:layout_height="90dp">
-
-                        <ImageView
-                            android:id="@+id/iv_goal_progress"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:src="@drawable/circle_progress_gold" />
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:gravity="center"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:id="@+id/tv_goal_percent"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="65%"
-                                android:textColor="#FFFFFF"
-                                android:textSize="20sp"
-                                android:textStyle="bold"
-                                tools:text="65%" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="完成"
-                                android:textColor="#CCFFFFFF"
-                                android:textSize="10sp" />
-                        </LinearLayout>
-                    </FrameLayout>
-
-                    <!-- 右侧：目标信息 -->
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="20dp"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/training_subtitle"
-                            android:textColor="#CCFFFFFF"
-                            android:textSize="13sp" />
-
-                        <TextView
-                            android:id="@+id/tv_goal_value"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:text="325 / 500"
-                            android:textColor="#FFFFFF"
-                            android:textSize="22sp"
-                            android:textStyle="bold"
-                            tools:text="325 / 500" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="2dp"
-                            android:text="kcal"
-                            android:textColor="#CCFFFFFF"
-                            android:textSize="12sp" />
-
-                        <!-- 开始训练按钮 -->
-                        <TextView
-                            android:id="@+id/btn_start_workout"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="10dp"
-                            android:background="@drawable/start_button_bg"
-                            android:backgroundTint="@color/gold_accent"
-                            android:clickable="true"
-                            android:focusable="true"
-                            android:paddingStart="20dp"
-                            android:paddingTop="8dp"
-                            android:paddingEnd="20dp"
-                            android:paddingBottom="8dp"
-                            android:text="@string/start_workout"
-                            android:textColor="@color/text_primary"
-                            android:textSize="14sp"
-                            android:textStyle="bold" />
-                    </LinearLayout>
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-
-            <!-- ============================================================
-                 3. 快速开始 (Quick Start)
+                 2. 快速开始 (Quick Start)
                  ============================================================ -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/cv_quick_start"
@@ -443,9 +331,9 @@
                                     android:textSize="11sp" />
                             </LinearLayout>
 
-                            <!-- HIIT -->
+                            <!-- 跳绳 -->
                             <LinearLayout
-                                android:id="@+id/workout_hiit"
+                                android:id="@+id/workout_jump_rope"
                                 android:layout_width="0dp"
                                 android:layout_height="100dp"
                                 android:layout_weight="1"
@@ -461,15 +349,15 @@
                                     android:layout_height="32dp"
                                     android:background="@drawable/start_button_bg"
                                     android:backgroundTint="#E67E22"
-                                    android:contentDescription="@string/workout_hiit"
+                                    android:contentDescription="@string/workout_jump_rope"
                                     android:padding="6dp"
-                                    android:src="@drawable/ic_hiit" />
+                                    android:src="@drawable/ic_jump_rope" />
 
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginTop="8dp"
-                                    android:text="@string/workout_hiit"
+                                    android:text="@string/workout_jump_rope"
                                     android:textColor="@color/text_primary"
                                     android:textSize="13sp"
                                     android:textStyle="bold" />
@@ -488,10 +376,10 @@
             </androidx.cardview.widget.CardView>
 
             <!-- ============================================================
-                 4. 训练分类 (Training Categories)
+                 3. 运动课程 (Workout Courses)
                  ============================================================ -->
             <androidx.cardview.widget.CardView
-                android:id="@+id/cv_training_categories"
+                android:id="@+id/cv_workout_courses"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
@@ -509,296 +397,309 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="12dp"
-                        android:text="@string/training_categories"
+                        android:text="@string/workout_courses"
                         android:textColor="@color/text_primary"
                         android:textSize="16sp"
                         android:textStyle="bold" />
 
+                    <!-- 运动类型横栏 Tab -->
                     <HorizontalScrollView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:scrollbars="none">
 
                         <LinearLayout
-                            android:id="@+id/ll_category_chips"
+                            android:id="@+id/ll_course_tabs"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:orientation="horizontal">
 
                             <TextView
-                                android:id="@+id/chip_cardio"
+                                android:id="@+id/tab_course_running"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginEnd="10dp"
+                                android:layout_marginEnd="8dp"
                                 android:background="@drawable/category_chip_selected"
                                 android:clickable="true"
                                 android:focusable="true"
-                                android:paddingStart="18dp"
+                                android:paddingStart="16dp"
                                 android:paddingTop="8dp"
-                                android:paddingEnd="18dp"
+                                android:paddingEnd="16dp"
                                 android:paddingBottom="8dp"
-                                android:text="@string/category_cardio"
+                                android:text="@string/workout_running"
                                 android:textColor="#FFFFFF"
                                 android:textSize="13sp" />
 
                             <TextView
-                                android:id="@+id/chip_strength"
+                                android:id="@+id/tab_course_cycling"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginEnd="10dp"
+                                android:layout_marginEnd="8dp"
                                 android:background="@drawable/category_chip_unselected"
                                 android:clickable="true"
                                 android:focusable="true"
-                                android:paddingStart="18dp"
+                                android:paddingStart="16dp"
                                 android:paddingTop="8dp"
-                                android:paddingEnd="18dp"
+                                android:paddingEnd="16dp"
                                 android:paddingBottom="8dp"
-                                android:text="@string/category_strength"
+                                android:text="@string/workout_cycling"
                                 android:textColor="@color/text_secondary"
                                 android:textSize="13sp" />
 
                             <TextView
-                                android:id="@+id/chip_flexibility"
+                                android:id="@+id/tab_course_yoga"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginEnd="10dp"
+                                android:layout_marginEnd="8dp"
                                 android:background="@drawable/category_chip_unselected"
                                 android:clickable="true"
                                 android:focusable="true"
-                                android:paddingStart="18dp"
+                                android:paddingStart="16dp"
                                 android:paddingTop="8dp"
-                                android:paddingEnd="18dp"
+                                android:paddingEnd="16dp"
                                 android:paddingBottom="8dp"
-                                android:text="@string/category_flexibility"
+                                android:text="@string/workout_yoga"
                                 android:textColor="@color/text_secondary"
                                 android:textSize="13sp" />
 
                             <TextView
-                                android:id="@+id/chip_balance"
+                                android:id="@+id/tab_course_strength"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginEnd="10dp"
+                                android:layout_marginEnd="8dp"
                                 android:background="@drawable/category_chip_unselected"
                                 android:clickable="true"
                                 android:focusable="true"
-                                android:paddingStart="18dp"
+                                android:paddingStart="16dp"
                                 android:paddingTop="8dp"
-                                android:paddingEnd="18dp"
+                                android:paddingEnd="16dp"
                                 android:paddingBottom="8dp"
-                                android:text="@string/category_balance"
+                                android:text="@string/workout_strength"
                                 android:textColor="@color/text_secondary"
                                 android:textSize="13sp" />
 
                             <TextView
-                                android:id="@+id/chip_hiit"
+                                android:id="@+id/tab_course_swimming"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginEnd="8dp"
+                                android:background="@drawable/category_chip_unselected"
+                                android:clickable="true"
+                                android:focusable="true"
+                                android:paddingStart="16dp"
+                                android:paddingTop="8dp"
+                                android:paddingEnd="16dp"
+                                android:paddingBottom="8dp"
+                                android:text="@string/workout_swimming"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="13sp" />
+
+                            <TextView
+                                android:id="@+id/tab_course_jump_rope"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:background="@drawable/category_chip_unselected"
                                 android:clickable="true"
                                 android:focusable="true"
-                                android:paddingStart="18dp"
+                                android:paddingStart="16dp"
                                 android:paddingTop="8dp"
-                                android:paddingEnd="18dp"
+                                android:paddingEnd="16dp"
                                 android:paddingBottom="8dp"
-                                android:text="@string/category_hiit"
+                                android:text="@string/workout_jump_rope"
                                 android:textColor="@color/text_secondary"
                                 android:textSize="13sp" />
                         </LinearLayout>
                     </HorizontalScrollView>
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
 
-            <!-- ============================================================
-                 5. 最近训练 (Recent Workouts)
-                 ============================================================ -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/cv_recent_workouts"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardBackgroundColor="@color/card_background"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
-                app:contentPadding="16dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="12dp"
-                        android:text="@string/recent_workouts"
-                        android:textColor="@color/text_primary"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
-
-                    <!-- 训练记录 1 -->
+                    <!-- 课程列表容器 -->
                     <LinearLayout
-                        android:id="@+id/workout_history_1"
+                        android:id="@+id/ll_course_list"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="10dp"
-                        android:background="@drawable/workout_history_bg"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:padding="12dp">
+                        android:layout_marginTop="12dp"
+                        android:orientation="vertical">
 
-                        <ImageView
-                            android:layout_width="36dp"
-                            android:layout_height="36dp"
-                            android:background="@drawable/start_button_bg"
-                            android:contentDescription="跑步"
-                            android:padding="8dp"
-                            android:src="@drawable/ic_running" />
-
+                        <!-- 课程卡片 -->
                         <LinearLayout
-                            android:layout_width="0dp"
+                            android:id="@+id/course_item_1"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="12dp"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
+                            android:layout_marginBottom="10dp"
+                            android:background="@drawable/workout_history_bg"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:padding="12dp">
+
+                            <ImageView
+                                android:layout_width="40dp"
+                                android:layout_height="40dp"
+                                android:background="@drawable/start_button_bg"
+                                android:contentDescription="课程"
+                                android:padding="8dp"
+                                android:src="@drawable/ic_running" />
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="12dp"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:id="@+id/tv_course_1_title"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="5公里入门跑"
+                                    android:textColor="@color/text_primary"
+                                    android:textSize="14sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:id="@+id/tv_course_1_info"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="2dp"
+                                    android:text="初学者 · 30分钟 · 约300 kcal"
+                                    android:textColor="@color/text_secondary"
+                                    android:textSize="12sp" />
+                            </LinearLayout>
 
                             <TextView
-                                android:id="@+id/tv_history_1_name"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="晨跑"
-                                android:textColor="@color/text_primary"
-                                android:textSize="14sp"
+                                android:background="@drawable/add_food_btn_bg"
+                                android:clickable="true"
+                                android:focusable="true"
+                                android:paddingStart="12dp"
+                                android:paddingTop="6dp"
+                                android:paddingEnd="12dp"
+                                android:paddingBottom="6dp"
+                                android:text="开始"
+                                android:textColor="@color/indigo_primary"
+                                android:textSize="12sp"
                                 android:textStyle="bold" />
-
-                            <TextView
-                                android:id="@+id/tv_history_1_info"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
-                                android:text="今天 06:30 · 5.2 km · 320 kcal"
-                                android:textColor="@color/text_secondary"
-                                android:textSize="12sp" />
                         </LinearLayout>
 
-                        <TextView
-                            android:id="@+id/tv_history_1_duration"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="30 min"
-                            android:textColor="@color/indigo_primary"
-                            android:textSize="13sp"
-                            android:textStyle="bold" />
-                    </LinearLayout>
-
-                    <!-- 训练记录 2 -->
-                    <LinearLayout
-                        android:id="@+id/workout_history_2"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="10dp"
-                        android:background="@drawable/workout_history_bg"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:padding="12dp">
-
-                        <ImageView
-                            android:layout_width="36dp"
-                            android:layout_height="36dp"
-                            android:background="@drawable/start_button_bg"
-                            android:backgroundTint="@color/emerald_secondary"
-                            android:contentDescription="骑行"
-                            android:padding="8dp"
-                            android:src="@drawable/ic_cycling" />
-
+                        <!-- 课程卡片 -->
                         <LinearLayout
-                            android:layout_width="0dp"
+                            android:id="@+id/course_item_2"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="12dp"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
+                            android:layout_marginBottom="10dp"
+                            android:background="@drawable/workout_history_bg"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:padding="12dp">
+
+                            <ImageView
+                                android:layout_width="40dp"
+                                android:layout_height="40dp"
+                                android:background="@drawable/start_button_bg"
+                                android:contentDescription="课程"
+                                android:padding="8dp"
+                                android:src="@drawable/ic_running" />
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="12dp"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:id="@+id/tv_course_2_title"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="燃脂间歇跑"
+                                    android:textColor="@color/text_primary"
+                                    android:textSize="14sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:id="@+id/tv_course_2_info"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="2dp"
+                                    android:text="中级 · 45分钟 · 约450 kcal"
+                                    android:textColor="@color/text_secondary"
+                                    android:textSize="12sp" />
+                            </LinearLayout>
 
                             <TextView
-                                android:id="@+id/tv_history_2_name"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="户外骑行"
-                                android:textColor="@color/text_primary"
-                                android:textSize="14sp"
+                                android:background="@drawable/add_food_btn_bg"
+                                android:clickable="true"
+                                android:focusable="true"
+                                android:paddingStart="12dp"
+                                android:paddingTop="6dp"
+                                android:paddingEnd="12dp"
+                                android:paddingBottom="6dp"
+                                android:text="开始"
+                                android:textColor="@color/indigo_primary"
+                                android:textSize="12sp"
                                 android:textStyle="bold" />
-
-                            <TextView
-                                android:id="@+id/tv_history_2_info"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
-                                android:text="昨天 17:00 · 15.8 km · 480 kcal"
-                                android:textColor="@color/text_secondary"
-                                android:textSize="12sp" />
                         </LinearLayout>
 
-                        <TextView
-                            android:id="@+id/tv_history_2_duration"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="45 min"
-                            android:textColor="@color/indigo_primary"
-                            android:textSize="13sp"
-                            android:textStyle="bold" />
-                    </LinearLayout>
-
-                    <!-- 训练记录 3 -->
-                    <LinearLayout
-                        android:id="@+id/workout_history_3"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/workout_history_bg"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:padding="12dp">
-
-                        <ImageView
-                            android:layout_width="36dp"
-                            android:layout_height="36dp"
-                            android:background="@drawable/start_button_bg"
-                            android:backgroundTint="#E74C3C"
-                            android:contentDescription="力量"
-                            android:padding="8dp"
-                            android:src="@drawable/ic_strength_white" />
-
+                        <!-- 课程卡片 -->
                         <LinearLayout
-                            android:layout_width="0dp"
+                            android:id="@+id/course_item_3"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="12dp"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
+                            android:background="@drawable/workout_history_bg"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:padding="12dp">
+
+                            <ImageView
+                                android:layout_width="40dp"
+                                android:layout_height="40dp"
+                                android:background="@drawable/start_button_bg"
+                                android:contentDescription="课程"
+                                android:padding="8dp"
+                                android:src="@drawable/ic_running" />
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="12dp"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:id="@+id/tv_course_3_title"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="跑后拉伸放松"
+                                    android:textColor="@color/text_primary"
+                                    android:textSize="14sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:id="@+id/tv_course_3_info"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="2dp"
+                                    android:text="所有级别 · 15分钟 · 约80 kcal"
+                                    android:textColor="@color/text_secondary"
+                                    android:textSize="12sp" />
+                            </LinearLayout>
 
                             <TextView
-                                android:id="@+id/tv_history_3_name"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="力量训练"
-                                android:textColor="@color/text_primary"
-                                android:textSize="14sp"
+                                android:background="@drawable/add_food_btn_bg"
+                                android:clickable="true"
+                                android:focusable="true"
+                                android:paddingStart="12dp"
+                                android:paddingTop="6dp"
+                                android:paddingEnd="12dp"
+                                android:paddingBottom="6dp"
+                                android:text="开始"
+                                android:textColor="@color/indigo_primary"
+                                android:textSize="12sp"
                                 android:textStyle="bold" />
-
-                            <TextView
-                                android:id="@+id/tv_history_3_info"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
-                                android:text="6月2日 09:00 · 350 kcal"
-                                android:textColor="@color/text_secondary"
-                                android:textSize="12sp" />
                         </LinearLayout>
-
-                        <TextView
-                            android:id="@+id/tv_history_3_duration"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="40 min"
-                            android:textColor="@color/indigo_primary"
-                            android:textSize="13sp"
-                            android:textStyle="bold" />
                     </LinearLayout>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>

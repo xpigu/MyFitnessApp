@@ -33,6 +33,22 @@
             android:name=".WorkoutTrackingActivity"
             android:exported="false"
             android:theme="@style/Theme.MyFitnessApp" />
+        <activity
+            android:name=".JumpRopeActivity"
+            android:exported="false"
+            android:theme="@style/Theme.MyFitnessApp" />
+        <activity
+            android:name=".StrengthActivity"
+            android:exported="false"
+            android:theme="@style/Theme.MyFitnessApp" />
+        <activity
+            android:name=".SwimmingActivity"
+            android:exported="false"
+            android:theme="@style/Theme.MyFitnessApp" />
+        <activity
+            android:name=".YogaActivity"
+            android:exported="false"
+            android:theme="@style/Theme.MyFitnessApp" />
     </application>
 
 </manifest>

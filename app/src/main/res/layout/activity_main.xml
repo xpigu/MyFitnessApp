@@ -234,7 +234,7 @@
                                 android:textSize="14sp" />
                         </LinearLayout>
 
-                        <!-- 睡眠 -->
+                        <!-- 锻炼 -->
                         <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
@@ -247,38 +247,38 @@
                                 android:layout_height="80dp">
 
                                 <ImageView
-                                    android:id="@+id/iv_sleep_progress"
+                                    android:id="@+id/iv_exercise_progress"
                                     android:layout_width="match_parent"
                                     android:layout_height="match_parent"
                                     android:src="@drawable/circle_progress_gold" />
 
                                 <TextView
-                                    android:id="@+id/tv_sleep_value"
+                                    android:id="@+id/tv_exercise_value"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_gravity="center"
-                                    android:text="7.5"
+                                    android:text="45"
                                     android:textColor="@color/gold_dark"
                                     android:textSize="18sp"
                                     android:textStyle="bold"
-                                    tools:text="7.5" />
+                                    tools:text="45" />
                             </FrameLayout>
 
                             <TextView
-                                android:id="@+id/tv_sleep_unit"
+                                android:id="@+id/tv_exercise_unit"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="4dp"
-                                android:text="@string/sleep_unit"
+                                android:text="@string/exercise_unit"
                                 android:textColor="@color/text_secondary"
                                 android:textSize="12sp" />
 
                             <TextView
-                                android:id="@+id/tv_sleep_label"
+                                android:id="@+id/tv_exercise_label"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="2dp"
-                                android:text="@string/sleep"
+                                android:text="@string/exercise"
                                 android:textColor="@color/text_primary"
                                 android:textSize="14sp" />
                         </LinearLayout>
@@ -287,10 +287,10 @@
             </androidx.cardview.widget.CardView>
 
             <!-- ============================================================
-                 3. 心率卡片 (Heart Rate Card)
+                 3. 饮食记录 (Diet Record)
                  ============================================================ -->
             <androidx.cardview.widget.CardView
-                android:id="@+id/cv_heart_rate"
+                android:id="@+id/cv_diet_record"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
@@ -304,7 +304,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
 
-                    <!-- 心率标题行 -->
+                    <!-- 饮食标题行 -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -314,88 +314,675 @@
                         <ImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
-                            android:contentDescription="心率"
-                            android:src="@drawable/ic_heart_rate" />
+                            android:contentDescription="饮食"
+                            android:src="@drawable/ic_diet" />
 
                         <TextView
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="8dp"
                             android:layout_weight="1"
-                            android:text="@string/heart_rate"
+                            android:text="@string/diet_record"
                             android:textColor="@color/text_primary"
                             android:textSize="16sp"
                             android:textStyle="bold" />
 
-                        <!-- 最高/最低标注 -->
-                        <TextView
-                            android:id="@+id/tv_heart_rate_max"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/max_rate"
-                            android:textColor="#E74C3C"
-                            android:textSize="12sp" />
-
-                        <TextView
-                            android:id="@+id/tv_heart_rate_min"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="12dp"
-                            android:text="@string/min_rate"
-                            android:textColor="@color/emerald_secondary"
-                            android:textSize="12sp" />
+                        <!-- 设置图标 -->
+                        <ImageButton
+                            android:id="@+id/ib_diet_settings"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:contentDescription="设置"
+                            android:padding="4dp"
+                            android:src="@drawable/ic_settings" />
                     </LinearLayout>
 
-                    <!-- 实时心率数字 -->
+                    <!-- 热量仪表盘区域 -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:gravity="center_vertical"
+                        android:layout_marginTop="12dp"
+                        android:gravity="center"
                         android:orientation="horizontal">
 
-                        <TextView
-                            android:id="@+id/tv_heart_rate_value"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="72"
-                            android:textColor="#E74C3C"
-                            android:textSize="48sp"
-                            android:textStyle="bold"
-                            tools:text="72" />
+                        <!-- 圆形进度：剩余热量 -->
+                        <FrameLayout
+                            android:layout_width="90dp"
+                            android:layout_height="90dp">
 
-                        <TextView
-                            android:id="@+id/tv_heart_rate_unit"
-                            android:layout_width="wrap_content"
+                            <ImageView
+                                android:id="@+id/iv_calories_progress"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:src="@drawable/circle_progress_emerald" />
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:gravity="center"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:id="@+id/tv_remaining_calories"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="1250"
+                                    android:textColor="@color/emerald_dark"
+                                    android:textSize="20sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/diet_kcal"
+                                    android:textColor="@color/text_secondary"
+                                    android:textSize="10sp" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/diet_remaining"
+                                    android:textColor="@color/text_secondary"
+                                    android:textSize="10sp" />
+                            </LinearLayout>
+                        </FrameLayout>
+
+                        <!-- 热量明细 -->
+                        <LinearLayout
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="4dp"
-                            android:text="@string/bpm"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="16sp" />
+                            android:layout_marginStart="16dp"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal">
+
+                                <View
+                                    android:layout_width="10dp"
+                                    android:layout_height="10dp"
+                                    android:background="@drawable/dot_indigo" />
+
+                                <TextView
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="6dp"
+                                    android:layout_weight="1"
+                                    android:text="@string/diet_calories_budget"
+                                    android:textColor="@color/text_secondary"
+                                    android:textSize="12sp" />
+
+                                <TextView
+                                    android:id="@+id/tv_budget_calories"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="2000"
+                                    android:textColor="@color/text_primary"
+                                    android:textSize="14sp"
+                                    android:textStyle="bold" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal">
+
+                                <View
+                                    android:layout_width="10dp"
+                                    android:layout_height="10dp"
+                                    android:background="@drawable/dot_orange" />
+
+                                <TextView
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="6dp"
+                                    android:layout_weight="1"
+                                    android:text="@string/diet_calories_consumed"
+                                    android:textColor="@color/text_secondary"
+                                    android:textSize="12sp" />
+
+                                <TextView
+                                    android:id="@+id/tv_consumed_calories"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="850"
+                                    android:textColor="@color/text_primary"
+                                    android:textSize="14sp"
+                                    android:textStyle="bold" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal">
+
+                                <View
+                                    android:layout_width="10dp"
+                                    android:layout_height="10dp"
+                                    android:background="@drawable/dot_emerald" />
+
+                                <TextView
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="6dp"
+                                    android:layout_weight="1"
+                                    android:text="@string/diet_calories_burned"
+                                    android:textColor="@color/text_secondary"
+                                    android:textSize="12sp" />
+
+                                <TextView
+                                    android:id="@+id/tv_burned_calories"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="100"
+                                    android:textColor="@color/emerald_secondary"
+                                    android:textSize="14sp"
+                                    android:textStyle="bold" />
+                            </LinearLayout>
+                        </LinearLayout>
                     </LinearLayout>
 
-                    <!-- 心率面积图占位 -->
-                    <FrameLayout
+                    <!-- 分隔线 -->
+                    <View
                         android:layout_width="match_parent"
-                        android:layout_height="80dp"
-                        android:layout_marginTop="12dp">
+                        android:layout_height="1dp"
+                        android:layout_marginTop="12dp"
+                        android:layout_marginBottom="4dp"
+                        android:background="@color/gray_200" />
+
+                    <!-- 三餐时段列表 -->
+                    <LinearLayout
+                        android:id="@+id/ll_meal_sections"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <!-- 早餐 -->
+                        <LinearLayout
+                            android:id="@+id/ll_meal_breakfast"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <LinearLayout
+                                android:id="@+id/ll_meal_breakfast_header"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal"
+                                android:paddingTop="10dp"
+                                android:paddingBottom="10dp">
+
+                                <View
+                                    android:layout_width="4dp"
+                                    android:layout_height="18dp"
+                                    android:background="@drawable/meal_indicator_breakfast" />
+
+                                <TextView
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="8dp"
+                                    android:layout_weight="1"
+                                    android:text="@string/diet_breakfast"
+                                    android:textColor="@color/text_primary"
+                                    android:textSize="14sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:id="@+id/tv_breakfast_calories"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="320 kcal"
+                                    android:textColor="@color/text_secondary"
+                                    android:textSize="12sp" />
+
+                                <ImageView
+                                    android:id="@+id/iv_breakfast_expand"
+                                    android:layout_width="20dp"
+                                    android:layout_height="20dp"
+                                    android:layout_marginStart="8dp"
+                                    android:contentDescription="展开"
+                                    android:rotation="0"
+                                    android:src="@drawable/ic_chevron_down" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:id="@+id/ll_breakfast_items"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:visibility="gone"
+                                android:paddingStart="12dp"
+                                android:paddingBottom="8dp">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="燕麦粥 (150g) - 180 kcal"
+                                    android:textColor="@color/text_secondary"
+                                    android:textSize="12sp" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="4dp"
+                                    android:text="鸡蛋 x2 - 140 kcal"
+                                    android:textColor="@color/text_secondary"
+                                    android:textSize="12sp" />
+
+                                <LinearLayout
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="8dp"
+                                    android:gravity="center_vertical"
+                                    android:orientation="horizontal">
+
+                                    <TextView
+                                        android:id="@+id/tv_breakfast_add_food"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:background="@drawable/add_food_btn_bg"
+                                        android:paddingStart="10dp"
+                                        android:paddingTop="4dp"
+                                        android:paddingEnd="10dp"
+                                        android:paddingBottom="4dp"
+                                        android:text="@string/diet_add_food"
+                                        android:textColor="@color/indigo_primary"
+                                        android:textSize="11sp" />
+                                </LinearLayout>
+                            </LinearLayout>
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="1dp"
+                                android:background="@color/gray_200" />
+                        </LinearLayout>
+
+                        <!-- 午餐 -->
+                        <LinearLayout
+                            android:id="@+id/ll_meal_lunch"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <LinearLayout
+                                android:id="@+id/ll_meal_lunch_header"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal"
+                                android:paddingTop="10dp"
+                                android:paddingBottom="10dp">
+
+                                <View
+                                    android:layout_width="4dp"
+                                    android:layout_height="18dp"
+                                    android:background="@drawable/meal_indicator_lunch" />
+
+                                <TextView
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="8dp"
+                                    android:layout_weight="1"
+                                    android:text="@string/diet_lunch"
+                                    android:textColor="@color/text_primary"
+                                    android:textSize="14sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:id="@+id/tv_lunch_calories"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="450 kcal"
+                                    android:textColor="@color/text_secondary"
+                                    android:textSize="12sp" />
+
+                                <ImageView
+                                    android:id="@+id/iv_lunch_expand"
+                                    android:layout_width="20dp"
+                                    android:layout_height="20dp"
+                                    android:layout_marginStart="8dp"
+                                    android:contentDescription="展开"
+                                    android:rotation="0"
+                                    android:src="@drawable/ic_chevron_down" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:id="@+id/ll_lunch_items"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:visibility="gone"
+                                android:paddingStart="12dp"
+                                android:paddingBottom="8dp">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="鸡胸肉沙拉 (200g) - 280 kcal"
+                                    android:textColor="@color/text_secondary"
+                                    android:textSize="12sp" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="4dp"
+                                    android:text="糙米饭 (150g) - 170 kcal"
+                                    android:textColor="@color/text_secondary"
+                                    android:textSize="12sp" />
+
+                                <LinearLayout
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="8dp"
+                                    android:gravity="center_vertical"
+                                    android:orientation="horizontal">
+
+                                    <TextView
+                                        android:id="@+id/tv_lunch_add_food"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:background="@drawable/add_food_btn_bg"
+                                        android:paddingStart="10dp"
+                                        android:paddingTop="4dp"
+                                        android:paddingEnd="10dp"
+                                        android:paddingBottom="4dp"
+                                        android:text="@string/diet_add_food"
+                                        android:textColor="@color/indigo_primary"
+                                        android:textSize="11sp" />
+                                </LinearLayout>
+                            </LinearLayout>
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="1dp"
+                                android:background="@color/gray_200" />
+                        </LinearLayout>
+
+                        <!-- 晚餐 -->
+                        <LinearLayout
+                            android:id="@+id/ll_meal_dinner"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <LinearLayout
+                                android:id="@+id/ll_meal_dinner_header"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal"
+                                android:paddingTop="10dp"
+                                android:paddingBottom="10dp">
+
+                                <View
+                                    android:layout_width="4dp"
+                                    android:layout_height="18dp"
+                                    android:background="@drawable/meal_indicator_dinner" />
+
+                                <TextView
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="8dp"
+                                    android:layout_weight="1"
+                                    android:text="@string/diet_dinner"
+                                    android:textColor="@color/text_primary"
+                                    android:textSize="14sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:id="@+id/tv_dinner_calories"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="0 kcal"
+                                    android:textColor="@color/text_secondary"
+                                    android:textSize="12sp" />
+
+                                <ImageView
+                                    android:id="@+id/iv_dinner_expand"
+                                    android:layout_width="20dp"
+                                    android:layout_height="20dp"
+                                    android:layout_marginStart="8dp"
+                                    android:contentDescription="展开"
+                                    android:rotation="0"
+                                    android:src="@drawable/ic_chevron_down" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:id="@+id/ll_dinner_items"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:visibility="gone"
+                                android:paddingStart="12dp"
+                                android:paddingBottom="8dp">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="暂无记录"
+                                    android:textColor="@color/gray_400"
+                                    android:textSize="12sp" />
+
+                                <LinearLayout
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="8dp"
+                                    android:gravity="center_vertical"
+                                    android:orientation="horizontal">
+
+                                    <TextView
+                                        android:id="@+id/tv_dinner_add_food"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:background="@drawable/add_food_btn_bg"
+                                        android:paddingStart="10dp"
+                                        android:paddingTop="4dp"
+                                        android:paddingEnd="10dp"
+                                        android:paddingBottom="4dp"
+                                        android:text="@string/diet_add_food"
+                                        android:textColor="@color/indigo_primary"
+                                        android:textSize="11sp" />
+                                </LinearLayout>
+                            </LinearLayout>
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="1dp"
+                                android:background="@color/gray_200" />
+                        </LinearLayout>
+
+                        <!-- 加餐 -->
+                        <LinearLayout
+                            android:id="@+id/ll_meal_snack"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <LinearLayout
+                                android:id="@+id/ll_meal_snack_header"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal"
+                                android:paddingTop="10dp"
+                                android:paddingBottom="10dp">
+
+                                <View
+                                    android:layout_width="4dp"
+                                    android:layout_height="18dp"
+                                    android:background="@drawable/meal_indicator_snack" />
+
+                                <TextView
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="8dp"
+                                    android:layout_weight="1"
+                                    android:text="@string/diet_snack"
+                                    android:textColor="@color/text_primary"
+                                    android:textSize="14sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:id="@+id/tv_snack_calories"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="80 kcal"
+                                    android:textColor="@color/text_secondary"
+                                    android:textSize="12sp" />
+
+                                <ImageView
+                                    android:id="@+id/iv_snack_expand"
+                                    android:layout_width="20dp"
+                                    android:layout_height="20dp"
+                                    android:layout_marginStart="8dp"
+                                    android:contentDescription="展开"
+                                    android:rotation="0"
+                                    android:src="@drawable/ic_chevron_down" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:id="@+id/ll_snack_items"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:visibility="gone"
+                                android:paddingStart="12dp"
+                                android:paddingBottom="8dp">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="香蕉 x1 - 80 kcal"
+                                    android:textColor="@color/text_secondary"
+                                    android:textSize="12sp" />
+
+                                <LinearLayout
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="8dp"
+                                    android:gravity="center_vertical"
+                                    android:orientation="horizontal">
+
+                                    <TextView
+                                        android:id="@+id/tv_snack_add_food"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:background="@drawable/add_food_btn_bg"
+                                        android:paddingStart="10dp"
+                                        android:paddingTop="4dp"
+                                        android:paddingEnd="10dp"
+                                        android:paddingBottom="4dp"
+                                        android:text="@string/diet_add_food"
+                                        android:textColor="@color/indigo_primary"
+                                        android:textSize="11sp" />
+                                </LinearLayout>
+                            </LinearLayout>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- 分隔线 -->
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginTop="4dp"
+                        android:layout_marginBottom="8dp"
+                        android:background="@color/gray_200" />
+
+                    <!-- 饮食建议 -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/advice_card_bg"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="10dp">
 
                         <ImageView
-                            android:id="@+id/iv_heart_rate_chart"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:background="@drawable/heart_rate_chart_placeholder"
-                            android:contentDescription="心率趋势图"
-                            android:scaleType="fitXY" />
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:contentDescription="建议"
+                            android:src="@drawable/ic_lightbulb" />
 
                         <TextView
-                            android:layout_width="wrap_content"
+                            android:id="@+id/tv_diet_advice"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:text="心率趋势图"
-                            android:textColor="@color/gray_400"
+                            android:layout_marginStart="8dp"
+                            android:layout_weight="1"
+                            android:text="今日还可摄入约 1250 kcal，建议均衡搭配蛋白质和蔬菜"
+                            android:textColor="@color/text_secondary"
                             android:textSize="12sp" />
-                    </FrameLayout>
+                    </LinearLayout>
+
+                    <!-- 饮水 + 快速加餐按钮 -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:id="@+id/btn_water"
+                            android:layout_width="0dp"
+                            android:layout_height="44dp"
+                            android:layout_marginEnd="8dp"
+                            android:layout_weight="1"
+                            android:background="@drawable/diet_action_btn_bg"
+                            android:gravity="center"
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:contentDescription="饮水"
+                                android:src="@drawable/ic_water" />
+
+                            <TextView
+                                android:id="@+id/tv_water_count"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="6dp"
+                                android:text="5 杯"
+                                android:textColor="@color/indigo_primary"
+                                android:textSize="13sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/btn_quick_snack"
+                            android:layout_width="0dp"
+                            android:layout_height="44dp"
+                            android:layout_weight="1"
+                            android:background="@drawable/diet_action_btn_bg"
+                            android:gravity="center"
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:contentDescription="加餐"
+                                android:src="@drawable/ic_apple" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="6dp"
+                                android:text="@string/diet_quick_snack"
+                                android:textColor="@color/indigo_primary"
+                                android:textSize="13sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+                    </LinearLayout>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 

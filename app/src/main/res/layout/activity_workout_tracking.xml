@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    实时运动追踪界面
-    全屏沉浸式体验，无底部导航栏
+    户外运动追踪界面（跑步/骑行）
+    结构：地图(固定顶部) + 可滚动数据区 + 控制栏(固定底部)
 -->
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -14,323 +14,606 @@
     android:fitsSystemWindows="true"
     tools:context=".WorkoutTrackingActivity">
 
-    <!-- ============================================================
-         顶部：运动类型 + 计时器
-         ============================================================ -->
-    <LinearLayout
-        android:id="@+id/header_tracking"
-        android:layout_width="match_parent"
+    <!-- 地图高度 GuideLine，运行时动态调整比例 -->
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline_map"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
-        android:orientation="vertical"
-        android:paddingTop="48dp"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.40" />
+
+    <!-- ============================================================
+         地图占位区（固定顶部）
+         ============================================================ -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/map_container"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="visible"
+        app:cardBackgroundColor="#2A2A3E"
+        app:cardCornerRadius="0dp"
+        app:cardElevation="0dp"
+        app:layout_constraintBottom_toTopOf="@id/guideline_map"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <!-- 运动类型图标 -->
-        <ImageView
-            android:id="@+id/iv_tracking_sport_icon"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:background="@drawable/start_button_bg"
-            android:contentDescription="运动类型"
-            android:padding="14dp"
-            tools:src="@drawable/ic_running" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical">
 
-        <!-- 运动类型名称 -->
-        <TextView
-            android:id="@+id/tv_tracking_sport_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:textColor="#FFFFFF"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            tools:text="户外跑步" />
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:contentDescription="地图"
+                android:padding="8dp"
+                android:src="@drawable/ic_running" />
 
-        <!-- 实时计时器 -->
-        <TextView
-            android:id="@+id/tv_tracking_timer"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:fontFamily="monospace"
-            android:text="00:00:00"
-            android:textColor="#FFFFFF"
-            android:textSize="48sp"
-            android:textStyle="bold"
-            tools:text="00:12:35" />
+            <TextView
+                android:id="@+id/tv_map_placeholder"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="GPS 定位中..."
+                android:textColor="#88FFFFFF"
+                android:textSize="14sp" />
 
-        <!-- 状态标签 -->
-        <TextView
-            android:id="@+id/tv_tracking_status"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:background="@drawable/tab_bg_unselected"
-            android:paddingStart="12dp"
-            android:paddingTop="4dp"
-            android:paddingEnd="12dp"
-            android:paddingBottom="4dp"
-            android:text="运动中"
-            android:textColor="#FFFFFF"
-            android:textSize="12sp" />
-    </LinearLayout>
+            <TextView
+                android:id="@+id/tv_max_speed"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/tab_bg_unselected"
+                android:paddingStart="12dp"
+                android:paddingTop="4dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="4dp"
+                android:text="最高 0.0 km/h"
+                android:textColor="#FFFFFF"
+                android:textSize="13sp"
+                android:visibility="gone"
+                tools:visibility="visible" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- 折叠/展开地图按钮 -->
+    <TextView
+        android:id="@+id/btn_toggle_map"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginTop="-16dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/circle_bg"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center"
+        android:text="⌃"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        android:visibility="visible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/guideline_map"
+        tools:visibility="visible" />
 
     <!-- ============================================================
-         中部：核心数据 2×2 网格
+         可滚动数据区
          ============================================================ -->
-    <LinearLayout
-        android:id="@+id/data_grid"
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scroll_data"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="32dp"
-        android:layout_marginEnd="20dp"
-        android:orientation="horizontal"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        android:overScrollMode="never"
+        android:scrollbars="none"
+        app:layout_constraintBottom_toTopOf="@id/control_bar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/header_tracking">
+        app:layout_constraintTop_toBottomOf="@id/guideline_map">
 
-        <!-- 心率 -->
-        <androidx.cardview.widget.CardView
-            android:layout_width="0dp"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:layout_weight="1"
-            app:cardBackgroundColor="@android:color/transparent"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="0dp">
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:paddingBottom="8dp">
 
-            <LinearLayout
-                android:layout_width="match_parent"
+            <!-- 运动类型图标 + 名称 -->
+            <ImageView
+                android:id="@+id/iv_tracking_sport_icon"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/start_button_bg"
+                android:contentDescription="运动类型"
+                android:padding="8dp"
+                tools:src="@drawable/ic_running" />
+
+            <TextView
+                android:id="@+id/tv_tracking_sport_name"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/tracking_card_bg"
+                android:layout_marginTop="4dp"
+                android:textColor="#FFFFFF"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                tools:text="户外跑步" />
+
+            <!-- 计时器 -->
+            <TextView
+                android:id="@+id/tv_tracking_timer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:fontFamily="monospace"
+                android:text="00:00:00"
+                android:textColor="#FFFFFF"
+                android:textSize="32sp"
+                android:textStyle="bold"
+                tools:text="00:12:35" />
+
+            <!-- 状态标签 -->
+            <TextView
+                android:id="@+id/tv_tracking_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:background="@drawable/tab_bg_unselected"
+                android:paddingStart="10dp"
+                android:paddingTop="2dp"
+                android:paddingEnd="10dp"
+                android:paddingBottom="2dp"
+                android:text="运动中"
+                android:textColor="#FFFFFF"
+                android:textSize="10sp" />
+
+            <!-- 跑步专属：Lap + 节拍器 -->
+            <LinearLayout
+                android:id="@+id/ll_run_extras"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
                 android:gravity="center"
-                android:orientation="vertical"
-                android:padding="16dp">
+                android:orientation="horizontal"
+                android:visibility="gone"
+                tools:visibility="visible">
 
                 <TextView
+                    android:id="@+id/btn_lap"
+                    android:layout_width="wrap_content"
+                    android:layout_height="28dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/tab_bg_unselected"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:text="分段"
+                    android:textColor="#FFFFFF"
+                    android:textSize="11sp" />
+
+                <TextView
+                    android:id="@+id/chip_metronome"
+                    android:layout_width="wrap_content"
+                    android:layout_height="28dp"
+                    android:background="@drawable/tab_bg_unselected"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:text="节拍器"
+                    android:textColor="#FFFFFF"
+                    android:textSize="11sp" />
+            </LinearLayout>
+
+            <!-- 一级数据：配速/速度 -->
+            <LinearLayout
+                android:id="@+id/primary_data"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tv_primary_value"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="心率"
+                    android:fontFamily="monospace"
+                    android:text="6&#39;00&#39;&#39;"
+                    android:textColor="#FF6B35"
+                    android:textSize="44sp"
+                    android:textStyle="bold"
+                    tools:text="6'00&quot;" />
+
+                <TextView
+                    android:id="@+id/tv_primary_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="配速 /km"
                     android:textColor="@color/text_secondary"
                     android:textSize="12sp" />
 
-                <TextView
-                    android:id="@+id/tv_tracking_heart_rate"
+                <!-- 距离 + 用时 -->
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="72"
-                    android:textColor="#E74C3C"
-                    android:textSize="28sp"
-                    android:textStyle="bold"
-                    tools:text="128" />
+                    android:layout_marginTop="6dp"
+                    android:gravity="center"
+                    android:orientation="horizontal">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="bpm"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="11sp" />
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/tv_sub_distance"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0.00"
+                            android:textColor="#FFFFFF"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            tools:text="3.25" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="公里"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="10sp" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="1dp"
+                        android:layout_height="28dp"
+                        android:layout_marginStart="14dp"
+                        android:layout_marginEnd="14dp"
+                        android:background="#33FFFFFF" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/tv_sub_timer"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="monospace"
+                            android:text="00:00:00"
+                            android:textColor="#FFFFFF"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            tools:text="00:12:35" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="用时"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="10sp" />
+                    </LinearLayout>
+                </LinearLayout>
             </LinearLayout>
-        </androidx.cardview.widget.CardView>
 
-        <!-- 热量 -->
-        <androidx.cardview.widget.CardView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_weight="1"
-            app:cardBackgroundColor="@android:color/transparent"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="0dp">
-
-            <LinearLayout
+            <!-- 二级数据卡（水平排列） -->
+            <HorizontalScrollView
+                android:id="@+id/secondary_scroll"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/tracking_card_bg"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:padding="16dp">
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="16dp"
+                android:overScrollMode="never"
+                android:scrollbars="none">
 
-                <TextView
+                <LinearLayout
+                    android:id="@+id/ll_secondary_cards"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="热量"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="12sp" />
+                    android:orientation="horizontal">
 
-                <TextView
-                    android:id="@+id/tv_tracking_calories"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="0"
-                    android:textColor="#E67E22"
-                    android:textSize="28sp"
-                    android:textStyle="bold"
-                    tools:text="185" />
+                    <!-- 卡片槽位 0 -->
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/card_secondary_0"
+                        android:layout_width="76dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="6dp"
+                        app:cardBackgroundColor="@color/card_background"
+                        app:cardCornerRadius="10dp"
+                        app:cardElevation="1dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="kcal"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="11sp" />
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
-    </LinearLayout>
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:paddingTop="8dp"
+                            android:paddingBottom="8dp">
 
-    <LinearLayout
-        android:id="@+id/data_grid_2"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="20dp"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/data_grid">
+                            <TextView
+                                android:id="@+id/tv_secondary_label_0"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="--"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="9sp" />
 
-        <!-- 距离 -->
-        <androidx.cardview.widget.CardView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:layout_weight="1"
-            app:cardBackgroundColor="@android:color/transparent"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="0dp">
+                            <TextView
+                                android:id="@+id/tv_secondary_0"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="0"
+                                android:textSize="16sp"
+                                android:textStyle="bold" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/tracking_card_bg"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:padding="16dp">
+                            <TextView
+                                android:id="@+id/tv_secondary_unit_0"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="--"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="8sp" />
+                        </LinearLayout>
+                    </androidx.cardview.widget.CardView>
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="距离"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="12sp" />
+                    <!-- 卡片槽位 1 -->
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/card_secondary_1"
+                        android:layout_width="76dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="6dp"
+                        app:cardBackgroundColor="@color/card_background"
+                        app:cardCornerRadius="10dp"
+                        app:cardElevation="1dp">
 
-                <TextView
-                    android:id="@+id/tv_tracking_distance"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="0.00"
-                    android:textColor="@color/emerald_secondary"
-                    android:textSize="28sp"
-                    android:textStyle="bold"
-                    tools:text="3.25" />
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:paddingTop="8dp"
+                            android:paddingBottom="8dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="公里"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="11sp" />
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
+                            <TextView
+                                android:id="@+id/tv_secondary_label_1"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="--"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="9sp" />
 
-        <!-- 配速 -->
-        <androidx.cardview.widget.CardView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_weight="1"
-            app:cardBackgroundColor="@android:color/transparent"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="0dp">
+                            <TextView
+                                android:id="@+id/tv_secondary_1"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="0"
+                                android:textSize="16sp"
+                                android:textStyle="bold" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/tracking_card_bg"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:padding="16dp">
+                            <TextView
+                                android:id="@+id/tv_secondary_unit_1"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="--"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="8sp" />
+                        </LinearLayout>
+                    </androidx.cardview.widget.CardView>
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="配速"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="12sp" />
+                    <!-- 卡片槽位 2 -->
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/card_secondary_2"
+                        android:layout_width="76dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="6dp"
+                        app:cardBackgroundColor="@color/card_background"
+                        app:cardCornerRadius="10dp"
+                        app:cardElevation="1dp">
 
-                <TextView
-                    android:id="@+id/tv_tracking_pace"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="--"
-                    android:textColor="@color/gold_accent"
-                    android:textSize="28sp"
-                    android:textStyle="bold"
-                    tools:text="5&apos;42&quot;" />
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:paddingTop="8dp"
+                            android:paddingBottom="8dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="分钟/公里"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="11sp" />
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
-    </LinearLayout>
+                            <TextView
+                                android:id="@+id/tv_secondary_label_2"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="--"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="9sp" />
+
+                            <TextView
+                                android:id="@+id/tv_secondary_2"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="0"
+                                android:textSize="16sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/tv_secondary_unit_2"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="--"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="8sp" />
+                        </LinearLayout>
+                    </androidx.cardview.widget.CardView>
+
+                    <!-- 卡片槽位 3 -->
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/card_secondary_3"
+                        android:layout_width="76dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="6dp"
+                        android:visibility="gone"
+                        app:cardBackgroundColor="@color/card_background"
+                        app:cardCornerRadius="10dp"
+                        app:cardElevation="1dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:paddingTop="8dp"
+                            android:paddingBottom="8dp">
+
+                            <TextView
+                                android:id="@+id/tv_secondary_label_3"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="--"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="9sp" />
+
+                            <TextView
+                                android:id="@+id/tv_secondary_3"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="0"
+                                android:textSize="16sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/tv_secondary_unit_3"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="--"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="8sp" />
+                        </LinearLayout>
+                    </androidx.cardview.widget.CardView>
+                </LinearLayout>
+            </HorizontalScrollView>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 
     <!-- ============================================================
-         底部：控制按钮组
+         底部控制栏（固定底部）
          ============================================================ -->
     <LinearLayout
         android:id="@+id/control_bar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="40dp"
-        android:layout_marginEnd="40dp"
-        android:layout_marginBottom="48dp"
-        android:gravity="center"
+        android:background="#1A1A2E"
+        android:gravity="center_vertical"
         android:orientation="horizontal"
+        android:paddingStart="20dp"
+        android:paddingTop="10dp"
+        android:paddingEnd="20dp"
+        android:paddingBottom="14dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
-        <!-- 暂停/继续按钮 -->
+        <!-- 停止 -->
+        <TextView
+            android:id="@+id/btn_stop"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:background="@drawable/circle_bg"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:text="■"
+            android:textColor="#E74C3C"
+            android:textSize="18sp" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+
+        <!-- 暂停/继续 -->
         <TextView
             android:id="@+id/btn_pause_resume"
             android:layout_width="64dp"
             android:layout_height="64dp"
-            android:background="@drawable/circle_bg"
+            android:background="@drawable/start_button_bg"
             android:clickable="true"
-            android:drawableTop="@drawable/ic_pause"
             android:focusable="true"
+            android:drawableTop="@drawable/ic_pause"
             android:gravity="center"
+            android:paddingTop="14dp"
             android:text="暂停"
             android:textColor="#FFFFFF"
-            android:textSize="11sp" />
+            android:textSize="10sp" />
 
-        <!-- 结束按钮 -->
-        <TextView
-            android:id="@+id/btn_stop"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:layout_marginStart="48dp"
-            android:layout_marginEnd="48dp"
-            android:background="@drawable/circle_progress_indigo"
-            android:clickable="true"
-            android:drawableTop="@drawable/ic_stop"
-            android:focusable="true"
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+
+        <!-- 右侧按钮组 -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="结束"
-            android:textColor="#FFFFFF"
-            android:textSize="13sp"
-            android:textStyle="bold" />
+            android:orientation="horizontal">
+
+            <!-- 锁屏（跑步） -->
+            <TextView
+                android:id="@+id/btn_lock_screen"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginEnd="6dp"
+                android:background="@drawable/circle_bg"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:text="🔒"
+                android:textSize="14sp"
+                android:visibility="gone"
+                tools:visibility="visible" />
+
+            <!-- 语音播报 -->
+            <TextView
+                android:id="@+id/btn_voice"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="@drawable/circle_bg"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:text="🔊"
+                android:textSize="14sp" />
+
+            <!-- 自动暂停（骑行） -->
+            <TextView
+                android:id="@+id/btn_auto_pause"
+                android:layout_width="wrap_content"
+                android:layout_height="28dp"
+                android:layout_marginStart="6dp"
+                android:background="@drawable/tab_bg_unselected"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:text="自动暂停: 开"
+                android:textColor="#FFFFFF"
+                android:textSize="10sp"
+                android:visibility="gone"
+                tools:visibility="visible" />
+        </LinearLayout>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -10,16 +10,27 @@
     <string name="today_progress">今日进度</string>
     <string name="steps">步数</string>
     <string name="calories">卡路里</string>
-    <string name="sleep">睡眠</string>
+    <string name="exercise">锻炼</string>
     <string name="steps_unit">步</string>
     <string name="calories_unit">kcal</string>
-    <string name="sleep_unit">小时</string>
+    <string name="exercise_unit">分钟</string>
 
-    <!-- 心率 -->
-    <string name="heart_rate">心率</string>
-    <string name="bpm">bpm</string>
-    <string name="max_rate">最高 145</string>
-    <string name="min_rate">最低 58</string>
+    <!-- 饮食记录 -->
+    <string name="diet_record">饮食记录</string>
+    <string name="diet_calories_budget">预算</string>
+    <string name="diet_calories_consumed">已摄入</string>
+    <string name="diet_calories_burned">运动消耗</string>
+    <string name="diet_remaining">剩余</string>
+    <string name="diet_breakfast">早餐</string>
+    <string name="diet_lunch">午餐</string>
+    <string name="diet_dinner">晚餐</string>
+    <string name="diet_snack">加餐</string>
+    <string name="diet_add_food">添加食物</string>
+    <string name="diet_water">饮水</string>
+    <string name="diet_quick_snack">快速加餐</string>
+    <string name="diet_advice">饮食建议</string>
+    <string name="diet_kcal">kcal</string>
+    <string name="diet_water_cup">杯</string>
 
     <!-- 活跃挑战 -->
     <string name="active_challenges">活跃挑战</string>
@@ -45,14 +56,8 @@
     <string name="workout_yoga">瑜伽</string>
     <string name="workout_strength">力量</string>
     <string name="workout_swimming">游泳</string>
-    <string name="workout_hiit">HIIT</string>
-    <string name="training_categories">训练分类</string>
-    <string name="category_cardio">有氧</string>
-    <string name="category_strength">力量</string>
-    <string name="category_flexibility">柔韧</string>
-    <string name="category_balance">平衡</string>
-    <string name="category_hiit">高强度</string>
-    <string name="recent_workouts">最近训练</string>
+    <string name="workout_jump_rope">跳绳</string>
+    <string name="workout_courses">运动课程</string>
     <string name="workout_duration_min">分钟</string>
     <string name="start_workout">开始训练</string>
 

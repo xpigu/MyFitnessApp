@@ -9,55 +9,33 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.myfitnessapp.data.WorkoutRecordHelper
+import com.example.myfitnessapp.data.entity.WorkoutRecord
+import com.example.myfitnessapp.data.viewmodel.DateGroup
+import com.example.myfitnessapp.data.viewmodel.SummaryData
+import com.example.myfitnessapp.data.viewmodel.WorkoutRecordViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetDialog
 
 class StatsActivity : AppCompatActivity() {
 
-    private lateinit var sportAdapter: SportRecordAdapter
-    private val dayRecords = mutableListOf<SportRecord>()
-    private val monthRecords = mutableListOf<SportRecord>()
+    private lateinit var viewModel: WorkoutRecordViewModel
+    private lateinit var groupedAdapter: GroupedRecordAdapter
     private var isDayMode = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_stats)
 
-        initMockData()
+        viewModel = ViewModelProvider(this).get(WorkoutRecordViewModel::class.java)
+
         setupBottomNavigation()
         setupTabToggle()
         setupRecyclerView()
-    }
-
-    // ============================================================
-    // 模拟数据
-    // ============================================================
-    private fun initMockData() {
-        // 日视图数据
-        dayRecords.addAll(listOf(
-            SportRecord(R.drawable.ic_running, "户外跑步", "早上 08:30", "5.2 公里 / 450 千卡",
-                "32:15", "5.20", "9.7", "6'12\"", "450 kcal"),
-            SportRecord(R.drawable.ic_cycling, "户外骑行", "早上 10:00", "15.8 公里 / 480 千卡",
-                "45:00", "15.80", "21.1", "2'51\"", "480 kcal"),
-            SportRecord(R.drawable.ic_strength_white, "力量训练", "下午 16:00", "350 千卡",
-                "40:00", "--", "--", "--", "350 kcal"),
-            SportRecord(R.drawable.ic_yoga, "瑜伽拉伸", "晚上 19:30", "120 千卡",
-                "20:00", "--", "--", "--", "120 kcal")
-        ))
-
-        // 月视图数据（汇总）
-        monthRecords.addAll(listOf(
-            SportRecord(R.drawable.ic_running, "跑步总计", "本月 12 次", "62.4 公里 / 5,200 千卡",
-                "6h 24m", "62.40", "9.8", "6'08\"", "5,200 kcal"),
-            SportRecord(R.drawable.ic_cycling, "骑行总计", "本月 8 次", "126.4 公里 / 3,840 千卡",
-                "6h 00m", "126.40", "21.1", "2'51\"", "3,840 kcal"),
-            SportRecord(R.drawable.ic_strength_white, "力量总计", "本月 10 次", "3,500 千卡",
-                "6h 40m", "--", "--", "--", "3,500 kcal"),
-            SportRecord(R.drawable.ic_swimming, "游泳总计", "本月 4 次", "8.0 公里 / 1,600 千卡",
-                "2h 40m", "8.00", "3.0", "20'00\"", "1,600 kcal")
-        ))
+        observeData()
     }
 
     // ============================================================
@@ -103,16 +81,14 @@ class StatsActivity : AppCompatActivity() {
 
     private fun switchToDayMode() {
         isDayMode = true
+        viewModel.setDayMode(true)
         updateTabUI()
-        sportAdapter.updateData(dayRecords)
-        updateSummary(dayRecords)
     }
 
     private fun switchToMonthMode() {
         isDayMode = false
+        viewModel.setDayMode(false)
         updateTabUI()
-        sportAdapter.updateData(monthRecords)
-        updateSummary(monthRecords)
     }
 
     private fun updateTabUI() {
@@ -137,24 +113,33 @@ class StatsActivity : AppCompatActivity() {
         }
     }
 
-    private fun updateSummary(records: List<SportRecord>) {
-        val totalWorkouts = findViewById<TextView>(R.id.tv_total_workouts)
-        val totalCalories = findViewById<TextView>(R.id.tv_total_calories)
-        val totalDuration = findViewById<TextView>(R.id.tv_total_duration)
-        val avgHeartRate = findViewById<TextView>(R.id.tv_avg_heart_rate)
-
-        totalWorkouts.text = "${records.size}"
-
-        // 模拟汇总数据
-        if (isDayMode) {
-            totalCalories.text = "1,400"
-            totalDuration.text = "2h 17m"
-            avgHeartRate.text = "132"
-        } else {
-            totalCalories.text = "14,140"
-            totalDuration.text = "21h 44m"
-            avgHeartRate.text = "128"
+    // ============================================================
+    // 观察数据变化
+    // ============================================================
+    private fun observeData() {
+        // 观察汇总数据
+        viewModel.summary.observe(this) { data ->
+            updateSummary(data)
         }
+
+        // 观察所有记录，构建分组
+        viewModel.allRecords.observe(this) { records ->
+            val dates = records.map { it.date }.distinct().sortedDescending()
+            val groups = viewModel.buildGroupedRecords(dates, records)
+            groupedAdapter.updateData(groups)
+            updateEmptyState(records.isEmpty())
+        }
+    }
+
+    private fun updateSummary(data: SummaryData) {
+        findViewById<TextView>(R.id.tv_total_workouts).text = data.workoutCount.toString()
+        findViewById<TextView>(R.id.tv_total_calories).text = data.totalCalories.toString()
+        findViewById<TextView>(R.id.tv_total_duration).text = data.formatDuration()
+    }
+
+    private fun updateEmptyState(isEmpty: Boolean) {
+        findViewById<View>(R.id.ll_empty_state).visibility = if (isEmpty) View.VISIBLE else View.GONE
+        findViewById<RecyclerView>(R.id.rv_sport_list).visibility = if (isEmpty) View.GONE else View.VISIBLE
     }
 
     // ============================================================
@@ -164,30 +149,64 @@ class StatsActivity : AppCompatActivity() {
         val recyclerView = findViewById<RecyclerView>(R.id.rv_sport_list)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
-        sportAdapter = SportRecordAdapter(dayRecords) { record ->
-            showDetailBottomSheet(record)
-        }
-        recyclerView.adapter = sportAdapter
+        groupedAdapter = GroupedRecordAdapter(
+            onItemClick = { record -> showDetailBottomSheet(record) },
+            onDeleteClick = { record -> viewModel.deleteRecord(record) }
+        )
+        recyclerView.adapter = groupedAdapter
     }
 
     // ============================================================
     // BottomSheet 弹窗详情
     // ============================================================
-    private fun showDetailBottomSheet(record: SportRecord) {
+    private fun showDetailBottomSheet(record: WorkoutRecord) {
         val dialog = BottomSheetDialog(this)
         val view = LayoutInflater.from(this)
             .inflate(R.layout.bottom_sheet_sport_detail, null)
 
-        // 绑定数据
+        val label = WorkoutRecordHelper.getSportLabel(record.sportType)
+        val time = WorkoutRecordHelper.timestampToDateTime(record.timestamp)
+        val duration = WorkoutRecordHelper.formatDuration(record.elapsedSeconds)
+
         view.findViewById<ImageView>(R.id.detail_iv_sport_type)
-            .setImageResource(record.iconRes)
-        view.findViewById<TextView>(R.id.detail_tv_sport_name).text = record.name
-        view.findViewById<TextView>(R.id.detail_tv_sport_time).text = record.time
-        view.findViewById<TextView>(R.id.detail_tv_duration).text = record.duration
-        view.findViewById<TextView>(R.id.detail_tv_distance).text = record.distance
-        view.findViewById<TextView>(R.id.detail_tv_avg_speed).text = record.avgSpeed
-        view.findViewById<TextView>(R.id.detail_tv_pace).text = record.pace
-        view.findViewById<TextView>(R.id.detail_tv_calories).text = record.calories
+            .setImageResource(record.sportIconResId)
+        view.findViewById<TextView>(R.id.detail_tv_sport_name).text = label
+        view.findViewById<TextView>(R.id.detail_tv_sport_time).text = time
+        view.findViewById<TextView>(R.id.detail_tv_duration).text = duration
+
+        // 根据运动类型显示不同数据
+        when (record.sportType.uppercase()) {
+            "RUN", "CYCLING" -> {
+                view.findViewById<TextView>(R.id.detail_tv_distance).text =
+                    String.format("%.2f", record.totalDistance)
+                view.findViewById<TextView>(R.id.detail_tv_avg_speed).text =
+                    if (record.sportType == "CYCLING") record.pace else "--"
+                view.findViewById<TextView>(R.id.detail_tv_pace).text =
+                    if (record.sportType == "RUN") record.pace else "--"
+            }
+            "JUMP_ROPE" -> {
+                view.findViewById<TextView>(R.id.detail_tv_distance).text = "${record.jumpCount} 个"
+                view.findViewById<TextView>(R.id.detail_tv_avg_speed).text = "${record.jumpFrequency} 个/分"
+                view.findViewById<TextView>(R.id.detail_tv_pace).text = "--"
+            }
+            "STRENGTH" -> {
+                view.findViewById<TextView>(R.id.detail_tv_distance).text = "${record.strengthSets} 组"
+                view.findViewById<TextView>(R.id.detail_tv_avg_speed).text = "${record.strengthVolume.toInt()} kg"
+                view.findViewById<TextView>(R.id.detail_tv_pace).text = "--"
+            }
+            "SWIMMING" -> {
+                view.findViewById<TextView>(R.id.detail_tv_distance).text = "${record.swimDistanceM} m"
+                view.findViewById<TextView>(R.id.detail_tv_avg_speed).text = record.swimStroke
+                view.findViewById<TextView>(R.id.detail_tv_pace).text = "--"
+            }
+            "YOGA" -> {
+                view.findViewById<TextView>(R.id.detail_tv_distance).text = "${record.yogaPosesCompleted} 体式"
+                view.findViewById<TextView>(R.id.detail_tv_avg_speed).text = "--"
+                view.findViewById<TextView>(R.id.detail_tv_pace).text = "--"
+            }
+        }
+
+        view.findViewById<TextView>(R.id.detail_tv_calories).text = "${record.totalCalories} kcal"
 
         dialog.setContentView(view)
         dialog.show()
@@ -195,57 +214,92 @@ class StatsActivity : AppCompatActivity() {
 }
 
 // ============================================================
-// 数据模型
+// 分组适配器：日期标题 + 记录列表
 // ============================================================
-data class SportRecord(
-    val iconRes: Int,
-    val name: String,
-    val time: String,
-    val summary: String,
-    val duration: String,
-    val distance: String,
-    val avgSpeed: String,
-    val pace: String,
-    val calories: String
-)
+class GroupedRecordAdapter(
+    private val onItemClick: (WorkoutRecord) -> Unit,
+    private val onDeleteClick: (WorkoutRecord) -> Unit
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-// ============================================================
-// RecyclerView Adapter
-// ============================================================
-class SportRecordAdapter(
-    private var records: List<SportRecord>,
-    private val onItemClick: (SportRecord) -> Unit
-) : RecyclerView.Adapter<SportRecordAdapter.ViewHolder>() {
+    private val items = mutableListOf<ListItem>()
 
-    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val ivSportType: ImageView = view.findViewById(R.id.iv_sport_type)
-        val tvSportName: TextView = view.findViewById(R.id.tv_sport_name)
-        val tvSportTime: TextView = view.findViewById(R.id.tv_sport_time)
-        val tvSportSummary: TextView = view.findViewById(R.id.tv_sport_summary)
+    companion object {
+        const val TYPE_DATE_HEADER = 0
+        const val TYPE_RECORD = 1
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_sport_record, parent, false)
-        return ViewHolder(view)
+    sealed class ListItem {
+        data class HeaderItem(val date: String, val count: Int, val calories: Int) : ListItem()
+        data class RecordItem(val record: WorkoutRecord) : ListItem()
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val record = records[position]
-        holder.ivSportType.setImageResource(record.iconRes)
-        holder.tvSportName.text = record.name
-        holder.tvSportTime.text = record.time
-        holder.tvSportSummary.text = record.summary
-
-        holder.itemView.setOnClickListener {
-            onItemClick(record)
+    override fun getItemViewType(position: Int): Int {
+        return when (items[position]) {
+            is ListItem.HeaderItem -> TYPE_DATE_HEADER
+            is ListItem.RecordItem -> TYPE_RECORD
         }
     }
 
-    override fun getItemCount(): Int = records.size
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        val inflater = LayoutInflater.from(parent.context)
+        return when (viewType) {
+            TYPE_DATE_HEADER -> {
+                val view = inflater.inflate(R.layout.item_date_header, parent, false)
+                DateHeaderViewHolder(view)
+            }
+            else -> {
+                val view = inflater.inflate(R.layout.item_sport_record, parent, false)
+                RecordViewHolder(view)
+            }
+        }
+    }
 
-    fun updateData(newRecords: List<SportRecord>) {
-        records = newRecords
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        when (val item = items[position]) {
+            is ListItem.HeaderItem -> {
+                (holder as DateHeaderViewHolder).bind(item)
+            }
+            is ListItem.RecordItem -> {
+                (holder as RecordViewHolder).bind(item.record, onItemClick)
+            }
+        }
+    }
+
+    override fun getItemCount(): Int = items.size
+
+    fun updateData(groups: List<DateGroup>) {
+        items.clear()
+        for (group in groups) {
+            val totalCal = group.records.sumOf { it.totalCalories }
+            items.add(ListItem.HeaderItem(group.date, group.records.size, totalCal))
+            for (record in group.records) {
+                items.add(ListItem.RecordItem(record))
+            }
+        }
         notifyDataSetChanged()
+    }
+
+    class DateHeaderViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        fun bind(item: ListItem.HeaderItem) {
+            val display = WorkoutRecordHelper.dateToDisplay(item.date)
+            itemView.findViewById<TextView>(R.id.tv_date_header).text = display
+            itemView.findViewById<TextView>(R.id.tv_date_summary).text =
+                "${item.count} 次运动 · ${item.calories} kcal"
+        }
+    }
+
+    class RecordViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        fun bind(record: WorkoutRecord, onClick: (WorkoutRecord) -> Unit) {
+            itemView.findViewById<ImageView>(R.id.iv_sport_type)
+                .setImageResource(record.sportIconResId)
+            itemView.findViewById<TextView>(R.id.tv_sport_name).text =
+                WorkoutRecordHelper.getSportLabel(record.sportType)
+            itemView.findViewById<TextView>(R.id.tv_sport_time).text =
+                WorkoutRecordHelper.timestampToTime(record.timestamp)
+            itemView.findViewById<TextView>(R.id.tv_sport_summary).text =
+                WorkoutRecordHelper.buildSummary(record)
+
+            itemView.setOnClickListener { onClick(record) }
+        }
     }
 }

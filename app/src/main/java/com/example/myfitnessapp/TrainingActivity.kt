@@ -10,18 +10,25 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class TrainingActivity : AppCompatActivity() {
 
-    private val categoryChips = mutableListOf<TextView>()
-    private var selectedCategoryIndex = 0
+    private val courseTabs = mutableListOf<TextView>()
+    private val courseTabConfigs = listOf(
+        TabConfig(R.id.tab_course_running, R.drawable.ic_running),
+        TabConfig(R.id.tab_course_cycling, R.drawable.ic_cycling),
+        TabConfig(R.id.tab_course_yoga, R.drawable.ic_yoga),
+        TabConfig(R.id.tab_course_strength, R.drawable.ic_strength_white),
+        TabConfig(R.id.tab_course_swimming, R.drawable.ic_swimming),
+        TabConfig(R.id.tab_course_jump_rope, R.drawable.ic_jump_rope)
+    )
+    private var selectedCourseTabIndex = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_training)
 
         setupBottomNavigation()
-        setupCategoryChips()
+        setupCourseTabs()
         setupWorkoutCards()
-        setupStartWorkout()
-        setupHistoryItems()
+        setupCourseItems()
     }
 
     // ============================================================
@@ -55,33 +62,30 @@ class TrainingActivity : AppCompatActivity() {
     }
 
     // ============================================================
-    // 训练分类 Chip 切换
+    // 运动课程 Tab 切换
     // ============================================================
-    private fun setupCategoryChips() {
-        categoryChips.add(findViewById(R.id.chip_cardio))
-        categoryChips.add(findViewById(R.id.chip_strength))
-        categoryChips.add(findViewById(R.id.chip_flexibility))
-        categoryChips.add(findViewById(R.id.chip_balance))
-        categoryChips.add(findViewById(R.id.chip_hiit))
-
-        for ((index, chip) in categoryChips.withIndex()) {
-            chip.setOnClickListener {
-                selectCategory(index)
-            }
+    private fun setupCourseTabs() {
+        for (config in courseTabConfigs) {
+            courseTabs.add(findViewById(config.tabId))
+        }
+        for ((index, tab) in courseTabs.withIndex()) {
+            tab.setOnClickListener { selectCourseTab(index) }
         }
     }
 
-    private fun selectCategory(index: Int) {
-        selectedCategoryIndex = index
-        for ((i, chip) in categoryChips.withIndex()) {
+    private fun selectCourseTab(index: Int) {
+        selectedCourseTabIndex = index
+        for ((i, tab) in courseTabs.withIndex()) {
             if (i == index) {
-                chip.background = getDrawable(R.drawable.category_chip_selected)
-                chip.setTextColor(getColor(android.R.color.white))
+                tab.background = getDrawable(R.drawable.category_chip_selected)
+                tab.setTextColor(getColor(android.R.color.white))
             } else {
-                chip.background = getDrawable(R.drawable.category_chip_unselected)
-                chip.setTextColor(getColor(R.color.text_secondary))
+                tab.background = getDrawable(R.drawable.category_chip_unselected)
+                tab.setTextColor(getColor(R.color.text_secondary))
             }
         }
+        // TODO: 根据选中的运动类型加载对应课程列表
+        Toast.makeText(this, "切换到: ${courseTabs[index].text}", Toast.LENGTH_SHORT).show()
     }
 
     // ============================================================
@@ -94,7 +98,7 @@ class TrainingActivity : AppCompatActivity() {
             R.id.workout_yoga to getString(R.string.workout_yoga),
             R.id.workout_strength to getString(R.string.workout_strength),
             R.id.workout_swimming to getString(R.string.workout_swimming),
-            R.id.workout_hiit to getString(R.string.workout_hiit)
+            R.id.workout_jump_rope to getString(R.string.workout_jump_rope)
         )
 
         for ((id, name) in workoutMap) {
@@ -105,23 +109,23 @@ class TrainingActivity : AppCompatActivity() {
     }
 
     // ============================================================
-    // 开始训练按钮
+    // 课程卡片点击
     // ============================================================
-    private fun setupStartWorkout() {
-        findViewById<TextView>(R.id.btn_start_workout).setOnClickListener {
-            startWorkoutTracking(getString(R.string.workout_running), R.drawable.ic_running)
+    private fun setupCourseItems() {
+        val courseIds = listOf(
+            R.id.course_item_1,
+            R.id.course_item_2,
+            R.id.course_item_3
+        )
+        for (id in courseIds) {
+            findViewById<View>(id).setOnClickListener {
+                val config = courseTabConfigs[selectedCourseTabIndex]
+                startWorkoutTracking(
+                    findViewById<TextView>(config.tabId).text.toString(),
+                    config.iconRes
+                )
+            }
         }
-    }
-
-    // ============================================================
-    // 跳转到运动追踪页面
-    // ============================================================
-    private fun startWorkoutTracking(sportName: String, iconRes: Int) {
-        val intent = Intent(this, WorkoutTrackingActivity::class.java).apply {
-            putExtra(WorkoutTrackingActivity.EXTRA_SPORT_NAME, sportName)
-            putExtra(WorkoutTrackingActivity.EXTRA_SPORT_ICON, iconRes)
-        }
-        startActivity(intent)
     }
 
     // ============================================================
@@ -134,26 +138,55 @@ class TrainingActivity : AppCompatActivity() {
             R.id.workout_yoga -> R.drawable.ic_yoga
             R.id.workout_strength -> R.drawable.ic_strength_white
             R.id.workout_swimming -> R.drawable.ic_swimming
-            R.id.workout_hiit -> R.drawable.ic_hiit
+            R.id.workout_jump_rope -> R.drawable.ic_jump_rope
             else -> R.drawable.ic_running
         }
     }
 
     // ============================================================
-    // 最近训练记录点击
+    // 跳转到对应运动记录页面（路由分发器）
     // ============================================================
-    private fun setupHistoryItems() {
-        val historyIds = listOf(
-            R.id.workout_history_1,
-            R.id.workout_history_2,
-            R.id.workout_history_3
-        )
-
-        for (id in historyIds) {
-            findViewById<View>(id).setOnClickListener {
-                Toast.makeText(this, "查看训练详情", Toast.LENGTH_SHORT).show()
-                // TODO: 跳转到训练详情页面
+    private fun startWorkoutTracking(sportName: String, iconRes: Int) {
+        val intent = when (sportName) {
+            getString(R.string.workout_running) -> {
+                Intent(this, WorkoutTrackingActivity::class.java).apply {
+                    putExtra(WorkoutTrackingActivity.EXTRA_SPORT_NAME, sportName)
+                    putExtra(WorkoutTrackingActivity.EXTRA_SPORT_ICON, iconRes)
+                    putExtra(WorkoutTrackingActivity.EXTRA_SPORT_TYPE, "RUN")
+                }
+            }
+            getString(R.string.workout_cycling) -> {
+                Intent(this, WorkoutTrackingActivity::class.java).apply {
+                    putExtra(WorkoutTrackingActivity.EXTRA_SPORT_NAME, sportName)
+                    putExtra(WorkoutTrackingActivity.EXTRA_SPORT_ICON, iconRes)
+                    putExtra(WorkoutTrackingActivity.EXTRA_SPORT_TYPE, "CYCLING")
+                }
+            }
+            getString(R.string.workout_jump_rope) -> {
+                Intent(this, JumpRopeActivity::class.java)
+            }
+            getString(R.string.workout_strength) -> {
+                Intent(this, StrengthActivity::class.java)
+            }
+            getString(R.string.workout_swimming) -> {
+                Intent(this, SwimmingActivity::class.java)
+            }
+            getString(R.string.workout_yoga) -> {
+                Intent(this, YogaActivity::class.java)
+            }
+            else -> {
+                Intent(this, WorkoutTrackingActivity::class.java).apply {
+                    putExtra(WorkoutTrackingActivity.EXTRA_SPORT_NAME, sportName)
+                    putExtra(WorkoutTrackingActivity.EXTRA_SPORT_ICON, iconRes)
+                    putExtra(WorkoutTrackingActivity.EXTRA_SPORT_TYPE, "RUN")
+                }
             }
         }
+        startActivity(intent)
     }
 }
+
+// ============================================================
+// 课程 Tab 配置
+// ============================================================
+private data class TabConfig(val tabId: Int, val iconRes: Int)

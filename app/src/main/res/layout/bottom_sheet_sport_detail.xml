@@ -246,46 +246,6 @@
             tools:text="450 kcal" />
     </LinearLayout>
 
-    <!-- ============================================================
-         心率曲线占位图
-         ============================================================ -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:orientation="vertical">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:text="@string/detail_heart_rate_chart"
-            android:textColor="@color/text_primary"
-            android:textSize="14sp"
-            android:textStyle="bold" />
-
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="120dp">
-
-            <ImageView
-                android:id="@+id/detail_iv_heart_rate_chart"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/heart_rate_chart_placeholder"
-                android:contentDescription="心率曲线"
-                android:scaleType="fitXY" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="心率趋势图 (待接入真实数据)"
-                android:textColor="@color/gray_400"
-                android:textSize="12sp" />
-        </FrameLayout>
-    </LinearLayout>
-
     <!-- 底部留白 -->
     <View
         android:layout_width="match_parent"

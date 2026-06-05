@@ -9,7 +9,7 @@ import com.example.myfitnessapp.data.entity.WorkoutRecord
 
 @Database(
     entities = [WorkoutRecord::class],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
