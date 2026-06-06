@@ -9,12 +9,13 @@ import android.widget.TextView
 import android.widget.Toast
 import kotlin.random.Random
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
+import com.example.myfitnessapp.data.viewmodel.DietRecordViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class MainActivity : AppCompatActivity() {
 
-    private var waterCount = 5
-    private var totalConsumed = 850
+    private lateinit var viewModel: DietRecordViewModel
     private val budgetCalories = 2000
     private val burnedCalories = 100
 
@@ -22,8 +23,25 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        viewModel = ViewModelProvider(this).get(DietRecordViewModel::class.java)
+        viewModel.resetDailyWaterIfNeeded()
+
         setupBottomNavigation()
         setupDietSection()
+        observeDietData()
+    }
+
+    // ============================================================
+    // 观察数据变化
+    // ============================================================
+    private fun observeDietData() {
+        viewModel.todayTotalCalories.observe(this) { totalConsumed ->
+            updateCaloriesDisplay(totalConsumed)
+        }
+
+        viewModel.waterCount.observe(this) { count ->
+            findViewById<TextView>(R.id.tv_water_count).text = "$count 杯"
+        }
     }
 
     // ============================================================
@@ -65,12 +83,6 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(this, "饮食设置", Toast.LENGTH_SHORT).show()
         }
 
-        // 更新热量进度圆环
-        val progressView = findViewById<ImageView>(R.id.iv_calories_progress)
-        val remaining = budgetCalories - totalConsumed + burnedCalories
-        val progressPercent = ((budgetCalories - remaining).toFloat() / budgetCalories * 10000).toInt()
-        progressView.setImageLevel(progressPercent)
-
         // 三餐展开/收起
         setupMealExpand(R.id.ll_meal_breakfast_header, R.id.ll_breakfast_items, R.id.iv_breakfast_expand)
         setupMealExpand(R.id.ll_meal_lunch_header, R.id.ll_lunch_items, R.id.iv_lunch_expand)
@@ -78,24 +90,22 @@ class MainActivity : AppCompatActivity() {
         setupMealExpand(R.id.ll_meal_snack_header, R.id.ll_snack_items, R.id.iv_snack_expand)
 
         // 添加食物按钮
-        setupAddFoodButton(R.id.tv_breakfast_add_food, "早餐", findViewById<TextView>(R.id.tv_breakfast_calories))
-        setupAddFoodButton(R.id.tv_lunch_add_food, "午餐", findViewById<TextView>(R.id.tv_lunch_calories))
-        setupAddFoodButton(R.id.tv_dinner_add_food, "晚餐", findViewById<TextView>(R.id.tv_dinner_calories))
-        setupAddFoodButton(R.id.tv_snack_add_food, "加餐", findViewById<TextView>(R.id.tv_snack_calories))
+        setupAddFoodButton(R.id.tv_breakfast_add_food, "BREAKFAST", "早餐")
+        setupAddFoodButton(R.id.tv_lunch_add_food, "LUNCH", "午餐")
+        setupAddFoodButton(R.id.tv_dinner_add_food, "DINNER", "晚餐")
+        setupAddFoodButton(R.id.tv_snack_add_food, "SNACK", "加餐")
 
         // 饮水按钮
         findViewById<View>(R.id.btn_water).setOnClickListener {
-            waterCount++
-            val tv = findViewById<TextView>(R.id.tv_water_count)
-            tv.text = "$waterCount 杯"
-            Toast.makeText(this, "已饮水 $waterCount 杯", Toast.LENGTH_SHORT).show()
+            viewModel.addWater()
+            Toast.makeText(this, "已饮水 1 杯", Toast.LENGTH_SHORT).show()
         }
 
         // 快速加餐按钮
         findViewById<View>(R.id.btn_quick_snack).setOnClickListener {
-            totalConsumed += 150
-            updateCaloriesDisplay()
-            Toast.makeText(this, "快速加餐 +150 kcal", Toast.LENGTH_SHORT).show()
+            val cal = 150
+            viewModel.addDietRecord("SNACK", "快速加餐", cal)
+            Toast.makeText(this, "快速加餐 +$cal kcal", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -113,16 +123,15 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupAddFoodButton(buttonId: Int, mealName: String, caloriesTv: TextView) {
+    private fun setupAddFoodButton(buttonId: Int, mealType: String, mealLabel: String) {
         findViewById<View>(buttonId).setOnClickListener {
             val addedCalories = listOf(50, 100, 150, 200, 250, 300)[Random.nextInt(6)]
-            totalConsumed += addedCalories
-            updateCaloriesDisplay()
-            Toast.makeText(this, "$mealName +$addedCalories kcal", Toast.LENGTH_SHORT).show()
+            viewModel.addDietRecord(mealType, "食物", addedCalories, "自动添加")
+            Toast.makeText(this, "$mealLabel +$addedCalories kcal", Toast.LENGTH_SHORT).show()
         }
     }
 
-    private fun updateCaloriesDisplay() {
+    private fun updateCaloriesDisplay(totalConsumed: Int) {
         val remaining = budgetCalories - totalConsumed + burnedCalories
         findViewById<TextView>(R.id.tv_consumed_calories).text = totalConsumed.toString()
         findViewById<TextView>(R.id.tv_remaining_calories).text = remaining.toString()

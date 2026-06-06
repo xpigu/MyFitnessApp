@@ -3,23 +3,32 @@ package com.example.myfitnessapp
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.example.myfitnessapp.data.model.CourseRepository
+import com.example.myfitnessapp.data.model.WorkoutCourse
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class TrainingActivity : AppCompatActivity() {
 
     private val courseTabs = mutableListOf<TextView>()
     private val courseTabConfigs = listOf(
-        TabConfig(R.id.tab_course_running, R.drawable.ic_running),
-        TabConfig(R.id.tab_course_cycling, R.drawable.ic_cycling),
-        TabConfig(R.id.tab_course_yoga, R.drawable.ic_yoga),
-        TabConfig(R.id.tab_course_strength, R.drawable.ic_strength_white),
-        TabConfig(R.id.tab_course_swimming, R.drawable.ic_swimming),
-        TabConfig(R.id.tab_course_jump_rope, R.drawable.ic_jump_rope)
+        TabConfig(R.id.tab_course_running, R.drawable.ic_running, "RUN"),
+        TabConfig(R.id.tab_course_cycling, R.drawable.ic_cycling, "CYCLING"),
+        TabConfig(R.id.tab_course_yoga, R.drawable.ic_yoga, "YOGA"),
+        TabConfig(R.id.tab_course_strength, R.drawable.ic_strength_white, "STRENGTH"),
+        TabConfig(R.id.tab_course_swimming, R.drawable.ic_swimming, "SWIMMING"),
+        TabConfig(R.id.tab_course_jump_rope, R.drawable.ic_jump_rope, "JUMP_ROPE")
     )
     private var selectedCourseTabIndex = 0
+    private var currentCourses: List<WorkoutCourse> = emptyList()
+
+    // 课程卡片视图引用
+    private lateinit var courseItem1: View
+    private lateinit var courseItem2: View
+    private lateinit var courseItem3: View
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,6 +38,7 @@ class TrainingActivity : AppCompatActivity() {
         setupCourseTabs()
         setupWorkoutCards()
         setupCourseItems()
+        loadCoursesForSportType("RUN") // 默认加载跑步课程
     }
 
     // ============================================================
@@ -84,8 +94,61 @@ class TrainingActivity : AppCompatActivity() {
                 tab.setTextColor(getColor(R.color.text_secondary))
             }
         }
-        // TODO: 根据选中的运动类型加载对应课程列表
-        Toast.makeText(this, "切换到: ${courseTabs[index].text}", Toast.LENGTH_SHORT).show()
+        // 加载对应运动类型的课程列表
+        val sportType = courseTabConfigs[index].sportType
+        loadCoursesForSportType(sportType)
+    }
+
+    // ============================================================
+    // 加载指定运动类型的课程
+    // ============================================================
+    private fun loadCoursesForSportType(sportType: String) {
+        currentCourses = CourseRepository.getCoursesBySportType(sportType)
+        updateCourseCards()
+    }
+
+    // ============================================================
+    // 更新课程卡片显示
+    // ============================================================
+    private fun updateCourseCards() {
+        courseItem1 = findViewById(R.id.course_item_1)
+        courseItem2 = findViewById(R.id.course_item_2)
+        courseItem3 = findViewById(R.id.course_item_3)
+
+        if (currentCourses.isNotEmpty()) {
+            updateSingleCourseCard(courseItem1, currentCourses[0], R.id.tv_course_1_title, R.id.tv_course_1_info)
+        }
+        if (currentCourses.size >= 2) {
+            updateSingleCourseCard(courseItem2, currentCourses[1], R.id.tv_course_2_title, R.id.tv_course_2_info)
+        }
+        if (currentCourses.size >= 3) {
+            updateSingleCourseCard(courseItem3, currentCourses[2], R.id.tv_course_3_title, R.id.tv_course_3_info)
+        }
+    }
+
+    private fun updateSingleCourseCard(
+        cardView: View,
+        course: WorkoutCourse,
+        titleId: Int,
+        infoId: Int
+    ) {
+        // 更新图标
+        val iconView = cardView.findViewById<ImageView>(R.id.iv_course_icon)
+        iconView?.setImageResource(course.iconResId)
+
+        // 更新标题
+        val titleView = cardView.findViewById<TextView>(titleId)
+        titleView?.text = course.title
+
+        // 更新信息
+        val infoView = cardView.findViewById<TextView>(infoId)
+        infoView?.text = course.formatInfo()
+
+        // 点击开始按钮
+        val startBtn = cardView.findViewById<TextView>(R.id.btn_course_start)
+        startBtn?.setOnClickListener {
+            startCourseTraining(course)
+        }
     }
 
     // ============================================================
@@ -109,21 +172,28 @@ class TrainingActivity : AppCompatActivity() {
     }
 
     // ============================================================
-    // 课程卡片点击
+    // 课程卡片点击（已废弃，使用动态课程数据）
     // ============================================================
     private fun setupCourseItems() {
-        val courseIds = listOf(
-            R.id.course_item_1,
-            R.id.course_item_2,
-            R.id.course_item_3
-        )
-        for (id in courseIds) {
-            findViewById<View>(id).setOnClickListener {
-                val config = courseTabConfigs[selectedCourseTabIndex]
-                startWorkoutTracking(
-                    findViewById<TextView>(config.tabId).text.toString(),
-                    config.iconRes
-                )
+        // 初始化课程卡片引用
+        courseItem1 = findViewById(R.id.course_item_1)
+        courseItem2 = findViewById(R.id.course_item_2)
+        courseItem3 = findViewById(R.id.course_item_3)
+
+        // 默认点击事件（会被动态更新覆盖）
+        courseItem1.setOnClickListener {
+            if (currentCourses.isNotEmpty()) {
+                startCourseTraining(currentCourses[0])
+            }
+        }
+        courseItem2.setOnClickListener {
+            if (currentCourses.size >= 2) {
+                startCourseTraining(currentCourses[1])
+            }
+        }
+        courseItem3.setOnClickListener {
+            if (currentCourses.size >= 3) {
+                startCourseTraining(currentCourses[2])
             }
         }
     }
@@ -184,9 +254,72 @@ class TrainingActivity : AppCompatActivity() {
         }
         startActivity(intent)
     }
+
+    // ============================================================
+    // 开始课程训练（传递课程信息）
+    // ============================================================
+    private fun startCourseTraining(course: WorkoutCourse) {
+        val intent = when (course.sportType) {
+            "RUN", "CYCLING" -> {
+                Intent(this, WorkoutTrackingActivity::class.java).apply {
+                    putExtra(WorkoutTrackingActivity.EXTRA_SPORT_NAME, course.title)
+                    putExtra(WorkoutTrackingActivity.EXTRA_SPORT_ICON, course.iconResId)
+                    putExtra(WorkoutTrackingActivity.EXTRA_SPORT_TYPE, course.sportType)
+                    putExtra("course_id", course.id)
+                    putExtra("course_duration", course.durationMinutes)
+                    putExtra("course_calories", course.estimatedCalories)
+                }
+            }
+            "JUMP_ROPE" -> {
+                Intent(this, JumpRopeActivity::class.java).apply {
+                    putExtra("course_id", course.id)
+                    putExtra("course_title", course.title)
+                    putExtra("course_duration", course.durationMinutes)
+                    putExtra("course_calories", course.estimatedCalories)
+                }
+            }
+            "STRENGTH" -> {
+                Intent(this, StrengthActivity::class.java).apply {
+                    putExtra("course_id", course.id)
+                    putExtra("course_title", course.title)
+                    putExtra("course_duration", course.durationMinutes)
+                    putExtra("course_calories", course.estimatedCalories)
+                }
+            }
+            "SWIMMING" -> {
+                Intent(this, SwimmingActivity::class.java).apply {
+                    putExtra("course_id", course.id)
+                    putExtra("course_title", course.title)
+                    putExtra("course_duration", course.durationMinutes)
+                    putExtra("course_calories", course.estimatedCalories)
+                }
+            }
+            "YOGA" -> {
+                Intent(this, YogaActivity::class.java).apply {
+                    putExtra("course_id", course.id)
+                    putExtra("course_title", course.title)
+                    putExtra("course_duration", course.durationMinutes)
+                    putExtra("course_calories", course.estimatedCalories)
+                }
+            }
+            else -> {
+                Intent(this, WorkoutTrackingActivity::class.java).apply {
+                    putExtra(WorkoutTrackingActivity.EXTRA_SPORT_NAME, course.title)
+                    putExtra(WorkoutTrackingActivity.EXTRA_SPORT_ICON, course.iconResId)
+                    putExtra(WorkoutTrackingActivity.EXTRA_SPORT_TYPE, course.sportType)
+                }
+            }
+        }
+        startActivity(intent)
+        Toast.makeText(this, "开始课程: ${course.title}", Toast.LENGTH_SHORT).show()
+    }
 }
 
 // ============================================================
 // 课程 Tab 配置
 // ============================================================
-private data class TabConfig(val tabId: Int, val iconRes: Int)
+private data class TabConfig(
+    val tabId: Int,
+    val iconRes: Int,
+    val sportType: String
+)

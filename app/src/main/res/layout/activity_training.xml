@@ -531,6 +531,7 @@
                             android:padding="12dp">
 
                             <ImageView
+                                android:id="@+id/iv_course_icon"
                                 android:layout_width="40dp"
                                 android:layout_height="40dp"
                                 android:background="@drawable/start_button_bg"
@@ -565,6 +566,7 @@
                             </LinearLayout>
 
                             <TextView
+                                android:id="@+id/btn_course_start"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:background="@drawable/add_food_btn_bg"
@@ -592,6 +594,7 @@
                             android:padding="12dp">
 
                             <ImageView
+                                android:id="@+id/iv_course_icon"
                                 android:layout_width="40dp"
                                 android:layout_height="40dp"
                                 android:background="@drawable/start_button_bg"
@@ -626,6 +629,7 @@
                             </LinearLayout>
 
                             <TextView
+                                android:id="@+id/btn_course_start"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:background="@drawable/add_food_btn_bg"
@@ -652,6 +656,7 @@
                             android:padding="12dp">
 
                             <ImageView
+                                android:id="@+id/iv_course_icon"
                                 android:layout_width="40dp"
                                 android:layout_height="40dp"
                                 android:background="@drawable/start_button_bg"
@@ -686,6 +691,7 @@
                             </LinearLayout>
 
                             <TextView
+                                android:id="@+id/btn_course_start"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:background="@drawable/add_food_btn_bg"

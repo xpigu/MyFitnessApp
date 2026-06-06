@@ -8,25 +8,33 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
+import com.example.myfitnessapp.data.viewmodel.UserProfileViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class ProfileActivity : AppCompatActivity() {
 
-    // 用户数据（后续可从 SharedPreferences / ViewModel 加载）
-    private var username = "健身达人"
-    private var bio = "坚持运动，遇见更好的自己"
-    private var totalWorkouts = 34
-    private var activeDays = 28
-    private var level = 8
+    private lateinit var viewModel: UserProfileViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_profile)
 
+        viewModel = ViewModelProvider(this).get(UserProfileViewModel::class.java)
+
         setupBottomNavigation()
         setupHeaderActions()
         setupMenuActions()
-        bindUserData()
+        observeUserData()
+    }
+
+    // ============================================================
+    // 观察用户数据变化
+    // ============================================================
+    private fun observeUserData() {
+        viewModel.userProfile.observe(this) { profile ->
+            bindUserData(profile)
+        }
     }
 
     // ============================================================
@@ -62,12 +70,12 @@ class ProfileActivity : AppCompatActivity() {
     // ============================================================
     // 用户数据绑定
     // ============================================================
-    private fun bindUserData() {
-        findViewById<TextView>(R.id.tv_profile_username).text = username
-        findViewById<TextView>(R.id.tv_profile_bio).text = bio
-        findViewById<TextView>(R.id.tv_profile_workouts).text = totalWorkouts.toString()
-        findViewById<TextView>(R.id.tv_profile_active_days).text = activeDays.toString()
-        findViewById<TextView>(R.id.tv_profile_level).text = getString(R.string.profile_level_format, level)
+    private fun bindUserData(profile: com.example.myfitnessapp.data.entity.UserProfile) {
+        findViewById<TextView>(R.id.tv_profile_username).text = profile.username
+        findViewById<TextView>(R.id.tv_profile_bio).text = profile.bio
+        findViewById<TextView>(R.id.tv_profile_workouts).text = profile.totalWorkouts.toString()
+        findViewById<TextView>(R.id.tv_profile_active_days).text = profile.activeDays.toString()
+        findViewById<TextView>(R.id.tv_profile_level).text = getString(R.string.profile_level_format, profile.level)
     }
 
     // ============================================================
@@ -129,9 +137,7 @@ class ProfileActivity : AppCompatActivity() {
     // 编辑资料 — 预留接口
     // ============================================================
     private fun onEditProfileClicked() {
-        // TODO: 后续实现完整的编辑资料页面（EditProfileActivity）
-        // 可编辑字段：头像、用户名、个性签名、生日、性别、身高、体重等
-        Toast.makeText(this, "编辑资料功能开发中", Toast.LENGTH_SHORT).show()
+        startActivity(Intent(this, EditProfileActivity::class.java))
     }
 
     // ============================================================
@@ -167,10 +173,6 @@ class ProfileActivity : AppCompatActivity() {
     // 退出登录逻辑 — 预留接口
     // ============================================================
     private fun onLogoutConfirmed() {
-        // TODO: 后续实现完整的退出逻辑
-        // 1. 清除本地登录状态（SharedPreferences / Token）
-        // 2. 跳转到登录页面（LoginActivity）
-        // 3. 调用 API 登出接口
         Toast.makeText(this, "已退出登录", Toast.LENGTH_SHORT).show()
         finish()
     }
