@@ -2,6 +2,16 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- GPS 和位置权限 -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    
+    <!-- 计步传感器权限 -->
+    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -11,6 +21,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MyFitnessApp">
+        
+        <!-- Google Maps API Key (测试用，实际项目需替换为真实 Key) -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="${MAPS_API_KEY}" />
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -33,6 +48,23 @@
             android:name=".EditProfileActivity"
             android:exported="false" />
         <activity
+            android:name=".GoalSettingActivity"
+            android:exported="false" />
+        <activity
+            android:name=".AchievementsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".DailyCheckinActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ReminderSettingsActivity"
+            android:exported="false" />
+        <activity
+            android:name="com.yalantis.ucrop.UCropActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity
             android:name=".WorkoutTrackingActivity"
             android:exported="false"
             android:theme="@style/Theme.MyFitnessApp" />
@@ -52,6 +84,10 @@
             android:name=".YogaActivity"
             android:exported="false"
             android:theme="@style/Theme.MyFitnessApp" />
+
+        <receiver
+            android:name=".ReminderReceiver"
+            android:exported="false" />
     </application>
 
 </manifest>

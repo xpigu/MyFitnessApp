@@ -13,6 +13,21 @@
     android:fitsSystemWindows="true"
     tools:context=".JumpRopeActivity">
 
+    <ImageButton
+        android:id="@+id/btn_jump_back"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="24dp"
+        android:background="@drawable/start_button_bg"
+        android:contentDescription="返回训练主页"
+        android:padding="10dp"
+        android:scaleX="-1"
+        android:src="@drawable/ic_arrow_right"
+        android:tint="#FFFFFF"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <!-- 顶部标题 -->
     <LinearLayout
         android:id="@+id/header_jump_rope"
@@ -21,6 +36,8 @@
         android:gravity="center_horizontal"
         android:orientation="vertical"
         android:paddingTop="48dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
@@ -33,12 +50,30 @@
             android:src="@drawable/ic_jump_rope" />
 
         <TextView
+            android:id="@+id/tv_jump_header_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:text="跳绳"
             android:textColor="#FFFFFF"
             android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/tv_jump_course_info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:background="@drawable/tab_bg_unselected"
+            android:paddingStart="12dp"
+            android:paddingTop="4dp"
+            android:paddingEnd="12dp"
+            android:paddingBottom="4dp"
+            android:text="跳绳基础入门 · 7 个回合"
+            android:textColor="#CCFFFFFF"
+            android:textSize="12sp"
+            android:visibility="gone"
+            tools:text="跳绳基础入门 · 7 个回合"
+            tools:visibility="visible" />
     </LinearLayout>
 
     <!-- 中央超大计数 -->
@@ -90,6 +125,21 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/center_count" />
+
+    <TextView
+        android:id="@+id/tv_jump_round_detail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="当前回合：热身小跳 · 目标 90 次/分钟"
+        android:textColor="@color/text_secondary"
+        android:textSize="12sp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_jump_status"
+        tools:text="当前回合：热身小跳 · 目标 90 次/分钟"
+        tools:visibility="visible" />
 
     <!-- 底部数据卡片 -->
     <LinearLayout

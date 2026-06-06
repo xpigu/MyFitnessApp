@@ -79,15 +79,30 @@
                     android:orientation="horizontal">
 
                     <!-- 通知图标按钮 -->
-                    <ImageButton
-                        android:id="@+id/ib_notification"
+                    <FrameLayout
                         android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:contentDescription="通知"
-                        android:padding="8dp"
-                        android:scaleType="fitCenter"
-                        android:src="@drawable/ic_notification" />
+                        android:layout_height="40dp">
+
+                        <ImageButton
+                            android:id="@+id/ib_notification"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:contentDescription="通知"
+                            android:padding="8dp"
+                            android:scaleType="fitCenter"
+                            android:src="@drawable/ic_notification" />
+
+                        <View
+                            android:id="@+id/view_notification_badge"
+                            android:layout_width="10dp"
+                            android:layout_height="10dp"
+                            android:layout_gravity="top|end"
+                            android:layout_marginTop="7dp"
+                            android:layout_marginEnd="7dp"
+                            android:background="@drawable/reminder_badge_bg"
+                            android:visibility="gone" />
+                    </FrameLayout>
 
                     <!-- 圆形用户头像 -->
                     <ImageView

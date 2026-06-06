@@ -222,6 +222,58 @@
                     android:textSize="13sp" />
             </LinearLayout>
 
+            <!-- 最佳成绩标题 -->
+            <LinearLayout
+                android:id="@+id/layout_pb_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/tv_pb_title"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/stats_pb_title"
+                    android:textColor="@color/text_primary"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tv_pb_hint"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/stats_pb_swipe_hint"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <!-- 最佳成绩列表 -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_pb_records"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:clipToPadding="false"
+                android:nestedScrollingEnabled="false"
+                android:paddingEnd="32dp"
+                android:visibility="gone"
+                tools:listitem="@layout/item_pb_record" />
+
+            <!-- 运动记录列表标题 -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="运动记录"
+                android:textColor="@color/text_primary"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
             <!-- 运动记录列表（按日期分组） -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_sport_list"

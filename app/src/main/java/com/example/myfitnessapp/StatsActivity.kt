@@ -26,6 +26,11 @@ class StatsActivity : AppCompatActivity() {
     private lateinit var groupedAdapter: GroupedRecordAdapter
     private var isDayMode = true
 
+    // Phase 2 增强：最佳成绩显示
+    private lateinit var pbAdapter: PBRecordsAdapter
+    private var pbRecyclerView: RecyclerView? = null
+    private val pbPrefs by lazy { getSharedPreferences("stats_prefs", MODE_PRIVATE) }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_stats)
@@ -128,6 +133,13 @@ class StatsActivity : AppCompatActivity() {
             val groups = viewModel.buildGroupedRecords(dates, records)
             groupedAdapter.updateData(groups)
             updateEmptyState(records.isEmpty())
+
+            // Phase 2 增强：加载最佳成绩
+            if (records.isNotEmpty()) {
+                loadPBRecords()
+            } else {
+                hidePBRecords()
+            }
         }
     }
 
@@ -143,6 +155,52 @@ class StatsActivity : AppCompatActivity() {
     }
 
     // ============================================================
+    // 最佳成绩显示 — Phase 2 增强
+    // ============================================================
+    private fun loadPBRecords() {
+        viewModel.getPBRecords { pbRecords ->
+            if (pbRecords.hasAnyData()) {
+                pbAdapter = PBRecordsAdapter(pbRecords.cards) { record ->
+                    showDetailBottomSheet(record)
+                }
+                pbRecyclerView?.adapter = pbAdapter
+                showPBRecords()
+                maybePlayPBNudge()
+            } else {
+                hidePBRecords()
+            }
+        }
+    }
+
+    private fun showPBRecords() {
+        findViewById<View>(R.id.layout_pb_header).visibility = View.VISIBLE
+        pbRecyclerView?.visibility = View.VISIBLE
+    }
+
+    private fun hidePBRecords() {
+        findViewById<View>(R.id.layout_pb_header).visibility = View.GONE
+        pbRecyclerView?.visibility = View.GONE
+    }
+
+    private fun maybePlayPBNudge() {
+        val hasShownHint = pbPrefs.getBoolean(KEY_PB_SWIPE_HINT_SHOWN, false)
+        if (hasShownHint) return
+
+        pbRecyclerView?.postDelayed({
+            val recyclerView = pbRecyclerView ?: return@postDelayed
+            if (recyclerView.adapter == null || recyclerView.adapter?.itemCount == 0) return@postDelayed
+
+            val nudgeDistance = (resources.displayMetrics.density * 72).toInt()
+            recyclerView.smoothScrollBy(nudgeDistance, 0)
+            recyclerView.postDelayed({
+                recyclerView.smoothScrollBy(-nudgeDistance, 0)
+            }, 450)
+
+            pbPrefs.edit().putBoolean(KEY_PB_SWIPE_HINT_SHOWN, true).apply()
+        }, 450)
+    }
+
+    // ============================================================
     // RecyclerView 初始化
     // ============================================================
     private fun setupRecyclerView() {
@@ -154,6 +212,10 @@ class StatsActivity : AppCompatActivity() {
             onDeleteClick = { record -> viewModel.deleteRecord(record) }
         )
         recyclerView.adapter = groupedAdapter
+
+        // Phase 2 增强：设置最佳成绩 RecyclerView
+        pbRecyclerView = findViewById(R.id.rv_pb_records)
+        pbRecyclerView?.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
     }
 
     // ============================================================
@@ -174,32 +236,73 @@ class StatsActivity : AppCompatActivity() {
         view.findViewById<TextView>(R.id.detail_tv_sport_time).text = time
         view.findViewById<TextView>(R.id.detail_tv_duration).text = duration
 
-        // 根据运动类型显示不同数据
         when (record.sportType.uppercase()) {
             "RUN", "CYCLING" -> {
-                view.findViewById<TextView>(R.id.detail_tv_distance).text =
-                    String.format("%.2f", record.totalDistance)
-                view.findViewById<TextView>(R.id.detail_tv_avg_speed).text =
-                    if (record.sportType == "CYCLING") record.pace else "--"
-                view.findViewById<TextView>(R.id.detail_tv_pace).text =
-                    if (record.sportType == "RUN") record.pace else "--"
+                configureDetailMetricLabels(
+                    view = view,
+                    distanceLabelRes = R.string.detail_distance,
+                    distanceUnitRes = R.string.detail_km,
+                    avgLabelRes = R.string.detail_avg_speed,
+                    avgUnitRes = if (record.sportType.uppercase() == "CYCLING") R.string.detail_kmh else R.string.detail_unit_none,
+                    paceLabelRes = R.string.detail_pace,
+                    paceUnitRes = if (record.sportType.uppercase() == "RUN") R.string.detail_min_per_km else R.string.detail_unit_none
+                )
+                view.findViewById<TextView>(R.id.detail_tv_distance).text = String.format("%.2f", record.totalDistance)
+                view.findViewById<TextView>(R.id.detail_tv_avg_speed).text = if (record.sportType.uppercase() == "CYCLING") record.pace else "--"
+                view.findViewById<TextView>(R.id.detail_tv_pace).text = if (record.sportType.uppercase() == "RUN") record.pace else "--"
             }
             "JUMP_ROPE" -> {
+                configureDetailMetricLabels(
+                    view = view,
+                    distanceLabelRes = R.string.detail_total_count,
+                    distanceUnitRes = R.string.detail_unit_count,
+                    avgLabelRes = R.string.detail_avg_frequency,
+                    avgUnitRes = R.string.detail_unit_count_per_min,
+                    paceLabelRes = R.string.detail_pace,
+                    paceUnitRes = R.string.detail_unit_none
+                )
                 view.findViewById<TextView>(R.id.detail_tv_distance).text = "${record.jumpCount} 个"
                 view.findViewById<TextView>(R.id.detail_tv_avg_speed).text = "${record.jumpFrequency} 个/分"
                 view.findViewById<TextView>(R.id.detail_tv_pace).text = "--"
             }
             "STRENGTH" -> {
+                configureDetailMetricLabels(
+                    view = view,
+                    distanceLabelRes = R.string.detail_completed_sets,
+                    distanceUnitRes = R.string.detail_unit_sets,
+                    avgLabelRes = R.string.detail_max_weight,
+                    avgUnitRes = R.string.detail_unit_kg,
+                    paceLabelRes = R.string.detail_total_volume,
+                    paceUnitRes = R.string.detail_unit_kg
+                )
                 view.findViewById<TextView>(R.id.detail_tv_distance).text = "${record.strengthSets} 组"
-                view.findViewById<TextView>(R.id.detail_tv_avg_speed).text = "${record.strengthVolume.toInt()} kg"
-                view.findViewById<TextView>(R.id.detail_tv_pace).text = "--"
+                view.findViewById<TextView>(R.id.detail_tv_avg_speed).text = "${record.strengthMaxWeight.toInt()} kg"
+                view.findViewById<TextView>(R.id.detail_tv_pace).text = "${record.strengthVolume.toInt()} kg"
             }
             "SWIMMING" -> {
+                configureDetailMetricLabels(
+                    view = view,
+                    distanceLabelRes = R.string.detail_distance,
+                    distanceUnitRes = R.string.detail_unit_meter,
+                    avgLabelRes = R.string.detail_stroke,
+                    avgUnitRes = R.string.detail_unit_none,
+                    paceLabelRes = R.string.detail_pace,
+                    paceUnitRes = R.string.detail_unit_none
+                )
                 view.findViewById<TextView>(R.id.detail_tv_distance).text = "${record.swimDistanceM} m"
                 view.findViewById<TextView>(R.id.detail_tv_avg_speed).text = record.swimStroke
                 view.findViewById<TextView>(R.id.detail_tv_pace).text = "--"
             }
             "YOGA" -> {
+                configureDetailMetricLabels(
+                    view = view,
+                    distanceLabelRes = R.string.detail_distance,
+                    distanceUnitRes = R.string.detail_unit_none,
+                    avgLabelRes = R.string.detail_avg_speed,
+                    avgUnitRes = R.string.detail_unit_none,
+                    paceLabelRes = R.string.detail_pace,
+                    paceUnitRes = R.string.detail_unit_none
+                )
                 view.findViewById<TextView>(R.id.detail_tv_distance).text = "${record.yogaPosesCompleted} 体式"
                 view.findViewById<TextView>(R.id.detail_tv_avg_speed).text = "--"
                 view.findViewById<TextView>(R.id.detail_tv_pace).text = "--"
@@ -210,6 +313,27 @@ class StatsActivity : AppCompatActivity() {
 
         dialog.setContentView(view)
         dialog.show()
+    }
+
+    private fun configureDetailMetricLabels(
+        view: View,
+        distanceLabelRes: Int,
+        distanceUnitRes: Int,
+        avgLabelRes: Int,
+        avgUnitRes: Int,
+        paceLabelRes: Int,
+        paceUnitRes: Int
+    ) {
+        view.findViewById<TextView>(R.id.detail_label_distance).setText(distanceLabelRes)
+        view.findViewById<TextView>(R.id.detail_unit_distance).setText(distanceUnitRes)
+        view.findViewById<TextView>(R.id.detail_label_avg_speed).setText(avgLabelRes)
+        view.findViewById<TextView>(R.id.detail_unit_avg_speed).setText(avgUnitRes)
+        view.findViewById<TextView>(R.id.detail_label_pace).setText(paceLabelRes)
+        view.findViewById<TextView>(R.id.detail_unit_pace).setText(paceUnitRes)
+    }
+
+    companion object {
+        private const val KEY_PB_SWIPE_HINT_SHOWN = "pb_swipe_hint_shown"
     }
 }
 

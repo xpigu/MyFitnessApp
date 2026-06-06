@@ -36,6 +36,7 @@
             android:rotation="90" />
 
         <TextView
+            android:id="@+id/tv_strength_header_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
@@ -127,6 +128,23 @@
             android:orientation="vertical"
             android:padding="16dp">
 
+            <TextView
+                android:id="@+id/tv_strength_course_info"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:background="@drawable/tab_bg_unselected"
+                android:paddingStart="12dp"
+                android:paddingTop="6dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="6dp"
+                android:text="上肢力量入门 · 3 个动作"
+                android:textColor="@color/indigo_primary"
+                android:textSize="12sp"
+                android:visibility="gone"
+                tools:text="上肢力量入门 · 3 个动作"
+                tools:visibility="visible" />
+
             <!-- 当前动作卡片 -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
@@ -168,6 +186,18 @@
                         android:text="第 1 组 / 共 4 组"
                         android:textColor="@color/indigo_primary"
                         android:textSize="14sp" />
+
+                    <TextView
+                        android:id="@+id/tv_strength_phase_detail"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:text="目标：4组 x 10次 x 12kg"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp"
+                        android:visibility="gone"
+                        tools:text="目标：4组 x 10次 x 12kg"
+                        tools:visibility="visible" />
 
                     <LinearLayout
                         android:layout_width="match_parent"

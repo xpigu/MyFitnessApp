@@ -52,13 +52,29 @@
                     android:padding="24dp">
 
                     <!-- 头像 -->
-                    <ImageView
-                        android:id="@+id/iv_profile_avatar"
-                        android:layout_width="80dp"
-                        android:layout_height="80dp"
-                        android:background="@drawable/avatar_placeholder"
-                        android:contentDescription="用户头像"
-                        android:scaleType="centerCrop" />
+                    <FrameLayout
+                        android:layout_width="88dp"
+                        android:layout_height="88dp">
+
+                        <ImageView
+                            android:id="@+id/iv_profile_avatar"
+                            android:layout_width="80dp"
+                            android:layout_height="80dp"
+                            android:layout_gravity="center"
+                            android:background="@drawable/avatar_placeholder"
+                            android:contentDescription="用户头像"
+                            android:scaleType="centerCrop" />
+
+                        <ImageView
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
+                            android:layout_gravity="end|bottom"
+                            android:background="@drawable/circle_bg"
+                            android:contentDescription="编辑头像"
+                            android:padding="6dp"
+                            android:src="@drawable/ic_edit"
+                            app:tint="@color/white" />
+                    </FrameLayout>
 
                     <!-- 用户名 -->
                     <TextView
@@ -258,6 +274,51 @@
                             android:layout_marginStart="14dp"
                             android:layout_weight="1"
                             android:text="@string/profile_personal_info"
+                            android:textColor="@color/text_primary"
+                            android:textSize="15sp" />
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:contentDescription="进入"
+                            android:src="@drawable/ic_arrow_right" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="0.5dp"
+                        android:layout_marginStart="54dp"
+                        android:background="@color/gray_200" />
+
+                    <!-- 每日签到 -->
+                    <LinearLayout
+                        android:id="@+id/menu_daily_checkin"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingStart="16dp"
+                        android:paddingTop="14dp"
+                        android:paddingEnd="16dp"
+                        android:paddingBottom="14dp">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:contentDescription="每日签到"
+                            android:src="@drawable/ic_achievement"
+                            app:tint="@color/emerald_secondary" />
+
+                        <TextView
+                            android:id="@+id/tv_menu_daily_checkin"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="14dp"
+                            android:layout_weight="1"
+                            android:text="每日签到"
                             android:textColor="@color/text_primary"
                             android:textSize="15sp" />
 

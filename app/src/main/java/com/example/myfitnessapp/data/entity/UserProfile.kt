@@ -49,6 +49,24 @@ data class UserProfile(
     @ColumnInfo(name = "avatar_uri")
     val avatarUri: String = "",
 
+    // ===== 目标设置 (Phase 3) =====
+    
+    /** 每日目标消耗卡路里 */
+    @ColumnInfo(name = "target_daily_calories")
+    val targetDailyCalories: Int = 2000,
+
+    /** 每日目标饮水杯数 */
+    @ColumnInfo(name = "target_daily_water")
+    val targetDailyWater: Int = 8,
+
+    /** 每日目标步数 */
+    @ColumnInfo(name = "target_daily_steps")
+    val targetDailySteps: Int = 10000,
+
+    /** 每周目标运动次数 */
+    @ColumnInfo(name = "target_weekly_workouts")
+    val targetWeeklyWorkouts: Int = 3,
+
     /** 最后更新时间戳 */
     @ColumnInfo(name = "last_updated")
     val lastUpdated: Long = System.currentTimeMillis()

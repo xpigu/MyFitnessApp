@@ -107,10 +107,34 @@ class WorkoutRecordViewModel(application: Application) : AndroidViewModel(applic
         return grouped
     }
 
+    // ============================================================
+    // 统计方法 — Phase 2 增强
+    // ============================================================
+
+    /** 获取最佳成绩 */
+    fun getPBRecords(onResult: (PBRecords) -> Unit) {
+        viewModelScope.launch {
+            val pbRecords = repository.getPBRecords()
+            onResult(pbRecords)
+        }
+    }
+
     companion object {
         fun todayStr(): String {
             val sdf = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
             return sdf.format(java.util.Date())
+        }
+
+        fun get30DaysAgoDate(): String {
+            val sdf = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
+            val calendar = java.util.Calendar.getInstance()
+            calendar.add(java.util.Calendar.DAY_OF_MONTH, -29) // 包含今天是30天
+            return sdf.format(calendar.time)
+        }
+
+        fun getMonthPattern(date: String = todayStr()): String {
+            // 从 "2026-06-05" 获取 "2026-06"
+            return date.substring(0, 7)
         }
     }
 }

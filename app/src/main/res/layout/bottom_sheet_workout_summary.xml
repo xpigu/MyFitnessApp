@@ -23,6 +23,7 @@
 
     <!-- 标题 -->
     <TextView
+        android:id="@+id/summary_tv_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
@@ -32,6 +33,7 @@
         android:textStyle="bold" />
 
     <TextView
+        android:id="@+id/summary_tv_subtitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
@@ -176,6 +178,48 @@
         android:layout_height="0.5dp"
         android:layout_marginTop="14dp"
         android:background="@color/gray_200" />
+
+    <LinearLayout
+        android:id="@+id/summary_course_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:background="@drawable/advice_card_bg"
+        android:orientation="vertical"
+        android:padding="14dp"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <TextView
+            android:id="@+id/summary_tv_course_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="课程：城市休闲骑行"
+            android:textColor="@color/text_primary"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            tools:text="课程：城市休闲骑行" />
+
+        <TextView
+            android:id="@+id/summary_tv_course_progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="课程进度：4/4 步，完成度 100%"
+            android:textColor="@color/text_primary"
+            android:textSize="13sp"
+            tools:text="课程进度：4/4 步，完成度 100%" />
+
+        <TextView
+            android:id="@+id/summary_tv_course_goal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="目标达成：已完成课程计划时长与主要阶段"
+            android:textColor="@color/text_secondary"
+            android:textSize="12sp"
+            tools:text="目标达成：已完成课程计划时长与主要阶段" />
+    </LinearLayout>
 
     <!-- 按钮组 -->
     <LinearLayout

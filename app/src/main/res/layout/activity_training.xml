@@ -69,14 +69,29 @@
                 </LinearLayout>
 
                 <!-- 日历图标 -->
-                <ImageView
-                    android:id="@+id/iv_calendar"
+                <FrameLayout
                     android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:background="@drawable/category_chip_unselected"
-                    android:contentDescription="日历"
-                    android:padding="10dp"
-                    android:src="@drawable/ic_notification" />
+                    android:layout_height="40dp">
+
+                    <ImageView
+                        android:id="@+id/iv_calendar"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:background="@drawable/category_chip_unselected"
+                        android:contentDescription="通知提醒"
+                        android:padding="10dp"
+                        android:src="@drawable/ic_notification" />
+
+                    <View
+                        android:id="@+id/view_training_notification_badge"
+                        android:layout_width="10dp"
+                        android:layout_height="10dp"
+                        android:layout_gravity="top|end"
+                        android:layout_marginTop="5dp"
+                        android:layout_marginEnd="5dp"
+                        android:background="@drawable/reminder_badge_bg"
+                        android:visibility="gone" />
+                </FrameLayout>
             </LinearLayout>
 
             <!-- ============================================================

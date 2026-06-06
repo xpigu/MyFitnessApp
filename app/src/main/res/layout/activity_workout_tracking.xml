@@ -38,44 +38,36 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <LinearLayout
+        <fragment
+            android:id="@+id/map"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:orientation="vertical">
+            android:layout_height="match_parent" />
 
-            <ImageView
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:contentDescription="地图"
-                android:padding="8dp"
-                android:src="@drawable/ic_running" />
-
-            <TextView
-                android:id="@+id/tv_map_placeholder"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="GPS 定位中..."
-                android:textColor="#88FFFFFF"
-                android:textSize="14sp" />
-
-            <TextView
-                android:id="@+id/tv_max_speed"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/tab_bg_unselected"
-                android:paddingStart="12dp"
-                android:paddingTop="4dp"
-                android:paddingEnd="12dp"
-                android:paddingBottom="4dp"
-                android:text="最高 0.0 km/h"
-                android:textColor="#FFFFFF"
-                android:textSize="13sp"
-                android:visibility="gone"
-                tools:visibility="visible" />
-        </LinearLayout>
+        <!-- 渐变遮罩，让地图和下方数据区过渡更自然 -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_gravity="bottom"
+            android:background="@drawable/map_gradient_overlay" />
+            
+        <TextView
+            android:id="@+id/tv_max_speed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|end"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/tab_bg_unselected"
+            android:paddingStart="12dp"
+            android:paddingTop="4dp"
+            android:paddingEnd="12dp"
+            android:paddingBottom="4dp"
+            android:text="最高 0.0 km/h"
+            android:textColor="#FFFFFF"
+            android:textSize="13sp"
+            android:visibility="gone"
+            tools:visibility="visible" />
     </androidx.cardview.widget.CardView>
 
     <!-- 折叠/展开地图按钮 -->
@@ -167,6 +159,35 @@
                 android:text="运动中"
                 android:textColor="#FFFFFF"
                 android:textSize="10sp" />
+
+            <TextView
+                android:id="@+id/tv_course_phase"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="热身步行"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:visibility="gone"
+                tools:text="热身步行"
+                tools:visibility="visible" />
+
+            <TextView
+                android:id="@+id/tv_course_phase_detail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:paddingStart="12dp"
+                android:paddingTop="4dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="4dp"
+                android:text="目标：舒适配速 · 剩余 04:30"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp"
+                android:visibility="gone"
+                tools:text="目标：舒适配速 · 剩余 04:30"
+                tools:visibility="visible" />
 
             <!-- 跑步专属：Lap + 节拍器 -->
             <LinearLayout
@@ -303,29 +324,25 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- 二级数据卡（水平排列） -->
-            <HorizontalScrollView
-                android:id="@+id/secondary_scroll"
+            <!-- 二级数据卡（根据数量自动均分） -->
+            <LinearLayout
+                android:id="@+id/ll_secondary_cards"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginEnd="16dp"
-                android:overScrollMode="never"
-                android:scrollbars="none">
-
-                <LinearLayout
-                    android:id="@+id/ll_secondary_cards"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                android:layout_marginTop="12dp"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp">
 
                     <!-- 卡片槽位 0 -->
                     <androidx.cardview.widget.CardView
                         android:id="@+id/card_secondary_0"
-                        android:layout_width="76dp"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginEnd="6dp"
+                        android:layout_marginStart="4dp"
+                        android:layout_marginEnd="4dp"
+                        android:layout_weight="1"
                         app:cardBackgroundColor="@color/card_background"
                         app:cardCornerRadius="10dp"
                         app:cardElevation="1dp">
@@ -334,8 +351,11 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:gravity="center"
+                            android:minHeight="82dp"
                             android:orientation="vertical"
                             android:paddingTop="8dp"
+                            android:paddingStart="6dp"
+                            android:paddingEnd="6dp"
                             android:paddingBottom="8dp">
 
                             <TextView
@@ -368,9 +388,11 @@
                     <!-- 卡片槽位 1 -->
                     <androidx.cardview.widget.CardView
                         android:id="@+id/card_secondary_1"
-                        android:layout_width="76dp"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginEnd="6dp"
+                        android:layout_marginStart="4dp"
+                        android:layout_marginEnd="4dp"
+                        android:layout_weight="1"
                         app:cardBackgroundColor="@color/card_background"
                         app:cardCornerRadius="10dp"
                         app:cardElevation="1dp">
@@ -379,8 +401,11 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:gravity="center"
+                            android:minHeight="82dp"
                             android:orientation="vertical"
                             android:paddingTop="8dp"
+                            android:paddingStart="6dp"
+                            android:paddingEnd="6dp"
                             android:paddingBottom="8dp">
 
                             <TextView
@@ -413,9 +438,11 @@
                     <!-- 卡片槽位 2 -->
                     <androidx.cardview.widget.CardView
                         android:id="@+id/card_secondary_2"
-                        android:layout_width="76dp"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginEnd="6dp"
+                        android:layout_marginStart="4dp"
+                        android:layout_marginEnd="4dp"
+                        android:layout_weight="1"
                         app:cardBackgroundColor="@color/card_background"
                         app:cardCornerRadius="10dp"
                         app:cardElevation="1dp">
@@ -424,8 +451,11 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:gravity="center"
+                            android:minHeight="82dp"
                             android:orientation="vertical"
                             android:paddingTop="8dp"
+                            android:paddingStart="6dp"
+                            android:paddingEnd="6dp"
                             android:paddingBottom="8dp">
 
                             <TextView
@@ -458,9 +488,11 @@
                     <!-- 卡片槽位 3 -->
                     <androidx.cardview.widget.CardView
                         android:id="@+id/card_secondary_3"
-                        android:layout_width="76dp"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginEnd="6dp"
+                        android:layout_marginStart="4dp"
+                        android:layout_marginEnd="4dp"
+                        android:layout_weight="1"
                         android:visibility="gone"
                         app:cardBackgroundColor="@color/card_background"
                         app:cardCornerRadius="10dp"
@@ -470,8 +502,11 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:gravity="center"
+                            android:minHeight="82dp"
                             android:orientation="vertical"
                             android:paddingTop="8dp"
+                            android:paddingStart="6dp"
+                            android:paddingEnd="6dp"
                             android:paddingBottom="8dp">
 
                             <TextView
@@ -500,8 +535,7 @@
                                 android:textSize="8sp" />
                         </LinearLayout>
                     </androidx.cardview.widget.CardView>
-                </LinearLayout>
-            </HorizontalScrollView>
+            </LinearLayout>
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
@@ -509,17 +543,15 @@
     <!-- ============================================================
          底部控制栏（固定底部）
          ============================================================ -->
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/control_bar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:background="#1A1A2E"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
         android:paddingStart="20dp"
-        android:paddingTop="10dp"
+        android:paddingTop="12dp"
         android:paddingEnd="20dp"
-        android:paddingBottom="14dp"
+        android:paddingBottom="18dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
@@ -527,54 +559,55 @@
         <!-- 停止 -->
         <TextView
             android:id="@+id/btn_stop"
-            android:layout_width="44dp"
-            android:layout_height="44dp"
+            android:layout_width="52dp"
+            android:layout_height="52dp"
             android:background="@drawable/circle_bg"
             android:clickable="true"
             android:focusable="true"
             android:gravity="center"
             android:text="■"
             android:textColor="#E74C3C"
-            android:textSize="18sp" />
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_weight="1" />
+            android:textSize="20sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <!-- 暂停/继续 -->
         <TextView
             android:id="@+id/btn_pause_resume"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
+            android:layout_width="82dp"
+            android:layout_height="82dp"
             android:background="@drawable/start_button_bg"
             android:clickable="true"
             android:focusable="true"
             android:drawableTop="@drawable/ic_pause"
             android:gravity="center"
-            android:paddingTop="14dp"
+            android:paddingTop="16dp"
             android:text="暂停"
             android:textColor="#FFFFFF"
-            android:textSize="10sp" />
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_weight="1" />
+            android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <!-- 右侧按钮组 -->
         <LinearLayout
+            android:id="@+id/right_action_group"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
             <!-- 锁屏（跑步） -->
             <TextView
                 android:id="@+id/btn_lock_screen"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:layout_marginEnd="6dp"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginEnd="8dp"
                 android:background="@drawable/circle_bg"
                 android:clickable="true"
                 android:focusable="true"
@@ -587,8 +620,8 @@
             <!-- 语音播报 -->
             <TextView
                 android:id="@+id/btn_voice"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 android:background="@drawable/circle_bg"
                 android:clickable="true"
                 android:focusable="true"
@@ -600,20 +633,20 @@
             <TextView
                 android:id="@+id/btn_auto_pause"
                 android:layout_width="wrap_content"
-                android:layout_height="28dp"
-                android:layout_marginStart="6dp"
+                android:layout_height="32dp"
+                android:layout_marginStart="8dp"
                 android:background="@drawable/tab_bg_unselected"
                 android:clickable="true"
                 android:focusable="true"
                 android:gravity="center"
-                android:paddingStart="8dp"
-                android:paddingEnd="8dp"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
                 android:text="自动暂停: 开"
                 android:textColor="#FFFFFF"
                 android:textSize="10sp"
                 android:visibility="gone"
                 tools:visibility="visible" />
         </LinearLayout>
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

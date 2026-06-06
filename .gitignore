@@ -25,7 +25,14 @@ local.properties
 
 # Gradle
 .gradle/
+.gradle-build/
+.gradle-build-2/
 build/
+/build
+/app/build/
+
+# Kotlin
+.kotlin/
 
 # IDE
 .idea/

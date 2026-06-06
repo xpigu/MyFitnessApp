@@ -60,6 +60,11 @@
     <string name="workout_courses">运动课程</string>
     <string name="workout_duration_min">分钟</string>
     <string name="start_workout">开始训练</string>
+    <string name="course_action_start">开始课程</string>
+    <string name="course_action_continue">继续课程</string>
+    <string name="course_status_not_started">未开始</string>
+    <string name="course_status_in_progress">进行中</string>
+    <string name="course_start_toast">开始课程：%1$s</string>
 
     <!-- 统计页面 -->
     <string name="stats_title">统计</string>
@@ -69,6 +74,8 @@
     <string name="stats_total_calories">总消耗</string>
     <string name="stats_total_duration">总时长</string>
     <string name="stats_avg_heart_rate">平均心率</string>
+    <string name="stats_pb_title">最佳成绩</string>
+    <string name="stats_pb_swipe_hint">左右滑动查看更多</string>
 
     <!-- 底部弹窗详情 -->
     <string name="detail_duration">运动时长</string>
@@ -80,6 +87,18 @@
     <string name="detail_km">公里</string>
     <string name="detail_kmh">公里/小时</string>
     <string name="detail_min_per_km">分钟/公里</string>
+    <string name="detail_completed_sets">完成组数</string>
+    <string name="detail_max_weight">最大重量</string>
+    <string name="detail_total_volume">总容量</string>
+    <string name="detail_total_count">总个数</string>
+    <string name="detail_avg_frequency">平均每分钟</string>
+    <string name="detail_stroke">泳姿</string>
+    <string name="detail_unit_sets">组</string>
+    <string name="detail_unit_kg">kg</string>
+    <string name="detail_unit_count">个</string>
+    <string name="detail_unit_count_per_min">个/分</string>
+    <string name="detail_unit_meter">米</string>
+    <string name="detail_unit_none">--</string>
 
     <!-- 我的页面 -->
     <string name="profile_title">我的</string>
@@ -125,4 +144,46 @@
     <string name="summary_discard">放弃</string>
     <string name="record_saved">记录已保存</string>
     <string name="record_discarded">已放弃本次记录</string>
+
+    <!-- 通知提醒 -->
+    <string name="reminder_title">通知提醒</string>
+    <string name="reminder_workout_label">每日运动提醒</string>
+    <string name="reminder_workout_hint">适合在下班后或固定锻炼时间提醒自己开练</string>
+    <string name="reminder_water_label">饮水提醒</string>
+    <string name="reminder_water_hint">适合在下午或久坐时提醒补水</string>
+    <string name="reminder_checkin_label">晚间签到提醒</string>
+    <string name="reminder_checkin_hint">防止忘记完成每日签到，和首页签到逻辑保持一致</string>
+    <string name="reminder_time_label">提醒时间</string>
+    <string name="reminder_add_time">添加提醒时间</string>
+    <string name="reminder_delete_time">删除</string>
+    <string name="reminder_no_time">暂未添加提醒时间</string>
+    <string name="reminder_need_time">已开启的提醒至少需要一个时间</string>
+    <string name="reminder_repeat_label">重复规则</string>
+    <string name="reminder_repeat_daily">每天</string>
+    <string name="reminder_repeat_workday">工作日</string>
+    <string name="reminder_repeat_daily_short">每日</string>
+    <string name="reminder_repeat_workday_short">工作日</string>
+    <string name="reminder_section_morning">早晨</string>
+    <string name="reminder_section_afternoon">下午</string>
+    <string name="reminder_section_evening">晚上</string>
+    <string name="reminder_save">保存提醒设置</string>
+    <string name="reminder_test_button">发送测试通知</string>
+    <string name="reminder_save_success">提醒设置已保存</string>
+    <string name="reminder_test_sent">测试通知已发送</string>
+    <string name="reminder_permission_granted">通知权限已开启</string>
+    <string name="reminder_permission_denied">未授予通知权限，提醒可能无法显示</string>
+    <string name="reminder_channel_name">运动健康提醒</string>
+    <string name="reminder_channel_desc">用于每日运动、饮水和签到提醒</string>
+    <string name="reminder_workout_title">该开始今天的训练了</string>
+    <string name="reminder_workout_message">已为你打开训练页，选一个项目动起来，完成今天的运动目标。</string>
+    <string name="reminder_water_title">补水时间到了</string>
+    <string name="reminder_water_message">喝一杯水放松一下，点开后会回到健康页继续记录今天的饮水进度。</string>
+    <string name="reminder_checkin_title">今天还没签到</string>
+    <string name="reminder_checkin_message">点开后直接进入签到页，顺手完成今日签到，别让连续天数断掉。</string>
+    <string name="reminder_workout_opened_hint">已定位到快速开始区域，点一下高亮卡片就能开始训练</string>
+    <string name="reminder_water_opened_hint">已定位到饮水按钮，点一下即可记录本次补水</string>
+    <string name="reminder_checkin_opened_hint">已定位到签到按钮，点一下即可完成今日签到</string>
+    <string name="reminder_test_title">提醒测试成功</string>
+    <string name="reminder_test_message">如果你能看到这条通知，说明铃铛入口和提醒权限都已经正常。</string>
+    <string name="reminder_default_message">你有一条新的健康提醒</string>
 </resources>

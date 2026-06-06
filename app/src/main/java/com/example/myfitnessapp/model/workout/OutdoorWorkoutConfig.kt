@@ -68,7 +68,7 @@ data class OutdoorWorkoutConfig(
             },
             primaryColor = 0xFF1E88E5.toInt(),
             mapHeightRatio = 0.55f,
-            mapCollapsible = false,
+            mapCollapsible = true,
             mapTrailWidth = 3f,
             distanceMultiplier = 0.0069,
             caloriesMultiplier = 0.08,

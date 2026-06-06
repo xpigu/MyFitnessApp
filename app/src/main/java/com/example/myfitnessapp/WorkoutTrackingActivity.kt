@@ -24,10 +24,36 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.Locale
 
-class WorkoutTrackingActivity : AppCompatActivity() {
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.PolylineOptions
+import com.example.myfitnessapp.service.LocationTrackingService
+import com.example.myfitnessapp.service.StepTrackingService
+import android.os.Build
+import com.example.myfitnessapp.course.data.ActiveCourseSessionStore
+import com.example.myfitnessapp.course.data.TrainingCourseRepository
+import com.example.myfitnessapp.course.domain.CourseStep
+import com.example.myfitnessapp.course.domain.TrainingCourse
+import com.example.myfitnessapp.course.navigation.CourseNavigator
+
+class WorkoutTrackingActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var config: OutdoorWorkoutConfig
     private lateinit var viewModel: WorkoutRecordViewModel
+    private lateinit var locationService: LocationTrackingService
+    private lateinit var stepService: StepTrackingService
+    private val courseSessionStore by lazy { ActiveCourseSessionStore(this) }
+    
+    private var googleMap: GoogleMap? = null
+    private val LOCATION_PERMISSION_REQUEST_CODE = 1001
+    private val ACTIVITY_RECOGNITION_REQUEST_CODE = 1002
 
     // 计时
     private val handler = Handler(Looper.getMainLooper())
@@ -54,6 +80,9 @@ class WorkoutTrackingActivity : AppCompatActivity() {
 
     // 地图折叠状态
     private var isMapCollapsed = false
+    private val courseRepository by lazy { TrainingCourseRepository() }
+    private var activeCourse: TrainingCourse? = null
+    private var shouldPersistCourseSession = true
 
     // 二级卡片 View 引用（最多4个）
     private val cardViews = mutableListOf<View>()
@@ -66,7 +95,17 @@ class WorkoutTrackingActivity : AppCompatActivity() {
             if (isTimerRunning) {
                 elapsedSeconds++
                 updateTimerDisplay()
-                updateSimulatedData()
+                updateCourseRuntimeUi()
+                persistCourseSessionProgress()
+                
+                // 如果没有定位权限，则使用模拟数据
+                if (ContextCompat.checkSelfPermission(this@WorkoutTrackingActivity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    updateSimulatedData()
+                } else {
+                    // 有定位权限时，只模拟卡路里等非 GPS 数据
+                    updateSimulatedNonGpsData()
+                }
+                
                 handler.postDelayed(this, 1000)
             }
         }
@@ -78,11 +117,175 @@ class WorkoutTrackingActivity : AppCompatActivity() {
 
         parseIntentAndBuildConfig()
         viewModel = ViewModelProvider(this).get(WorkoutRecordViewModel::class.java)
+        locationService = LocationTrackingService(this)
+        stepService = StepTrackingService(this)
+        
         cacheCardViews()
         applyConfig()
-        startTimer()
+        setupMap()
         setupControls()
         setupBackPress()
+        
+        checkPermissions()
+    }
+    
+    private fun setupMap() {
+        val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
+        mapFragment.getMapAsync(this)
+    }
+
+    override fun onMapReady(map: GoogleMap) {
+        googleMap = map
+        try {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                googleMap?.isMyLocationEnabled = true
+            }
+        } catch (e: SecurityException) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun checkPermissions() {
+        val permissionsToRequest = mutableListOf<String>()
+
+        // 检查定位权限
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            permissionsToRequest.add(Manifest.permission.ACCESS_FINE_LOCATION)
+            permissionsToRequest.add(Manifest.permission.ACCESS_COARSE_LOCATION)
+        }
+
+        // 检查计步权限 (Android 10+ 需要)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACTIVITY_RECOGNITION) != PackageManager.PERMISSION_GRANTED) {
+                permissionsToRequest.add(Manifest.permission.ACTIVITY_RECOGNITION)
+            }
+        }
+
+        if (permissionsToRequest.isNotEmpty()) {
+            ActivityCompat.requestPermissions(
+                this,
+                permissionsToRequest.toTypedArray(),
+                LOCATION_PERMISSION_REQUEST_CODE
+            )
+        } else {
+            startTracking()
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
+            var locationGranted = false
+            var activityRecognitionGranted = false
+
+            for (i in permissions.indices) {
+                if (permissions[i] == Manifest.permission.ACCESS_FINE_LOCATION && grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+                    locationGranted = true
+                }
+                if (permissions[i] == Manifest.permission.ACTIVITY_RECOGNITION && grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+                    activityRecognitionGranted = true
+                }
+            }
+
+            if (locationGranted) {
+                try {
+                    googleMap?.isMyLocationEnabled = true
+                } catch (e: SecurityException) {
+                    e.printStackTrace()
+                }
+            } else {
+                Toast.makeText(this, "未授予定位权限，将使用模拟数据", Toast.LENGTH_SHORT).show()
+            }
+
+            if (!activityRecognitionGranted && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                Toast.makeText(this, "未授予计步权限，将使用模拟步数", Toast.LENGTH_SHORT).show()
+            }
+
+            startTracking()
+        }
+    }
+
+    private fun startTracking() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            locationService.startTracking()
+        }
+        
+        if (config.isRunning()) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q || 
+                ContextCompat.checkSelfPermission(this, Manifest.permission.ACTIVITY_RECOGNITION) == PackageManager.PERMISSION_GRANTED) {
+                if (stepService.hasStepSensor()) {
+                    stepService.startTracking()
+                } else {
+                    Toast.makeText(this, "设备不支持计步传感器，将使用模拟步数", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+        
+        startTimer()
+        observeSensorData()
+    }
+
+    private fun observeSensorData() {
+        // 观察 GPS 数据
+        locationService.currentLocation.observe(this) { location ->
+            // 更新地图中心点
+            val latLng = LatLng(location.latitude, location.longitude)
+            googleMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16f))
+        }
+
+        locationService.routePoints.observe(this) { points ->
+            // 绘制轨迹
+            googleMap?.clear()
+            if (points.isNotEmpty()) {
+                val polylineOptions = PolylineOptions()
+                    .addAll(points)
+                    .color(Color.parseColor("#2ECC71"))
+                    .width(10f)
+                googleMap?.addPolyline(polylineOptions)
+            }
+        }
+
+        locationService.totalDistance.observe(this) { distance ->
+            totalDistance = distance
+            updateMainDataDisplay()
+        }
+
+        locationService.currentSpeed.observe(this) { speed ->
+            // 将 m/s 转换为 km/h 或 配速
+            if (config.isRunning()) {
+                // 跑步配速 (分钟/公里)
+                if (speed > 0) {
+                    val paceSecondsPerKm = 1000 / speed
+                    currentPaceSpeed = paceSecondsPerKm.toDouble()
+                }
+            } else {
+                // 骑行速度 (km/h)
+                currentPaceSpeed = (speed * 3.6).toDouble()
+                if (currentPaceSpeed > maxSpeed) {
+                    maxSpeed = currentPaceSpeed
+                    findViewById<TextView>(R.id.tv_max_speed).apply {
+                        visibility = View.VISIBLE
+                        text = String.format(Locale.getDefault(), "最高 %.1f km/h", maxSpeed)
+                    }
+                }
+            }
+            updateMainDataDisplay()
+        }
+
+        // 观察计步传感器数据
+        stepService.currentSteps.observe(this) { steps ->
+            if (config.isRunning()) {
+                totalSteps = steps
+                updateSecondaryCards()
+            }
+        }
+
+        stepService.currentCadence.observe(this) { currentCadence ->
+            if (config.isRunning()) {
+                cadence = currentCadence
+                updateSecondaryCards()
+            }
+        }
     }
 
     // ============================================================
@@ -90,10 +293,12 @@ class WorkoutTrackingActivity : AppCompatActivity() {
     // ============================================================
     private fun parseIntentAndBuildConfig() {
         val type = intent.getStringExtra(EXTRA_SPORT_TYPE) ?: "RUN"
+        activeCourse = CourseNavigator.courseIdOf(intent)?.let { courseRepository.getCourseById(it) }
         config = when (type.uppercase()) {
             "CYCLING" -> OutdoorWorkoutConfig.forCycling()
             else -> OutdoorWorkoutConfig.forRunning()
         }
+        restoreCourseProgress()
     }
 
     // ============================================================
@@ -141,6 +346,7 @@ class WorkoutTrackingActivity : AppCompatActivity() {
         val name = intent.getStringExtra(EXTRA_SPORT_NAME) ?: config.type.label
         findViewById<android.widget.ImageView>(R.id.iv_tracking_sport_icon).setImageResource(iconRes)
         findViewById<TextView>(R.id.tv_tracking_sport_name).text = name
+        updateCourseRuntimeUi()
 
         // 最高速度标签（骑行专属）
         findViewById<TextView>(R.id.tv_max_speed).isVisible = config.showMaxSpeed
@@ -221,13 +427,23 @@ class WorkoutTrackingActivity : AppCompatActivity() {
         isMapCollapsed = !isMapCollapsed
         val guideline = findViewById<Guideline>(R.id.guideline_map)
         val btn = findViewById<TextView>(R.id.btn_toggle_map)
+        val controlBar = findViewById<View>(R.id.control_bar)
+        val collapsedTranslation = -28f * resources.displayMetrics.density
 
         if (isMapCollapsed) {
-            guideline.setGuidelinePercent(0.08f)
+            guideline.setGuidelinePercent(0.18f)
             btn.text = "⌄"
+            controlBar.animate()
+                .translationY(collapsedTranslation)
+                .setDuration(220)
+                .start()
         } else {
             guideline.setGuidelinePercent(config.mapHeightRatio)
             btn.text = "⌃"
+            controlBar.animate()
+                .translationY(0f)
+                .setDuration(220)
+                .start()
         }
     }
 
@@ -239,6 +455,7 @@ class WorkoutTrackingActivity : AppCompatActivity() {
         isPaused = false
         handler.post(timerRunnable)
         updateStatusLabel("运动中")
+        updateCourseRuntimeUi()
     }
 
     private fun togglePauseResume() {
@@ -256,6 +473,8 @@ class WorkoutTrackingActivity : AppCompatActivity() {
         btn.text = "继续"
         btn.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_resume, 0, 0)
         updateStatusLabel("已暂停")
+        locationService.pauseTracking()
+        stepService.pauseTracking()
     }
 
     private fun resumeTimer() {
@@ -265,7 +484,19 @@ class WorkoutTrackingActivity : AppCompatActivity() {
         btn.text = "暂停"
         btn.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_pause, 0, 0)
         updateStatusLabel("运动中")
+        updateCourseRuntimeUi()
         handler.post(timerRunnable)
+        
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            locationService.startTracking()
+        }
+        
+        if (config.isRunning() && stepService.hasStepSensor()) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q || 
+                ContextCompat.checkSelfPermission(this, Manifest.permission.ACTIVITY_RECOGNITION) == PackageManager.PERMISSION_GRANTED) {
+                stepService.startTracking()
+            }
+        }
     }
 
     private fun updateTimerDisplay() {
@@ -278,11 +509,136 @@ class WorkoutTrackingActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.tv_tracking_status).text = label
     }
 
+    private fun updateCourseRuntimeUi() {
+        val phaseView = findViewById<TextView>(R.id.tv_course_phase)
+        val detailView = findViewById<TextView>(R.id.tv_course_phase_detail)
+        val course = activeCourse
+        if (course == null || course.plan.steps.isEmpty()) {
+            phaseView.isVisible = false
+            detailView.isVisible = false
+            return
+        }
+
+        phaseView.isVisible = true
+        detailView.isVisible = true
+
+        val totalCourseSeconds = course.plan.steps.sumOf { it.durationSeconds }
+        if (elapsedSeconds >= totalCourseSeconds) {
+            updateStatusLabel("课程目标已完成")
+            phaseView.text = "课程计划已完成"
+            detailView.text = "可继续自由训练，或点击结束保存本次课程记录"
+            return
+        }
+
+        val currentStep = findCurrentCourseStep(course.plan.steps, elapsedSeconds)
+        val stepIndex = course.plan.steps.indexOf(currentStep)
+        val elapsedInStep = elapsedSeconds - course.plan.steps.take(stepIndex).sumOf { it.durationSeconds }
+        val remaining = (currentStep.durationSeconds - elapsedInStep).coerceAtLeast(0)
+
+        updateStatusLabel("课程进行中 ${stepIndex + 1}/${course.plan.steps.size}")
+        phaseView.text = currentStep.title
+        val target = currentStep.target ?: currentStep.instruction
+        detailView.text = "目标：$target · 剩余 ${formatShortTime(remaining)}"
+    }
+
+    private fun restoreCourseProgress() {
+        val course = activeCourse ?: return
+        val session = courseSessionStore.getActiveFor(course.id) ?: return
+        elapsedSeconds = session.totalElapsedSeconds
+        updateTimerDisplay()
+    }
+
+    private fun persistCourseSessionProgress() {
+        val course = activeCourse ?: return
+        val stepIndex = findCurrentCourseStepIndex(course.plan.steps, elapsedSeconds)
+        val stepElapsed = elapsedSeconds - course.plan.steps.take(stepIndex).sumOf { it.durationSeconds }
+        val existing = courseSessionStore.getActiveFor(course.id)
+        courseSessionStore.save(
+            (existing ?: defaultCourseSession(course)).copy(
+                currentStepIndex = stepIndex,
+                currentStepElapsedSeconds = stepElapsed.coerceAtLeast(0),
+                totalElapsedSeconds = elapsedSeconds
+            )
+        )
+    }
+
+    private fun defaultCourseSession(course: TrainingCourse) = com.example.myfitnessapp.course.domain.ActiveCourseSession(
+        courseId = course.id,
+        courseTitle = course.title,
+        sportType = course.sportType,
+        status = com.example.myfitnessapp.course.domain.CourseSessionStatus.IN_PROGRESS,
+        startedAt = System.currentTimeMillis()
+    )
+
+    private fun findCurrentCourseStep(steps: List<CourseStep>, totalElapsed: Int): CourseStep {
+        var elapsed = totalElapsed
+        for (step in steps) {
+            if (elapsed < step.durationSeconds) {
+                return step
+            }
+            elapsed -= step.durationSeconds
+        }
+        return steps.last()
+    }
+
+    private fun findCurrentCourseStepIndex(steps: List<CourseStep>, totalElapsed: Int): Int {
+        var elapsed = totalElapsed
+        steps.forEachIndexed { index, step ->
+            if (elapsed < step.durationSeconds) {
+                return index
+            }
+            elapsed -= step.durationSeconds
+        }
+        return (steps.size - 1).coerceAtLeast(0)
+    }
+
+    private fun formatShortTime(seconds: Int): String {
+        val minutes = seconds / 60
+        val remainSeconds = seconds % 60
+        return String.format(Locale.getDefault(), "%02d:%02d", minutes, remainSeconds)
+    }
+
     private fun formatTime(seconds: Int): String {
         val h = seconds / 3600
         val m = (seconds % 3600) / 60
         val s = seconds % 60
         return String.format(Locale.getDefault(), "%02d:%02d:%02d", h, m, s)
+    }
+
+    // ============================================================
+    // 模拟数据更新
+    // ============================================================
+    private fun updateSimulatedNonGpsData() {
+        // 仅模拟卡路里等非 GPS 数据
+        totalCalories += 1
+        
+        // 如果没有计步传感器权限或设备不支持，则模拟步数
+        if (config.isRunning() && (!stepService.hasStepSensor() || 
+            (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && 
+             ContextCompat.checkSelfPermission(this, Manifest.permission.ACTIVITY_RECOGNITION) != PackageManager.PERMISSION_GRANTED))) {
+            totalSteps += 2
+            cadence = 160 + (Math.random() * 20).toInt()
+        } else if (config.isCycling()) {
+            cadence = 80 + (Math.random() * 15).toInt()
+        }
+        
+        updateSecondaryCards()
+    }
+
+    private fun updateMainDataDisplay() {
+        // 距离
+        findViewById<TextView>(R.id.tv_sub_distance).text =
+            String.format(Locale.getDefault(), "%.2f", totalDistance)
+
+        // 速度/配速
+        val primaryStr = config.primaryFormat(currentPaceSpeed)
+        findViewById<TextView>(R.id.tv_primary_value).text = primaryStr
+        
+        if (config.isRunning()) {
+            updatePaceColor()
+        } else {
+            updateSpeedColor()
+        }
     }
 
     // ============================================================
@@ -298,31 +654,35 @@ class WorkoutTrackingActivity : AppCompatActivity() {
             updateCyclingData()
         }
 
-        // 距离
-        findViewById<TextView>(R.id.tv_sub_distance).text =
-            String.format(Locale.getDefault(), "%.2f", totalDistance)
+        updateMainDataDisplay()
     }
 
     // ============================================================
     // 跑步数据更新
     // ============================================================
+    private fun updateSecondaryCards() {
+        if (config.isRunning()) {
+            cardValueViews[0].text = cadence.toString()
+            cardValueViews[1].text = totalCalories.toString()
+            cardValueViews[2].text = totalSteps.toString()
+        } else {
+            cardValueViews[0].text = if (gpsSignalWeak) "--" else elevation.toString()
+            cardValueViews[1].text = String.format(Locale.getDefault(), "%.1f", grade)
+            cardValueViews[2].text = totalCalories.toString()
+            cardValueViews[3].text = String.format(Locale.getDefault(), "%.1f", maxSpeed)
+        }
+    }
+
     private fun updateRunningData() {
         // 配速波动 5'30"~6'30" (330~390秒/公里)
         currentPaceSpeed = 330 + (Math.random() * 60)
-        val paceStr = config.primaryFormat(currentPaceSpeed)
-        findViewById<TextView>(R.id.tv_primary_value).text = paceStr
-        updatePaceColor()
 
         // 步频（模拟，后续由加速度传感器 + ViewModel 接入）
         cadence = updateCadenceFromSensor()
         // 步数
         totalSteps += (cadence / 60).coerceAtLeast(2)
 
-        // 更新二级卡片
-        // 卡0: 步频, 卡1: 卡路里, 卡2: 总步数
-        cardValueViews[0].text = cadence.toString()
-        cardValueViews[1].text = totalCalories.toString()
-        cardValueViews[2].text = totalSteps.toString()
+        updateSecondaryCards()
     }
 
     // ============================================================
@@ -331,9 +691,6 @@ class WorkoutTrackingActivity : AppCompatActivity() {
     private fun updateCyclingData() {
         // 速度 22~28 km/h
         currentPaceSpeed = 22.0 + (Math.random() * 6)
-        val speedStr = config.primaryFormat(currentPaceSpeed)
-        findViewById<TextView>(R.id.tv_primary_value).text = speedStr
-        updateSpeedColor()
 
         // 最高速度
         if (currentPaceSpeed > maxSpeed) {
@@ -351,12 +708,7 @@ class WorkoutTrackingActivity : AppCompatActivity() {
             0.0
         }
 
-        // 更新二级卡片
-        // 卡0: 海拔爬升, 卡1: 平均坡度, 卡2: 卡路里, 卡3: 最高速度
-        cardValueViews[0].text = if (gpsSignalWeak) "--" else elevation.toString()
-        cardValueViews[1].text = String.format(Locale.getDefault(), "%.1f", grade)
-        cardValueViews[2].text = totalCalories.toString()
-        cardValueViews[3].text = String.format(Locale.getDefault(), "%.1f", maxSpeed)
+        updateSecondaryCards()
     }
 
     // ============================================================
@@ -487,10 +839,13 @@ class WorkoutTrackingActivity : AppCompatActivity() {
             "速度: ${config.primaryFormat(currentPaceSpeed)} km/h"
         }
 
+        val titleView = view.findViewById<TextView>(R.id.summary_tv_title)
+        val subtitleView = view.findViewById<TextView>(R.id.summary_tv_subtitle)
         view.findViewById<TextView>(R.id.summary_tv_duration).text = duration
         view.findViewById<TextView>(R.id.summary_tv_distance).text = "$distance 公里"
         view.findViewById<TextView>(R.id.summary_tv_calories).text = "$totalCalories kcal"
         view.findViewById<TextView>(R.id.summary_tv_avg_pace).text = primaryStr
+        bindCourseSummary(view, titleView, subtitleView)
 
         view.findViewById<View>(R.id.summary_btn_save).setOnClickListener {
             saveWorkoutRecord()
@@ -508,6 +863,53 @@ class WorkoutTrackingActivity : AppCompatActivity() {
         bottomSheet.setContentView(view)
         bottomSheet.setCancelable(false)
         bottomSheet.show()
+    }
+
+    private fun bindCourseSummary(view: View, titleView: TextView, subtitleView: TextView) {
+        val course = activeCourse
+        val container = view.findViewById<View>(R.id.summary_course_container)
+        if (course == null) {
+            container.visibility = View.GONE
+            titleView.text = "运动完成！"
+            subtitleView.text = "本次运动数据摘要"
+            return
+        }
+
+        val totalSteps = course.plan.steps.size
+        val completedSteps = calculateCompletedCourseSteps(course)
+        val completionRate = ((elapsedSeconds.coerceAtMost(courseTotalSeconds(course)) * 100f) /
+            courseTotalSeconds(course).coerceAtLeast(1)).toInt()
+        val goalMessage = if (elapsedSeconds >= courseTotalSeconds(course)) {
+            "目标达成：已完成课程计划时长与主要阶段"
+        } else {
+            "目标达成：已完成 ${completedSteps}/${totalSteps} 步，建议下次继续完成整节课"
+        }
+
+        container.visibility = View.VISIBLE
+        titleView.text = "课程完成"
+        subtitleView.text = "${course.title} · 本次课程结果"
+        view.findViewById<TextView>(R.id.summary_tv_course_title).text = "课程：${course.title}"
+        view.findViewById<TextView>(R.id.summary_tv_course_progress).text =
+            "课程进度：${completedSteps}/${totalSteps} 步，完成度 ${completionRate.coerceIn(0, 100)}%"
+        view.findViewById<TextView>(R.id.summary_tv_course_goal).text = goalMessage
+    }
+
+    private fun calculateCompletedCourseSteps(course: TrainingCourse): Int {
+        var remaining = elapsedSeconds
+        var completed = 0
+        for (step in course.plan.steps) {
+            if (remaining >= step.durationSeconds) {
+                completed++
+                remaining -= step.durationSeconds
+            } else {
+                break
+            }
+        }
+        return completed
+    }
+
+    private fun courseTotalSeconds(course: TrainingCourse): Int {
+        return course.plan.steps.sumOf { it.durationSeconds }
     }
 
     // ============================================================
@@ -539,6 +941,8 @@ class WorkoutTrackingActivity : AppCompatActivity() {
     }
 
     private fun onFinishWorkout() {
+        shouldPersistCourseSession = false
+        ActiveCourseSessionStore(this).clear(CourseNavigator.courseIdOf(intent))
         finish()
     }
 
@@ -564,12 +968,17 @@ class WorkoutTrackingActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        if (shouldPersistCourseSession) {
+            persistCourseSessionProgress()
+        }
         stopTimer()
     }
 
     private fun stopTimer() {
         isTimerRunning = false
         handler.removeCallbacks(timerRunnable)
+        locationService.stopTracking()
+        stepService.stopTracking()
     }
 
     companion object {

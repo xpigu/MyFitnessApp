@@ -59,6 +59,10 @@ data class WorkoutRecord(
     @ColumnInfo(name = "strength_volume")
     val strengthVolume: Double = 0.0,
 
+    /** 力量训练单次完成的最大重量（kg） */
+    @ColumnInfo(name = "strength_max_weight")
+    val strengthMaxWeight: Double = 0.0,
+
     /** 游泳距离（米） */
     @ColumnInfo(name = "swim_distance_m")
     val swimDistanceM: Int = 0,

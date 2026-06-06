@@ -1,5 +1,6 @@
 package com.example.myfitnessapp
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -7,8 +8,12 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.example.myfitnessapp.data.model.CourseRepository
-import com.example.myfitnessapp.data.model.WorkoutCourse
+import androidx.core.widget.NestedScrollView
+import com.example.myfitnessapp.course.data.ActiveCourseSessionStore
+import com.example.myfitnessapp.course.domain.ActiveCourseSession
+import com.example.myfitnessapp.course.data.TrainingCourseRepository
+import com.example.myfitnessapp.course.domain.TrainingCourse
+import com.example.myfitnessapp.course.navigation.CourseNavigator
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class TrainingActivity : AppCompatActivity() {
@@ -23,7 +28,10 @@ class TrainingActivity : AppCompatActivity() {
         TabConfig(R.id.tab_course_jump_rope, R.drawable.ic_jump_rope, "JUMP_ROPE")
     )
     private var selectedCourseTabIndex = 0
-    private var currentCourses: List<WorkoutCourse> = emptyList()
+    private var currentCourses: List<TrainingCourse> = emptyList()
+    private val courseRepository by lazy { TrainingCourseRepository() }
+    private val courseSessionStore by lazy { ActiveCourseSessionStore(this) }
+    private val courseNavigator by lazy { CourseNavigator(courseSessionStore) }
 
     // 课程卡片视图引用
     private lateinit var courseItem1: View
@@ -35,10 +43,24 @@ class TrainingActivity : AppCompatActivity() {
         setContentView(R.layout.activity_training)
 
         setupBottomNavigation()
+        setupHeaderActions()
         setupCourseTabs()
         setupWorkoutCards()
         setupCourseItems()
         loadCoursesForSportType("RUN") // 默认加载跑步课程
+        handleReminderEntry(intent)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleReminderEntry(intent)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        updateNotificationBadge()
+        updateCourseCards()
     }
 
     // ============================================================
@@ -69,6 +91,37 @@ class TrainingActivity : AppCompatActivity() {
                 else -> false
             }
         }
+    }
+
+    // ============================================================
+    // 头部交互
+    // ============================================================
+    private fun setupHeaderActions() {
+        findViewById<View>(R.id.iv_calendar).setOnClickListener {
+            startActivity(Intent(this, ReminderSettingsActivity::class.java))
+        }
+        updateNotificationBadge()
+    }
+
+    private fun updateNotificationBadge() {
+        findViewById<View>(R.id.view_training_notification_badge).visibility =
+            if (ReminderPrefs.hasAnyEnabledReminder(this)) View.VISIBLE else View.GONE
+    }
+
+    private fun handleReminderEntry(intent: Intent?) {
+        if (intent?.getBooleanExtra(ReminderScheduler.EXTRA_FROM_REMINDER, false) != true) return
+
+        if (ReminderType.from(intent.getStringExtra(ReminderScheduler.EXTRA_REMINDER_TYPE)) == ReminderType.WORKOUT) {
+            val scrollView = findViewById<NestedScrollView>(R.id.nested_scroll_training)
+            val quickStartCard = findViewById<View>(R.id.cv_quick_start)
+            val runningWorkoutCard = findViewById<View>(R.id.workout_running)
+            quickStartCard.scrollIntoContainer(scrollView, 16.dp())
+            runningWorkoutCard.playReminderFocusAnimation()
+            Toast.makeText(this, R.string.reminder_workout_opened_hint, Toast.LENGTH_SHORT).show()
+        }
+
+        intent.removeExtra(ReminderScheduler.EXTRA_FROM_REMINDER)
+        intent.removeExtra(ReminderScheduler.EXTRA_REMINDER_TYPE)
     }
 
     // ============================================================
@@ -103,7 +156,7 @@ class TrainingActivity : AppCompatActivity() {
     // 加载指定运动类型的课程
     // ============================================================
     private fun loadCoursesForSportType(sportType: String) {
-        currentCourses = CourseRepository.getCoursesBySportType(sportType)
+        currentCourses = courseRepository.getCoursesBySportType(sportType)
         updateCourseCards()
     }
 
@@ -114,6 +167,10 @@ class TrainingActivity : AppCompatActivity() {
         courseItem1 = findViewById(R.id.course_item_1)
         courseItem2 = findViewById(R.id.course_item_2)
         courseItem3 = findViewById(R.id.course_item_3)
+
+        courseItem1.visibility = if (currentCourses.isNotEmpty()) View.VISIBLE else View.GONE
+        courseItem2.visibility = if (currentCourses.size >= 2) View.VISIBLE else View.GONE
+        courseItem3.visibility = if (currentCourses.size >= 3) View.VISIBLE else View.GONE
 
         if (currentCourses.isNotEmpty()) {
             updateSingleCourseCard(courseItem1, currentCourses[0], R.id.tv_course_1_title, R.id.tv_course_1_info)
@@ -128,7 +185,7 @@ class TrainingActivity : AppCompatActivity() {
 
     private fun updateSingleCourseCard(
         cardView: View,
-        course: WorkoutCourse,
+        course: TrainingCourse,
         titleId: Int,
         infoId: Int
     ) {
@@ -142,12 +199,27 @@ class TrainingActivity : AppCompatActivity() {
 
         // 更新信息
         val infoView = cardView.findViewById<TextView>(infoId)
-        infoView?.text = course.formatInfo()
+        val activeSession = courseSessionStore.getActiveFor(course.id)
+        val isActiveCourse = activeSession != null
+        val statusLabel = if (activeSession != null) {
+            "${getString(R.string.course_status_in_progress)} · ${buildCourseProgressLabel(course, activeSession)}"
+        } else {
+            getString(R.string.course_status_not_started)
+        }
+        infoView?.text = "${course.formatCardInfo()} · $statusLabel"
 
-        // 点击开始按钮
+        cardView.setOnClickListener {
+            showCourseDetail(course)
+        }
+
         val startBtn = cardView.findViewById<TextView>(R.id.btn_course_start)
+        startBtn?.text = if (isActiveCourse) {
+            getString(R.string.course_action_continue)
+        } else {
+            getString(R.string.course_action_start)
+        }
         startBtn?.setOnClickListener {
-            startCourseTraining(course)
+            launchCourse(course)
         }
     }
 
@@ -180,20 +252,19 @@ class TrainingActivity : AppCompatActivity() {
         courseItem2 = findViewById(R.id.course_item_2)
         courseItem3 = findViewById(R.id.course_item_3)
 
-        // 默认点击事件（会被动态更新覆盖）
         courseItem1.setOnClickListener {
             if (currentCourses.isNotEmpty()) {
-                startCourseTraining(currentCourses[0])
+                showCourseDetail(currentCourses[0])
             }
         }
         courseItem2.setOnClickListener {
             if (currentCourses.size >= 2) {
-                startCourseTraining(currentCourses[1])
+                showCourseDetail(currentCourses[1])
             }
         }
         courseItem3.setOnClickListener {
             if (currentCourses.size >= 3) {
-                startCourseTraining(currentCourses[2])
+                showCourseDetail(currentCourses[2])
             }
         }
     }
@@ -258,61 +329,61 @@ class TrainingActivity : AppCompatActivity() {
     // ============================================================
     // 开始课程训练（传递课程信息）
     // ============================================================
-    private fun startCourseTraining(course: WorkoutCourse) {
-        val intent = when (course.sportType) {
-            "RUN", "CYCLING" -> {
-                Intent(this, WorkoutTrackingActivity::class.java).apply {
-                    putExtra(WorkoutTrackingActivity.EXTRA_SPORT_NAME, course.title)
-                    putExtra(WorkoutTrackingActivity.EXTRA_SPORT_ICON, course.iconResId)
-                    putExtra(WorkoutTrackingActivity.EXTRA_SPORT_TYPE, course.sportType)
-                    putExtra("course_id", course.id)
-                    putExtra("course_duration", course.durationMinutes)
-                    putExtra("course_calories", course.estimatedCalories)
-                }
-            }
-            "JUMP_ROPE" -> {
-                Intent(this, JumpRopeActivity::class.java).apply {
-                    putExtra("course_id", course.id)
-                    putExtra("course_title", course.title)
-                    putExtra("course_duration", course.durationMinutes)
-                    putExtra("course_calories", course.estimatedCalories)
-                }
-            }
-            "STRENGTH" -> {
-                Intent(this, StrengthActivity::class.java).apply {
-                    putExtra("course_id", course.id)
-                    putExtra("course_title", course.title)
-                    putExtra("course_duration", course.durationMinutes)
-                    putExtra("course_calories", course.estimatedCalories)
-                }
-            }
-            "SWIMMING" -> {
-                Intent(this, SwimmingActivity::class.java).apply {
-                    putExtra("course_id", course.id)
-                    putExtra("course_title", course.title)
-                    putExtra("course_duration", course.durationMinutes)
-                    putExtra("course_calories", course.estimatedCalories)
-                }
-            }
-            "YOGA" -> {
-                Intent(this, YogaActivity::class.java).apply {
-                    putExtra("course_id", course.id)
-                    putExtra("course_title", course.title)
-                    putExtra("course_duration", course.durationMinutes)
-                    putExtra("course_calories", course.estimatedCalories)
-                }
-            }
-            else -> {
-                Intent(this, WorkoutTrackingActivity::class.java).apply {
-                    putExtra(WorkoutTrackingActivity.EXTRA_SPORT_NAME, course.title)
-                    putExtra(WorkoutTrackingActivity.EXTRA_SPORT_ICON, course.iconResId)
-                    putExtra(WorkoutTrackingActivity.EXTRA_SPORT_TYPE, course.sportType)
-                }
-            }
+    private fun showCourseDetail(course: TrainingCourse) {
+        val activeSession = courseSessionStore.getActiveFor(course.id)
+        val stepsSummary = course.plan.steps.joinToString("\n") { step ->
+            val minutes = (step.durationSeconds / 60).coerceAtLeast(1)
+            "• ${step.title}  ${minutes}分钟"
         }
-        startActivity(intent)
-        Toast.makeText(this, "开始课程: ${course.title}", Toast.LENGTH_SHORT).show()
+        val message = buildString {
+            appendLine(course.description)
+            appendLine()
+            appendLine("课程目标：${course.goal}")
+            appendLine("适合器械：${course.formatEquipment()}")
+            appendLine("课程标签：${course.tags.joinToString(" / ")}")
+            activeSession?.let {
+                appendLine("当前进度：${buildCourseProgressLabel(course, it)}")
+            }
+            appendLine()
+            appendLine("课程结构：")
+            append(stepsSummary)
+        }
+        val startLabel = if (activeSession != null) {
+            getString(R.string.course_action_continue)
+        } else {
+            getString(R.string.course_action_start)
+        }
+        AlertDialog.Builder(this)
+            .setTitle(course.title)
+            .setMessage(message)
+            .setNegativeButton(android.R.string.cancel, null)
+            .setPositiveButton(startLabel) { _, _ ->
+                launchCourse(course)
+            }
+            .show()
     }
+
+    private fun launchCourse(course: TrainingCourse) {
+        courseNavigator.openCourse(this, course)
+        Toast.makeText(this, getString(R.string.course_start_toast, course.title), Toast.LENGTH_SHORT).show()
+    }
+
+    private fun buildCourseProgressLabel(course: TrainingCourse, session: ActiveCourseSession): String {
+        val totalSteps = course.plan.steps.size.coerceAtLeast(1)
+        val currentStep = session.currentStepIndex.coerceIn(0, totalSteps - 1) + 1
+        return "第 $currentStep/$totalSteps ${courseProgressUnit(course)}"
+    }
+
+    private fun courseProgressUnit(course: TrainingCourse): String {
+        return when (course.sportType) {
+            "STRENGTH" -> "动作"
+            "JUMP_ROPE" -> "回合"
+            "YOGA" -> "步骤"
+            else -> "阶段"
+        }
+    }
+
+    private fun Int.dp(): Int = (this * resources.displayMetrics.density).toInt()
 }
 
 // ============================================================

@@ -1,47 +1,130 @@
 package com.example.myfitnessapp
 
+import android.app.AlertDialog
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.View
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import kotlin.random.Random
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.widget.NestedScrollView
 import androidx.lifecycle.ViewModelProvider
+import com.example.myfitnessapp.data.viewmodel.DailyCheckinViewModel
 import com.example.myfitnessapp.data.viewmodel.DietRecordViewModel
+import com.example.myfitnessapp.data.viewmodel.UserProfileViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var viewModel: DietRecordViewModel
-    private val budgetCalories = 2000
+    private lateinit var dietViewModel: DietRecordViewModel
+    private lateinit var userProfileViewModel: UserProfileViewModel
+    private lateinit var checkinViewModel: DailyCheckinViewModel
+    
+    private var budgetCalories = 2000
+    private var targetWater = 8
     private val burnedCalories = 100
+    
+    private var hasShownCheckinPopup = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        viewModel = ViewModelProvider(this).get(DietRecordViewModel::class.java)
-        viewModel.resetDailyWaterIfNeeded()
+        dietViewModel = ViewModelProvider(this).get(DietRecordViewModel::class.java)
+        userProfileViewModel = ViewModelProvider(this).get(UserProfileViewModel::class.java)
+        checkinViewModel = ViewModelProvider(this).get(DailyCheckinViewModel::class.java)
+        
+        dietViewModel.resetDailyWaterIfNeeded()
+        ReminderScheduler.rescheduleAll(this)
 
         setupBottomNavigation()
+        setupHeaderActions()
         setupDietSection()
-        observeDietData()
+        observeData()
+        handleReminderEntry(intent)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleReminderEntry(intent)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        updateNotificationBadge()
     }
 
     // ============================================================
     // 观察数据变化
     // ============================================================
-    private fun observeDietData() {
-        viewModel.todayTotalCalories.observe(this) { totalConsumed ->
+    private fun observeData() {
+        userProfileViewModel.userProfile.observe(this) { profile ->
+            budgetCalories = profile.targetDailyCalories
+            targetWater = profile.targetDailyWater
+            
+            // 重新触发卡路里更新
+            val currentConsumed = dietViewModel.todayTotalCalories.value ?: 0
+            updateCaloriesDisplay(currentConsumed)
+            
+            // 重新触发饮水更新
+            val currentWater = dietViewModel.waterCount.value ?: 0
+            updateWaterDisplay(currentWater)
+        }
+
+        dietViewModel.todayTotalCalories.observe(this) { totalConsumed ->
             updateCaloriesDisplay(totalConsumed)
         }
 
-        viewModel.waterCount.observe(this) { count ->
-            findViewById<TextView>(R.id.tv_water_count).text = "$count 杯"
+        dietViewModel.waterCount.observe(this) { count ->
+            updateWaterDisplay(count)
         }
+
+        checkinViewModel.isCheckedInToday.observe(this) { isCheckedIn ->
+            if (!isCheckedIn && !hasShownCheckinPopup) {
+                showCheckinDialog()
+                hasShownCheckinPopup = true
+            }
+        }
+    }
+    
+    private fun showCheckinDialog() {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_daily_checkin, null)
+        val dialog = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setCancelable(false) // 强制用户选择签到或稍后
+            .create()
+
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+        dialogView.findViewById<Button>(R.id.btn_dialog_checkin).setOnClickListener {
+            checkinViewModel.checkinToday(
+                onSuccess = { streak ->
+                    Toast.makeText(this, "签到成功！连续签到 $streak 天", Toast.LENGTH_SHORT).show()
+                    dialog.dismiss()
+                },
+                onAlreadyCheckedIn = {
+                    Toast.makeText(this, "今天已经签到过了哦", Toast.LENGTH_SHORT).show()
+                    dialog.dismiss()
+                }
+            )
+        }
+
+        dialogView.findViewById<TextView>(R.id.tv_dialog_close).setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
+    }
+
+    private fun updateWaterDisplay(count: Int) {
+        findViewById<TextView>(R.id.tv_water_count).text = "$count / $targetWater 杯"
     }
 
     // ============================================================
@@ -75,6 +158,39 @@ class MainActivity : AppCompatActivity() {
     }
 
     // ============================================================
+    // 头部交互
+    // ============================================================
+    private fun setupHeaderActions() {
+        findViewById<View>(R.id.ib_notification).setOnClickListener {
+            startActivity(Intent(this, ReminderSettingsActivity::class.java))
+        }
+        updateNotificationBadge()
+    }
+
+    private fun updateNotificationBadge() {
+        findViewById<View>(R.id.view_notification_badge).visibility =
+            if (ReminderPrefs.hasAnyEnabledReminder(this)) View.VISIBLE else View.GONE
+    }
+
+    private fun handleReminderEntry(intent: Intent?) {
+        if (intent?.getBooleanExtra(ReminderScheduler.EXTRA_FROM_REMINDER, false) != true) return
+
+        when (ReminderType.from(intent.getStringExtra(ReminderScheduler.EXTRA_REMINDER_TYPE))) {
+            ReminderType.WATER -> {
+                val scrollView = findViewById<NestedScrollView>(R.id.nested_scroll_view)
+                val waterButton = findViewById<View>(R.id.btn_water)
+                waterButton.scrollIntoContainer(scrollView, 24.dp())
+                waterButton.playReminderFocusAnimation()
+                Toast.makeText(this, R.string.reminder_water_opened_hint, Toast.LENGTH_SHORT).show()
+            }
+            else -> Unit
+        }
+
+        intent.removeExtra(ReminderScheduler.EXTRA_FROM_REMINDER)
+        intent.removeExtra(ReminderScheduler.EXTRA_REMINDER_TYPE)
+    }
+
+    // ============================================================
     // 饮食记录模块
     // ============================================================
     private fun setupDietSection() {
@@ -97,14 +213,14 @@ class MainActivity : AppCompatActivity() {
 
         // 饮水按钮
         findViewById<View>(R.id.btn_water).setOnClickListener {
-            viewModel.addWater()
+            dietViewModel.addWater()
             Toast.makeText(this, "已饮水 1 杯", Toast.LENGTH_SHORT).show()
         }
 
         // 快速加餐按钮
         findViewById<View>(R.id.btn_quick_snack).setOnClickListener {
             val cal = 150
-            viewModel.addDietRecord("SNACK", "快速加餐", cal)
+            dietViewModel.addDietRecord("SNACK", "快速加餐", cal)
             Toast.makeText(this, "快速加餐 +$cal kcal", Toast.LENGTH_SHORT).show()
         }
     }
@@ -126,7 +242,7 @@ class MainActivity : AppCompatActivity() {
     private fun setupAddFoodButton(buttonId: Int, mealType: String, mealLabel: String) {
         findViewById<View>(buttonId).setOnClickListener {
             val addedCalories = listOf(50, 100, 150, 200, 250, 300)[Random.nextInt(6)]
-            viewModel.addDietRecord(mealType, "食物", addedCalories, "自动添加")
+            dietViewModel.addDietRecord(mealType, "食物", addedCalories, "自动添加")
             Toast.makeText(this, "$mealLabel +$addedCalories kcal", Toast.LENGTH_SHORT).show()
         }
     }
@@ -150,4 +266,6 @@ class MainActivity : AppCompatActivity() {
             else -> "今日还可摄入约 $remaining kcal，建议均衡搭配蛋白质和蔬菜"
         }
     }
+
+    private fun Int.dp(): Int = (this * resources.displayMetrics.density).toInt()
 }

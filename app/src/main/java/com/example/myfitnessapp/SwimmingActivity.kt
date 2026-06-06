@@ -9,6 +9,8 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import com.example.myfitnessapp.course.data.ActiveCourseSessionStore
+import com.example.myfitnessapp.course.navigation.CourseNavigator
 import com.example.myfitnessapp.data.WorkoutRecordHelper
 import com.example.myfitnessapp.data.viewmodel.WorkoutRecordViewModel
 
@@ -104,6 +106,7 @@ class SwimmingActivity : AppCompatActivity() {
             swimStroke = selectedStroke
         )
         viewModel.saveRecord(record)
+        ActiveCourseSessionStore(this).clear(CourseNavigator.courseIdOf(intent))
 
         Toast.makeText(
             this,

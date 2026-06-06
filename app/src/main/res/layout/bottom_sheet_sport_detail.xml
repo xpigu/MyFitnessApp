@@ -114,6 +114,7 @@
             android:padding="14dp">
 
             <TextView
+                android:id="@+id/detail_label_distance"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/detail_distance"
@@ -131,6 +132,7 @@
                 tools:text="5.20" />
 
             <TextView
+                android:id="@+id/detail_unit_distance"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/detail_km"
@@ -157,6 +159,7 @@
             android:padding="14dp">
 
             <TextView
+                android:id="@+id/detail_label_avg_speed"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/detail_avg_speed"
@@ -174,6 +177,7 @@
                 tools:text="9.7" />
 
             <TextView
+                android:id="@+id/detail_unit_avg_speed"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/detail_kmh"
@@ -193,6 +197,7 @@
             android:padding="14dp">
 
             <TextView
+                android:id="@+id/detail_label_pace"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/detail_pace"
@@ -210,6 +215,7 @@
                 tools:text="6&apos;12&quot;" />
 
             <TextView
+                android:id="@+id/detail_unit_pace"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/detail_min_per_km"
