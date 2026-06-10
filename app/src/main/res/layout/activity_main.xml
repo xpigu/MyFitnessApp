@@ -116,6 +116,387 @@
                 </LinearLayout>
             </LinearLayout>
 
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cv_health_focus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="@color/card_background"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:contentPadding="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/health_focus_title"
+                        android:textColor="@color/text_primary"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tv_health_focus_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:background="@drawable/advice_card_bg"
+                        android:paddingStart="10dp"
+                        android:paddingTop="4dp"
+                        android:paddingEnd="10dp"
+                        android:paddingBottom="4dp"
+                        android:text="@string/health_focus_default_title"
+                        android:textColor="@color/gold_dark"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tv_health_focus_summary"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:text="@string/health_focus_default_summary"
+                        android:textColor="@color/text_primary"
+                        android:textSize="15sp"
+                        android:textStyle="bold"
+                        tools:text="今天已经完成 2/3 个核心目标，再补一次训练就很完整了。" />
+
+                    <TextView
+                        android:id="@+id/tv_health_focus_meta"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp"
+                        tools:text="已完成 2/3 项今日关键任务" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/tv_focus_checkin_status"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="13sp"
+                            tools:text="今日签到: 已完成" />
+
+                        <TextView
+                            android:id="@+id/tv_focus_water_status"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="13sp"
+                            tools:text="饮水目标: 6/8 杯，还差 2 杯" />
+
+                        <TextView
+                            android:id="@+id/tv_focus_workout_status"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="13sp"
+                            tools:text="训练完成: 30 分钟，本周继续保持" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/btn_health_primary_action"
+                            android:layout_width="0dp"
+                            android:layout_height="44dp"
+                            android:layout_marginEnd="8dp"
+                            android:layout_weight="1"
+                            android:background="@drawable/diet_action_btn_bg"
+                            android:gravity="center"
+                            android:text="@string/health_focus_primary_action"
+                            android:textColor="@color/indigo_primary"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/btn_health_secondary_action"
+                            android:layout_width="0dp"
+                            android:layout_height="44dp"
+                            android:layout_weight="1"
+                            android:background="@drawable/diet_action_btn_bg"
+                            android:gravity="center"
+                            android:text="@string/health_focus_secondary_action"
+                            android:textColor="@color/indigo_primary"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cv_health_score"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="@color/card_background"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:contentPadding="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/health_score_title"
+                        android:textColor="@color/text_primary"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <FrameLayout
+                            android:layout_width="88dp"
+                            android:layout_height="88dp">
+
+                            <ImageView
+                                android:id="@+id/iv_health_score_progress"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:src="@drawable/circle_progress_indigo" />
+
+                            <TextView
+                                android:id="@+id/tv_health_score_value"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:text="0"
+                                android:textColor="@color/indigo_primary"
+                                android:textSize="20sp"
+                                android:textStyle="bold"
+                                tools:text="82" />
+                        </FrameLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="16dp"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/tv_health_score_level"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/health_score_default_level"
+                                android:textColor="@color/text_primary"
+                                android:textSize="16sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/tv_health_score_summary"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="6dp"
+                                android:text="@string/health_score_default_summary"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="13sp"
+                                tools:text="今天的补水和训练进度不错，再补齐三餐记录，评分会继续上升。" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginTop="14dp"
+                        android:layout_marginBottom="12dp"
+                        android:background="@color/gray_200" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/health_score_trend_title"
+                        android:textColor="@color/text_primary"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tv_health_trend_1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="13sp"
+                        tools:text="近 7 天训练表现稳定，本周已经完成 2/3 天。" />
+
+                    <TextView
+                        android:id="@+id/tv_health_trend_2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="13sp"
+                        tools:text="今日步数完成 68%，再活动 15 分钟会更接近目标。" />
+
+                    <TextView
+                        android:id="@+id/tv_health_trend_3"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="13sp"
+                        tools:text="饮食记录完整度一般，建议至少补齐三餐中的主餐记录。" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cv_health_week_trend"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="@color/card_background"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:contentPadding="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/health_week_trend_title"
+                        android:textColor="@color/text_primary"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tv_health_week_summary"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:text="@string/health_week_trend_summary"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="13sp"
+                        tools:text="相比周初，你最近几天的健康执行更稳定了，训练和饮食记录都有改善。" />
+
+                    <LinearLayout
+                        android:id="@+id/ll_health_week_bars"
+                        android:layout_width="match_parent"
+                        android:layout_height="120dp"
+                        android:layout_marginTop="16dp"
+                        android:gravity="bottom"
+                        android:orientation="horizontal" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cv_health_risk"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="@color/card_background"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:contentPadding="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/health_risk_title"
+                        android:textColor="@color/text_primary"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tv_health_risk_level"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:background="@drawable/advice_card_bg"
+                        android:paddingStart="10dp"
+                        android:paddingTop="4dp"
+                        android:paddingEnd="10dp"
+                        android:paddingBottom="4dp"
+                        android:text="@string/health_risk_default_level"
+                        android:textColor="@color/gold_dark"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tv_health_risk_summary"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:text="@string/health_risk_default_summary"
+                        android:textColor="@color/text_primary"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tv_health_risk_item_1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="13sp"
+                        tools:text="1. 下午补水进度仍然偏低，可能影响晚间训练状态。" />
+
+                    <TextView
+                        android:id="@+id/tv_health_risk_item_2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="13sp"
+                        tools:text="2. 今天主训练尚未开始，本周目标还有欠缺。" />
+
+                    <TextView
+                        android:id="@+id/tv_health_risk_item_3"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="13sp"
+                        tools:text="3. 晚餐记录缺失，热量评估可能不准确。" />
+
+                    <TextView
+                        android:id="@+id/btn_health_risk_action"
+                        android:layout_width="match_parent"
+                        android:layout_height="44dp"
+                        android:layout_marginTop="14dp"
+                        android:background="@drawable/diet_action_btn_bg"
+                        android:gravity="center"
+                        android:text="@string/health_risk_default_action"
+                        android:textColor="@color/indigo_primary"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
             <!-- ============================================================
                  2. 今日进度 (Today's Progress)
                  ============================================================ -->
@@ -174,7 +555,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_gravity="center"
-                                    android:text="8,523"
+                                    android:text="0"
                                     android:textColor="@color/indigo_primary"
                                     android:textSize="18sp"
                                     android:textStyle="bold"
@@ -223,7 +604,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_gravity="center"
-                                    android:text="486"
+                                    android:text="0"
                                     android:textColor="@color/emerald_dark"
                                     android:textSize="18sp"
                                     android:textStyle="bold"
@@ -272,7 +653,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_gravity="center"
-                                    android:text="45"
+                                    android:text="0"
                                     android:textColor="@color/gold_dark"
                                     android:textSize="18sp"
                                     android:textStyle="bold"
@@ -580,19 +961,18 @@
                                 android:paddingBottom="8dp">
 
                                 <TextView
+                                    android:id="@+id/tv_breakfast_empty"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="燕麦粥 (150g) - 180 kcal"
-                                    android:textColor="@color/text_secondary"
+                                    android:text="@string/diet_no_records"
+                                    android:textColor="@color/gray_400"
                                     android:textSize="12sp" />
 
-                                <TextView
-                                    android:layout_width="wrap_content"
+                                <LinearLayout
+                                    android:id="@+id/ll_breakfast_record_list"
+                                    android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginTop="4dp"
-                                    android:text="鸡蛋 x2 - 140 kcal"
-                                    android:textColor="@color/text_secondary"
-                                    android:textSize="12sp" />
+                                    android:orientation="vertical" />
 
                                 <LinearLayout
                                     android:layout_width="wrap_content"
@@ -681,19 +1061,18 @@
                                 android:paddingBottom="8dp">
 
                                 <TextView
+                                    android:id="@+id/tv_lunch_empty"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="鸡胸肉沙拉 (200g) - 280 kcal"
-                                    android:textColor="@color/text_secondary"
+                                    android:text="@string/diet_no_records"
+                                    android:textColor="@color/gray_400"
                                     android:textSize="12sp" />
 
-                                <TextView
-                                    android:layout_width="wrap_content"
+                                <LinearLayout
+                                    android:id="@+id/ll_lunch_record_list"
+                                    android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginTop="4dp"
-                                    android:text="糙米饭 (150g) - 170 kcal"
-                                    android:textColor="@color/text_secondary"
-                                    android:textSize="12sp" />
+                                    android:orientation="vertical" />
 
                                 <LinearLayout
                                     android:layout_width="wrap_content"
@@ -782,11 +1161,18 @@
                                 android:paddingBottom="8dp">
 
                                 <TextView
+                                    android:id="@+id/tv_dinner_empty"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="暂无记录"
+                                    android:text="@string/diet_no_records"
                                     android:textColor="@color/gray_400"
                                     android:textSize="12sp" />
+
+                                <LinearLayout
+                                    android:id="@+id/ll_dinner_record_list"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="vertical" />
 
                                 <LinearLayout
                                     android:layout_width="wrap_content"
@@ -875,11 +1261,18 @@
                                 android:paddingBottom="8dp">
 
                                 <TextView
+                                    android:id="@+id/tv_snack_empty"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="香蕉 x1 - 80 kcal"
-                                    android:textColor="@color/text_secondary"
+                                    android:text="@string/diet_no_records"
+                                    android:textColor="@color/gray_400"
                                     android:textSize="12sp" />
+
+                                <LinearLayout
+                                    android:id="@+id/ll_snack_record_list"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="vertical" />
 
                                 <LinearLayout
                                     android:layout_width="wrap_content"
@@ -939,6 +1332,176 @@
                             android:textSize="12sp" />
                     </LinearLayout>
 
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:background="@drawable/advice_card_bg"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="12dp">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/diet_goal_title"
+                                android:textColor="@color/text_primary"
+                                android:textSize="14sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/tv_diet_goal_summary"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="12sp"
+                                tools:text="当前以减脂为目标，系统会优先推荐高蛋白、较低热量密度的搭配。" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/btn_change_diet_goal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:background="@drawable/add_food_btn_bg"
+                            android:paddingStart="10dp"
+                            android:paddingTop="6dp"
+                            android:paddingEnd="10dp"
+                            android:paddingBottom="6dp"
+                            android:text="@string/diet_goal_change"
+                            android:textColor="@color/indigo_primary"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:background="@drawable/advice_card_bg"
+                        android:orientation="vertical"
+                        android:padding="12dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/diet_macro_summary"
+                            android:textColor="@color/text_primary"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tv_macro_summary"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="12sp"
+                            tools:text="蛋白质 68g · 碳水 145g · 脂肪 42g" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:background="@drawable/advice_card_bg"
+                        android:orientation="vertical"
+                        android:padding="12dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/diet_insight_title"
+                            android:textColor="@color/text_primary"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tv_diet_insight_summary"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="12sp"
+                            tools:text="近7天有 5 天记录饮食，平均每日蛋白质 82g，整体执行比较稳定。" />
+
+                        <TextView
+                            android:id="@+id/tv_diet_target_completion"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="12sp"
+                            tools:text="今日达成：蛋白质 68% · 碳水 57% · 脂肪 63%" />
+
+                        <TextView
+                            android:id="@+id/tv_diet_trend_signal"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="12sp"
+                            tools:text="今天比近7天平均更接近减脂目标，尤其是蛋白质完成度更高。" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:background="@drawable/advice_card_bg"
+                        android:orientation="vertical"
+                        android:padding="12dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/diet_meal_plan_title"
+                            android:textColor="@color/text_primary"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tv_meal_plan_summary"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:text="@string/diet_meal_plan_summary"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="12sp"
+                            tools:text="建议优先补晚餐：糙米饭 150g + 鸡胸肉 120g + 西兰花 200g，约 520 kcal。" />
+
+                        <TextView
+                            android:id="@+id/btn_generate_meal_plan"
+                            android:layout_width="match_parent"
+                            android:layout_height="40dp"
+                            android:layout_marginTop="10dp"
+                            android:background="@drawable/diet_action_btn_bg"
+                            android:gravity="center"
+                            android:text="@string/diet_generate_meal_plan"
+                            android:textColor="@color/indigo_primary"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/btn_apply_meal_plan"
+                            android:layout_width="match_parent"
+                            android:layout_height="40dp"
+                            android:layout_marginTop="8dp"
+                            android:background="@drawable/diet_action_btn_bg"
+                            android:gravity="center"
+                            android:text="@string/diet_apply_recommendation"
+                            android:textColor="@color/indigo_primary"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
                     <!-- 饮水 + 快速加餐按钮 -->
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -992,7 +1555,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="6dp"
-                                android:text="@string/diet_quick_snack"
+                                android:text="@string/diet_smart_snack"
                                 android:textColor="@color/indigo_primary"
                                 android:textSize="13sp"
                                 android:textStyle="bold" />

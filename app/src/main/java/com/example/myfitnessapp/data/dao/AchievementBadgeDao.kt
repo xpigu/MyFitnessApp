@@ -17,7 +17,7 @@ interface AchievementBadgeDao {
     @Update
     suspend fun updateBadge(badge: AchievementBadge)
 
-    @Query("SELECT * FROM achievement_badges")
+    @Query("SELECT * FROM achievement_badges ORDER BY is_unlocked DESC, unlocked_date DESC, category ASC, id ASC")
     fun getAllBadges(): LiveData<List<AchievementBadge>>
 
     @Query("SELECT * FROM achievement_badges WHERE is_unlocked = 1 ORDER BY unlocked_date DESC")

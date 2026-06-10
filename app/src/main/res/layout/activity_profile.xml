@@ -225,6 +225,128 @@
                                 android:textSize="11sp" />
                         </LinearLayout>
                     </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="18dp"
+                        android:background="#1FFFFFFF"
+                        android:orientation="vertical"
+                        android:padding="14dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/tv_profile_level_title"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="@string/profile_level_title_default"
+                                android:textColor="#FFFFFF"
+                                android:textSize="14sp"
+                                android:textStyle="bold"
+                                tools:text="稳定训练者" />
+
+                            <TextView
+                                android:id="@+id/tv_profile_level_progress"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/profile_level_progress_default"
+                                android:textColor="#CCFFFFFF"
+                                android:textSize="12sp"
+                                tools:text="距离下一级还差 68 经验" />
+                        </LinearLayout>
+
+                        <ProgressBar
+                            android:id="@+id/progress_profile_level"
+                            style="?android:attr/progressBarStyleHorizontal"
+                            android:layout_width="match_parent"
+                            android:layout_height="8dp"
+                            android:layout_marginTop="10dp"
+                            android:max="120"
+                            android:progress="52"
+                            android:progressTint="@color/gold_accent"
+                            android:secondaryProgress="0"
+                            tools:progress="52" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/tv_profile_exp_training"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="@string/profile_exp_training_default"
+                                android:textColor="#CCFFFFFF"
+                                android:textSize="12sp"
+                                tools:text="训练 +96" />
+
+                            <TextView
+                                android:id="@+id/tv_profile_exp_active_days"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:gravity="center"
+                                android:text="@string/profile_exp_active_default"
+                                android:textColor="#CCFFFFFF"
+                                android:textSize="12sp"
+                                tools:text="活跃 +64" />
+
+                            <TextView
+                                android:id="@+id/tv_profile_exp_streak"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:gravity="end"
+                                android:text="@string/profile_exp_streak_default"
+                                android:textColor="#CCFFFFFF"
+                                android:textSize="12sp"
+                                tools:text="签到 +45" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/tv_profile_weekly_exp"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="@string/profile_weekly_exp_default"
+                                android:textColor="#FFFFFF"
+                                android:textSize="13sp"
+                                android:textStyle="bold"
+                                tools:text="本周新增经验 +84" />
+
+                            <TextView
+                                android:id="@+id/btn_profile_level_guide"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/dialog_goal_secondary_btn_bg"
+                                android:clickable="true"
+                                android:focusable="true"
+                                android:paddingLeft="12dp"
+                                android:paddingTop="6dp"
+                                android:paddingRight="12dp"
+                                android:paddingBottom="6dp"
+                                android:text="@string/profile_level_guide"
+                                android:textColor="@color/text_primary"
+                                android:textSize="12sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+                    </LinearLayout>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 

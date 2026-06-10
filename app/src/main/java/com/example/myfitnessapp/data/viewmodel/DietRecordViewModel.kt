@@ -6,8 +6,12 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.myfitnessapp.data.database.AppDatabase
+import com.example.myfitnessapp.data.entity.CustomFood
 import com.example.myfitnessapp.data.entity.DietRecord
+import com.example.myfitnessapp.data.entity.FavoriteMealCombo
+import com.example.myfitnessapp.data.repository.CustomFoodRepository
 import com.example.myfitnessapp.data.repository.DietRecordRepository
+import com.example.myfitnessapp.data.repository.FavoriteMealComboRepository
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -16,10 +20,18 @@ import java.util.Locale
 class DietRecordViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository: DietRecordRepository
+    private val customFoodRepository: CustomFoodRepository
+    private val favoriteMealComboRepository: FavoriteMealComboRepository
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
     /** 所有膳食记录，按时间倒序 */
     val allRecords: LiveData<List<DietRecord>>
+
+    /** 自定义食物 */
+    val customFoods: LiveData<List<CustomFood>>
+
+    /** 常用组合 */
+    val favoriteCombos: LiveData<List<FavoriteMealCombo>>
 
     /** 当前日期的总摄入卡路里 */
     private val _todayTotalCalories = MutableLiveData<Int>()
@@ -34,9 +46,13 @@ class DietRecordViewModel(application: Application) : AndroidViewModel(applicati
     val waterCount: LiveData<Int> = _waterCount
 
     init {
-        val dao = AppDatabase.getInstance(application).dietRecordDao()
-        repository = DietRecordRepository(dao)
+        val database = AppDatabase.getInstance(application)
+        repository = DietRecordRepository(database.dietRecordDao())
+        customFoodRepository = CustomFoodRepository(database.customFoodDao())
+        favoriteMealComboRepository = FavoriteMealComboRepository(database.favoriteMealComboDao())
         allRecords = repository.allRecords
+        customFoods = customFoodRepository.allFoods
+        favoriteCombos = favoriteMealComboRepository.allCombos
 
         // 初始化水分摄入计数（从 SharedPreferences 读取或默认为 0）
         val prefs = application.getSharedPreferences("fitness_prefs", 0)
@@ -66,6 +82,44 @@ class DietRecordViewModel(application: Application) : AndroidViewModel(applicati
         viewModelScope.launch {
             repository.delete(record)
             refreshTodayData()
+        }
+    }
+
+    fun addCustomFood(
+        name: String,
+        caloriesPer100g: Int,
+        proteinPer100g: Double,
+        carbsPer100g: Double,
+        fatPer100g: Double,
+        mealType: String
+    ) {
+        val food = CustomFood(
+            name = name,
+            caloriesPer100g = caloriesPer100g,
+            proteinPer100g = proteinPer100g,
+            carbsPer100g = carbsPer100g,
+            fatPer100g = fatPer100g,
+            mealType = mealType
+        )
+        viewModelScope.launch {
+            customFoodRepository.insert(food)
+        }
+    }
+
+    fun addFavoriteCombo(
+        name: String,
+        mealType: String,
+        itemsPayload: String,
+        totalCalories: Int
+    ) {
+        val combo = FavoriteMealCombo(
+            name = name,
+            mealType = mealType,
+            itemsPayload = itemsPayload,
+            totalCalories = totalCalories
+        )
+        viewModelScope.launch {
+            favoriteMealComboRepository.insert(combo)
         }
     }
 

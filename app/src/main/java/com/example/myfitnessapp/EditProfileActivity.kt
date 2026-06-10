@@ -1,16 +1,19 @@
 package com.example.myfitnessapp
 
-import android.content.Intent
+import android.app.DatePickerDialog
 import android.os.Bundle
 import android.view.View
 import android.widget.EditText
-import android.widget.RadioButton
 import android.widget.RadioGroup
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.myfitnessapp.data.viewmodel.UserProfileViewModel
+import java.text.ParseException
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 class EditProfileActivity : AppCompatActivity() {
 
@@ -30,7 +33,7 @@ class EditProfileActivity : AppCompatActivity() {
 
         initializeViews()
         observeProfileData()
-        setupButtons()
+        setupListeners()
     }
 
     private fun initializeViews() {
@@ -58,14 +61,58 @@ class EditProfileActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupButtons() {
+    private fun setupListeners() {
+        // 返回按钮
+        findViewById<View>(R.id.btn_back).setOnClickListener {
+            finish()
+        }
+
+        // 取消按钮
+        findViewById<View>(R.id.btn_cancel_profile).setOnClickListener {
+            finish()
+        }
+
+        // 保存按钮 (Toolbar)
+        findViewById<View>(R.id.btn_toolbar_save).setOnClickListener {
+            saveProfile()
+        }
+
+        // 保存按钮 (Bottom)
         findViewById<View>(R.id.btn_save_profile).setOnClickListener {
             saveProfile()
         }
 
-        findViewById<View>(R.id.btn_cancel_profile).setOnClickListener {
-            finish()
+        // 生日选择
+        etBirthday.setOnClickListener {
+            showDatePicker()
         }
+    }
+
+    private fun showDatePicker() {
+        val calendar = Calendar.getInstance()
+        // 尝试解析现有日期
+        val currentStr = etBirthday.text.toString()
+        if (currentStr.isNotBlank()) {
+            val parts = currentStr.split("-")
+            if (parts.size == 3) {
+                calendar.set(Calendar.YEAR, parts[0].toInt())
+                calendar.set(Calendar.MONTH, parts[1].toInt() - 1)
+                calendar.set(Calendar.DAY_OF_MONTH, parts[2].toInt())
+            }
+        }
+
+        val dialog = DatePickerDialog(
+            this,
+            { _, year, month, dayOfMonth ->
+                val dateStr = String.format("%d-%02d-%02d", year, month + 1, dayOfMonth)
+                etBirthday.setText(dateStr)
+            },
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)
+        )
+        dialog.datePicker.maxDate = System.currentTimeMillis()
+        dialog.show()
     }
 
     private fun saveProfile() {
@@ -76,7 +123,24 @@ class EditProfileActivity : AppCompatActivity() {
         val birthday = etBirthday.text.toString().trim()
 
         if (username.isEmpty()) {
-            Toast.makeText(this, "用户名不能为空", Toast.LENGTH_SHORT).show()
+            etUsername.error = getString(R.string.profile_name_empty)
+            return
+        }
+
+        val height = heightStr.toIntOrNull()
+        if (heightStr.isNotEmpty() && (height == null || height !in 80..260)) {
+            etHeight.error = getString(R.string.profile_height_invalid)
+            return
+        }
+
+        val weight = weightStr.toDoubleOrNull()
+        if (weightStr.isNotEmpty() && (weight == null || weight !in 20.0..300.0)) {
+            etWeight.error = getString(R.string.profile_weight_invalid)
+            return
+        }
+
+        if (birthday.isNotEmpty() && !isValidBirthday(birthday)) {
+            etBirthday.error = getString(R.string.profile_birthday_invalid)
             return
         }
 
@@ -86,21 +150,31 @@ class EditProfileActivity : AppCompatActivity() {
             else -> "OTHER"
         }
 
-        val height = heightStr.toIntOrNull() ?: 0
-        val weight = weightStr.toDoubleOrNull() ?: 0.0
+        // 提交更新
+        val current = viewModel.userProfile.value ?: return
+        val updated = current.copy(
+            username = username,
+            bio = bio,
+            gender = gender,
+            heightCm = height ?: 0,
+            weightKg = weight ?: 0.0,
+            birthday = birthday,
+            lastUpdated = System.currentTimeMillis()
+        )
+        viewModel.updateUserProfile(updated)
+        Toast.makeText(this, R.string.profile_save_success, Toast.LENGTH_SHORT).show()
+        finish()
+    }
 
-        viewModel.userProfile.observe(this) { profile ->
-            val updated = profile.copy(
-                username = username,
-                bio = bio,
-                gender = gender,
-                heightCm = height,
-                weightKg = weight,
-                birthday = birthday
-            )
-            viewModel.submitEdit(updated)
-            Toast.makeText(this, "保存成功", Toast.LENGTH_SHORT).show()
-            finish()
+    private fun isValidBirthday(value: String): Boolean {
+        val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).apply {
+            isLenient = false
         }
+        val birthdayDate = try {
+            formatter.parse(value)
+        } catch (_: ParseException) {
+            null
+        } ?: return false
+        return !birthdayDate.after(Date())
     }
 }

@@ -20,8 +20,7 @@
             android:id="@+id/iv_badge_icon"
             android:layout_width="64dp"
             android:layout_height="64dp"
-            android:src="@drawable/ic_achievement"
-            app:tint="@color/gray_400" />
+            android:src="@drawable/ic_achievement" />
 
         <TextView
             android:id="@+id/tv_badge_name"
@@ -53,6 +52,31 @@
             android:textSize="10sp"
             android:visibility="gone"
             tools:text="已于 2026-06-06 解锁"
+            tools:visibility="visible" />
+
+        <TextView
+            android:id="@+id/tv_badge_progress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center"
+            android:textColor="@color/gray_600"
+            android:textSize="10sp"
+            android:visibility="gone"
+            tools:text="当前进度 2/7"
+            tools:visibility="visible" />
+
+        <ProgressBar
+            android:id="@+id/progress_badge"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="6dp"
+            android:layout_marginTop="6dp"
+            android:max="100"
+            android:progress="35"
+            android:progressTint="@color/indigo_primary"
+            android:visibility="gone"
+            tools:progress="35"
             tools:visibility="visible" />
     </LinearLayout>
 </androidx.cardview.widget.CardView>
