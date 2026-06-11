@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:clipChildren="false"
@@ -16,7 +17,7 @@
         android:orientation="vertical"
         android:padding="20dp">
 
-        <!-- 头部 -->
+        <!-- 婢舵挳鍎?-->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -33,7 +34,7 @@
                     android:layout_height="22dp"
                     android:layout_gravity="center"
                     android:src="@drawable/ic_goal"
-                    android:tint="@color/white" />
+                    app:tint="@color/white" />
             </FrameLayout>
 
             <LinearLayout
@@ -55,13 +56,13 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:text="从你收藏的食谱组合中快速挑选并记录。"
+                    android:text="保存常用组合，方便快速复用你的饮食搭配"
                     android:textColor="@color/text_secondary"
                     android:textSize="14sp" />
             </LinearLayout>
         </LinearLayout>
 
-        <!-- 列表容器 -->
+        <!-- 閸掓銆冪€圭懓娅?-->
         <LinearLayout
             android:id="@+id/layout_favorite_combos_container"
             android:layout_width="match_parent"
@@ -69,7 +70,7 @@
             android:layout_marginTop="16dp"
             android:orientation="vertical" />
 
-        <!-- 底部按钮 -->
+        <!-- 鎼存洟鍎撮幐澶愭尦 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

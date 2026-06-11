@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:clipChildren="false"
@@ -32,7 +33,7 @@
                     android:layout_height="22dp"
                     android:layout_gravity="center"
                     android:src="@drawable/ic_diet"
-                    android:tint="@color/white" />
+                    app:tint="@color/white" />
             </FrameLayout>
 
             <LinearLayout
@@ -116,7 +117,7 @@
                         android:layout_height="20dp"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_apple"
-                        android:tint="@color/health_snack_icon" />
+                        app:tint="@color/health_snack_icon" />
                 </FrameLayout>
 
                 <LinearLayout
@@ -154,7 +155,7 @@
                     android:layout_width="18dp"
                     android:layout_height="18dp"
                     android:src="@drawable/ic_arrow_right"
-                    android:tint="@color/text_secondary" />
+                    app:tint="@color/text_secondary" />
             </LinearLayout>
 
             <TextView
@@ -208,7 +209,7 @@
                         android:layout_height="20dp"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_lightbulb"
-                        android:tint="@color/health_hint_icon" />
+                        app:tint="@color/health_hint_icon" />
                 </FrameLayout>
 
                 <LinearLayout
@@ -246,7 +247,7 @@
                     android:layout_width="18dp"
                     android:layout_height="18dp"
                     android:src="@drawable/ic_arrow_right"
-                    android:tint="@color/text_secondary" />
+                    app:tint="@color/text_secondary" />
             </LinearLayout>
 
             <TextView
@@ -300,7 +301,7 @@
                         android:layout_height="20dp"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_goal"
-                        android:tint="@color/health_goal_icon" />
+                        app:tint="@color/health_goal_icon" />
                 </FrameLayout>
 
                 <LinearLayout
@@ -338,7 +339,7 @@
                     android:layout_width="18dp"
                     android:layout_height="18dp"
                     android:src="@drawable/ic_arrow_right"
-                    android:tint="@color/text_secondary" />
+                    app:tint="@color/text_secondary" />
             </LinearLayout>
 
             <TextView

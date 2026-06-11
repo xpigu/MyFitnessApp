@@ -73,6 +73,7 @@ object ReminderScheduler {
         )
     }
 
+    @android.annotation.SuppressLint("MissingPermission")
     fun showTestNotification(context: Context) {
         createChannel(context)
         if (!canPostNotifications(context)) return
@@ -98,6 +99,7 @@ object ReminderScheduler {
         NotificationManagerCompat.from(context).notify(NOTIFY_TEST, notification)
     }
 
+    @android.annotation.SuppressLint("MissingPermission")
     fun showReminderNotification(
         context: Context,
         notificationId: Int,

@@ -173,24 +173,47 @@ class TrainingActivity : AppCompatActivity() {
         courseItem3.visibility = if (currentCourses.size >= 3) View.VISIBLE else View.GONE
 
         if (currentCourses.isNotEmpty()) {
-            updateSingleCourseCard(courseItem1, currentCourses[0], R.id.tv_course_1_title, R.id.tv_course_1_info)
+            updateSingleCourseCard(
+                courseItem1,
+                currentCourses[0],
+                R.id.iv_course_1_icon,
+                R.id.tv_course_1_title,
+                R.id.tv_course_1_info,
+                R.id.btn_course_1_start
+            )
         }
         if (currentCourses.size >= 2) {
-            updateSingleCourseCard(courseItem2, currentCourses[1], R.id.tv_course_2_title, R.id.tv_course_2_info)
+            updateSingleCourseCard(
+                courseItem2,
+                currentCourses[1],
+                R.id.iv_course_2_icon,
+                R.id.tv_course_2_title,
+                R.id.tv_course_2_info,
+                R.id.btn_course_2_start
+            )
         }
         if (currentCourses.size >= 3) {
-            updateSingleCourseCard(courseItem3, currentCourses[2], R.id.tv_course_3_title, R.id.tv_course_3_info)
+            updateSingleCourseCard(
+                courseItem3,
+                currentCourses[2],
+                R.id.iv_course_3_icon,
+                R.id.tv_course_3_title,
+                R.id.tv_course_3_info,
+                R.id.btn_course_3_start
+            )
         }
     }
 
     private fun updateSingleCourseCard(
         cardView: View,
         course: TrainingCourse,
+        iconId: Int,
         titleId: Int,
-        infoId: Int
+        infoId: Int,
+        startBtnId: Int
     ) {
         // 更新图标
-        val iconView = cardView.findViewById<ImageView>(R.id.iv_course_icon)
+        val iconView = cardView.findViewById<ImageView>(iconId)
         iconView?.setImageResource(course.iconResId)
         iconView?.backgroundTintList = ColorStateList.valueOf(getColor(courseBadgeColor(course.sportType)))
 
@@ -213,7 +236,7 @@ class TrainingActivity : AppCompatActivity() {
             showCourseDetail(course)
         }
 
-        val startBtn = cardView.findViewById<TextView>(R.id.btn_course_start)
+        val startBtn = cardView.findViewById<TextView>(startBtnId)
         startBtn?.text = if (isActiveCourse) {
             getString(R.string.course_action_continue)
         } else {

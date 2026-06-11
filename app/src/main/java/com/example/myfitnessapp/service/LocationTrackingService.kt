@@ -1,11 +1,14 @@
 package com.example.myfitnessapp.service
 
 import android.annotation.SuppressLint
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Looper
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 
@@ -68,6 +71,7 @@ class LocationTrackingService(context: Context) {
     @SuppressLint("MissingPermission")
     fun startTracking() {
         if (isTracking) return
+        if (!hasLocationPermission()) return
         isTracking = true
         requestProvider(LocationManager.GPS_PROVIDER)
         requestProvider(LocationManager.NETWORK_PROVIDER)
@@ -106,7 +110,9 @@ class LocationTrackingService(context: Context) {
         )
     }
 
+    @SuppressLint("MissingPermission")
     private fun getFreshLastKnownLocation(): Location? {
+        if (!hasLocationPermission()) return null
         val now = System.currentTimeMillis()
         val candidates = listOf(
             LocationManager.GPS_PROVIDER,
@@ -124,6 +130,17 @@ class LocationTrackingService(context: Context) {
         return candidates.minByOrNull { location ->
             if (location.hasAccuracy()) location.accuracy else Float.MAX_VALUE
         }
+    }
+
+    private fun hasLocationPermission(): Boolean {
+        return ContextCompat.checkSelfPermission(
+            appContext,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED ||
+            ContextCompat.checkSelfPermission(
+                appContext,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
     }
 
     private fun calculateDerivedSpeedMetersPerSecond(previous: Location, current: Location): Float {

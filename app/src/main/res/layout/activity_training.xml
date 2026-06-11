@@ -548,7 +548,7 @@
                             android:padding="12dp">
 
                             <ImageView
-                                android:id="@+id/iv_course_icon"
+                                android:id="@+id/iv_course_1_icon"
                                 android:layout_width="40dp"
                                 android:layout_height="40dp"
                                 android:background="@drawable/start_button_bg"
@@ -583,7 +583,7 @@
                             </LinearLayout>
 
                             <TextView
-                                android:id="@+id/btn_course_start"
+                                android:id="@+id/btn_course_1_start"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:background="@drawable/dialog_goal_secondary_btn_bg"
@@ -611,7 +611,7 @@
                             android:padding="12dp">
 
                             <ImageView
-                                android:id="@+id/iv_course_icon"
+                                android:id="@+id/iv_course_2_icon"
                                 android:layout_width="40dp"
                                 android:layout_height="40dp"
                                 android:background="@drawable/start_button_bg"
@@ -646,7 +646,7 @@
                             </LinearLayout>
 
                             <TextView
-                                android:id="@+id/btn_course_start"
+                                android:id="@+id/btn_course_2_start"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:background="@drawable/dialog_goal_secondary_btn_bg"
@@ -673,7 +673,7 @@
                             android:padding="12dp">
 
                             <ImageView
-                                android:id="@+id/iv_course_icon"
+                                android:id="@+id/iv_course_3_icon"
                                 android:layout_width="40dp"
                                 android:layout_height="40dp"
                                 android:background="@drawable/start_button_bg"
@@ -708,7 +708,7 @@
                             </LinearLayout>
 
                             <TextView
-                                android:id="@+id/btn_course_start"
+                                android:id="@+id/btn_course_3_start"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:background="@drawable/dialog_goal_secondary_btn_bg"

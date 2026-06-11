@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    跳绳计数界面
-    全屏沉浸式体验，中央超大计数
+    璺崇怀璁℃暟鐣岄潰
+    鍏ㄥ睆娌夋蹈寮忎綋楠岋紝涓ぎ瓒呭ぇ璁℃暟
 -->
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -20,15 +20,15 @@
         android:layout_marginStart="20dp"
         android:layout_marginTop="24dp"
         android:background="@drawable/tracking_control_circle_bg"
-        android:contentDescription="返回训练主页"
+        android:contentDescription="杩斿洖璁粌涓婚〉"
         android:padding="10dp"
         android:scaleX="-1"
         android:src="@drawable/ic_arrow_right"
-        android:tint="@color/tracking_on_primary"
+        app:tint="@color/tracking_on_primary"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- 顶部标题 -->
+    <!-- 椤堕儴鏍囬 -->
     <LinearLayout
         android:id="@+id/header_jump_rope"
         android:layout_width="match_parent"
@@ -46,7 +46,7 @@
             android:layout_height="56dp"
             android:background="@drawable/start_button_bg"
             android:backgroundTint="@color/training_jump_rope_badge_fill"
-            android:contentDescription="跳绳"
+            android:contentDescription="璺崇怀"
             android:padding="12dp"
             android:src="@drawable/ic_jump_rope" />
 
@@ -55,7 +55,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="跳绳"
+            android:text="璺崇怀"
             android:textColor="@color/tracking_on_primary"
             android:textSize="16sp" />
 
@@ -77,7 +77,7 @@
             tools:visibility="visible" />
     </LinearLayout>
 
-    <!-- 中央超大计数 -->
+    <!-- 涓ぎ瓒呭ぇ璁℃暟 -->
     <LinearLayout
         android:id="@+id/center_count"
         android:layout_width="wrap_content"
@@ -104,12 +104,12 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="个"
+            android:text="次"
             android:textColor="@color/text_secondary"
             android:textSize="16sp" />
     </LinearLayout>
 
-    <!-- 状态标签 -->
+    <!-- 鐘舵€佹爣绛?-->
     <TextView
         android:id="@+id/tv_jump_status"
         android:layout_width="wrap_content"
@@ -132,17 +132,17 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="当前回合：热身小跳 · 目标 90 次/分钟"
+        android:text="褰撳墠鍥炲悎锛氱儹韬皬璺?路 鐩爣 90 娆?鍒嗛挓"
         android:textColor="@color/text_secondary"
         android:textSize="12sp"
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_jump_status"
-        tools:text="当前回合：热身小跳 · 目标 90 次/分钟"
+        tools:text="褰撳墠鍥炲悎锛氱儹韬皬璺?路 鐩爣 90 娆?鍒嗛挓"
         tools:visibility="visible" />
 
-    <!-- 底部数据卡片 -->
+    <!-- 搴曢儴鏁版嵁鍗＄墖 -->
     <LinearLayout
         android:id="@+id/bottom_data"
         android:layout_width="0dp"
@@ -175,7 +175,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="用时"
+                    android:text="鐢ㄦ椂"
                     android:textColor="@color/text_secondary"
                     android:textSize="12sp" />
 
@@ -213,7 +213,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="频率"
+                    android:text="棰戠巼"
                     android:textColor="@color/text_secondary"
                     android:textSize="12sp" />
 
@@ -230,7 +230,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="个/分钟"
+                    android:text="涓?鍒嗛挓"
                     android:textColor="@color/text_secondary"
                     android:textSize="10sp" />
             </LinearLayout>
@@ -256,7 +256,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="热量"
+                    android:text="鐑噺"
                     android:textColor="@color/text_secondary"
                     android:textSize="12sp" />
 
@@ -280,7 +280,7 @@
         </androidx.cardview.widget.CardView>
     </LinearLayout>
 
-    <!-- 控制按钮 -->
+    <!-- 鎺у埗鎸夐挳 -->
     <LinearLayout
         android:id="@+id/control_bar"
         android:layout_width="0dp"
@@ -317,7 +317,7 @@
             android:drawableTop="@drawable/ic_stop"
             android:focusable="true"
             android:gravity="center"
-            android:text="结束"
+            android:text="缁撴潫"
             android:textColor="@color/tracking_on_primary"
             android:textSize="11sp" />
     </LinearLayout>

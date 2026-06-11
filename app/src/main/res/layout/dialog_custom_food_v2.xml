@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:clipChildren="false"
@@ -16,7 +17,7 @@
         android:orientation="vertical"
         android:padding="20dp">
 
-        <!-- 头部 -->
+        <!-- 婢舵挳鍎?-->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -33,7 +34,7 @@
                     android:layout_height="22dp"
                     android:layout_gravity="center"
                     android:src="@drawable/ic_apple"
-                    android:tint="@color/white" />
+                    app:tint="@color/white" />
             </FrameLayout>
 
             <LinearLayout
@@ -61,14 +62,14 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- 表单区 -->
+        <!-- 鐞涖劌宕熼崠?-->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:orientation="vertical">
 
-            <!-- 食物名称 -->
+            <!-- 妞嬬喓澧块崥宥囆?-->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -83,13 +84,13 @@
                 android:layout_height="48dp"
                 android:layout_marginTop="8dp"
                 android:background="@drawable/health_dialog_input_bg"
-                android:hint="例如：自制全麦三明治"
+                android:hint="请输入食物名称"
                 android:inputType="textCapWords"
                 android:paddingHorizontal="12dp"
                 android:textColor="@color/text_primary"
                 android:textSize="15sp" />
 
-            <!-- 热量 -->
+            <!-- 閻戭參鍣?-->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -112,7 +113,7 @@
                 android:textSize="15sp"
                 android:textStyle="bold" />
 
-            <!-- 三大营养素 (并排) -->
+            <!-- 娑撳銇囬拃銉ュ悋缁?(楠炶埖甯? -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -128,7 +129,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="蛋白质 (g)"
+                        android:text="閾斿娅х拹?(g)"
                         android:textColor="@color/text_secondary"
                         android:textSize="12sp" />
 
@@ -154,7 +155,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="碳水 (g)"
+                        android:text="绾拌櫕鎸?(g)"
                         android:textColor="@color/text_secondary"
                         android:textSize="12sp" />
 
@@ -180,7 +181,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="脂肪 (g)"
+                        android:text="閼村倽鍋?(g)"
                         android:textColor="@color/text_secondary"
                         android:textSize="12sp" />
 
@@ -197,7 +198,7 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- 餐次选择 -->
+            <!-- 妞佹劖顐奸柅澶嬪 -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -216,7 +217,7 @@
                 android:paddingHorizontal="8dp" />
         </LinearLayout>
 
-        <!-- 底部按钮 -->
+        <!-- 鎼存洟鍎撮幐澶愭尦 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -248,7 +249,7 @@
                 android:paddingTop="10dp"
                 android:paddingRight="18dp"
                 android:paddingBottom="10dp"
-                android:text="完成录入"
+                android:text="鐎瑰本鍨氳ぐ鏇炲弳"
                 android:textColor="@color/health_action_text"
                 android:textSize="14sp"
                 android:textStyle="bold" />
