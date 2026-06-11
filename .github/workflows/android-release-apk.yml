@@ -80,3 +80,18 @@ jobs:
           generate_release_notes: true
           files: ${{ steps.prepare_asset.outputs.apk_name }}
           overwrite_files: true
+
+      - name: Publish Gitee Release
+        uses: nicennnnnnnlee/action-gitee-release@v2.0.0
+        continue-on-error: true
+        with:
+          gitee_action: create_release
+          gitee_owner: pigu233
+          gitee_repo: MyFitnessApp
+          gitee_token: ${{ secrets.GITEE_TOKEN }}
+          gitee_tag_name: ${{ github.ref_name }}
+          gitee_release_name: 动心练 ${{ github.ref_name }}
+          gitee_release_body: 由 GitHub Actions 自动构建与同步。
+          gitee_target_commitish: main
+          gitee_file_name: ${{ steps.prepare_asset.outputs.apk_name }}
+          gitee_file_path: ${{ steps.prepare_asset.outputs.apk_name }}

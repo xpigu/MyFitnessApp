@@ -61,6 +61,7 @@
 | Secret 名称 | 描述 | 获取/配置方式 |
 | :--- | :--- | :--- |
 | `AMAP_API_KEY` | 高德地图的 API Key | 在高德开放平台申请 |
+| `GITEE_TOKEN` | Gitee 私人令牌 (用于同步发布版本到Gitee) | 在 Gitee 的 `设置 -> 安全设置 -> 私人令牌` 中生成 (需勾选 projects 权限) |
 | `ANDROID_KEYSTORE_BASE64` | 签名文件 (.jks) 的 Base64 编码 | 运行: `[Convert]::ToBase64String([IO.File]::ReadAllBytes("你的jks路径"))` |
 | `ANDROID_KEYSTORE_PASSWORD` | 密钥库 (Keystore) 密码 | 创建 `.jks` 时设置的密码 |
 | `ANDROID_KEY_ALIAS` | 密钥别名 (Alias) | 创建 `.jks` 时设置的别名 |
