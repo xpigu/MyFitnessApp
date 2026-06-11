@@ -9,6 +9,10 @@ data class WorkoutRecord(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
 
+    /** 所属账号用户名 */
+    @ColumnInfo(name = "owner_username")
+    val ownerUsername: String = "",
+
     /** 运动类型: RUN, CYCLING, JUMP_ROPE, STRENGTH, SWIMMING, YOGA */
     @ColumnInfo(name = "sport_type")
     val sportType: String,

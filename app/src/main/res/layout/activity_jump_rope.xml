@@ -9,7 +9,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#1A1A2E"
+    android:background="@color/tracking_surface"
     android:fitsSystemWindows="true"
     tools:context=".JumpRopeActivity">
 
@@ -19,12 +19,12 @@
         android:layout_height="40dp"
         android:layout_marginStart="20dp"
         android:layout_marginTop="24dp"
-        android:background="@drawable/start_button_bg"
+        android:background="@drawable/tracking_control_circle_bg"
         android:contentDescription="返回训练主页"
         android:padding="10dp"
         android:scaleX="-1"
         android:src="@drawable/ic_arrow_right"
-        android:tint="#FFFFFF"
+        android:tint="@color/tracking_on_primary"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -45,6 +45,7 @@
             android:layout_width="56dp"
             android:layout_height="56dp"
             android:background="@drawable/start_button_bg"
+            android:backgroundTint="@color/training_jump_rope_badge_fill"
             android:contentDescription="跳绳"
             android:padding="12dp"
             android:src="@drawable/ic_jump_rope" />
@@ -55,7 +56,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:text="跳绳"
-            android:textColor="#FFFFFF"
+            android:textColor="@color/tracking_on_primary"
             android:textSize="16sp" />
 
         <TextView
@@ -63,13 +64,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
-            android:background="@drawable/tab_bg_unselected"
+            android:background="@drawable/tracking_chip_bg"
             android:paddingStart="12dp"
             android:paddingTop="4dp"
             android:paddingEnd="12dp"
             android:paddingBottom="4dp"
             android:text="跳绳基础入门 · 7 个回合"
-            android:textColor="#CCFFFFFF"
+            android:textColor="@color/sport_header_secondary_text"
             android:textSize="12sp"
             android:visibility="gone"
             tools:text="跳绳基础入门 · 7 个回合"
@@ -95,7 +96,7 @@
             android:layout_height="wrap_content"
             android:fontFamily="monospace"
             android:text="0"
-            android:textColor="#FFFFFF"
+            android:textColor="@color/tracking_on_primary"
             android:textSize="96sp"
             android:textStyle="bold"
             tools:text="128" />
@@ -114,13 +115,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
-        android:background="@drawable/tab_bg_unselected"
+        android:background="@drawable/tracking_chip_bg"
         android:paddingStart="12dp"
         android:paddingTop="4dp"
         android:paddingEnd="12dp"
         android:paddingBottom="4dp"
         android:text="准备开始"
-        android:textColor="#FFFFFF"
+        android:textColor="@color/tracking_on_primary"
         android:textSize="12sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -185,7 +186,7 @@
                     android:layout_marginTop="6dp"
                     android:fontFamily="monospace"
                     android:text="00:00"
-                    android:textColor="#FFFFFF"
+                    android:textColor="@color/tracking_on_primary"
                     android:textSize="22sp"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -222,7 +223,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="6dp"
                     android:text="0"
-                    android:textColor="@color/gold_accent"
+                    android:textColor="@color/tracking_summary_primary"
                     android:textSize="22sp"
                     android:textStyle="bold" />
 
@@ -265,7 +266,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="6dp"
                     android:text="0"
-                    android:textColor="#E67E22"
+                    android:textColor="@color/tracking_summary_calories"
                     android:textSize="22sp"
                     android:textStyle="bold" />
 
@@ -297,12 +298,12 @@
             android:id="@+id/btn_jump_start"
             android:layout_width="80dp"
             android:layout_height="80dp"
-            android:background="@drawable/circle_progress_indigo"
+            android:background="@drawable/tracking_primary_btn_bg"
             android:clickable="true"
             android:focusable="true"
             android:gravity="center"
             android:text="开始"
-            android:textColor="#FFFFFF"
+            android:textColor="@color/tracking_primary_button_text"
             android:textSize="18sp"
             android:textStyle="bold" />
 
@@ -311,13 +312,13 @@
             android:layout_width="64dp"
             android:layout_height="64dp"
             android:layout_marginStart="32dp"
-            android:background="@drawable/circle_bg"
+            android:background="@drawable/tracking_control_circle_bg"
             android:clickable="true"
             android:drawableTop="@drawable/ic_stop"
             android:focusable="true"
             android:gravity="center"
             android:text="结束"
-            android:textColor="#FFFFFF"
+            android:textColor="@color/tracking_on_primary"
             android:textSize="11sp" />
     </LinearLayout>
 

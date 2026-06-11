@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.example.myfitnessapp.CurrentAccount
 import com.example.myfitnessapp.data.database.AppDatabase
 import com.example.myfitnessapp.data.entity.DailyCheckin
 import com.example.myfitnessapp.data.repository.DailyCheckinRepository
@@ -13,6 +14,7 @@ import kotlinx.coroutines.launch
 class DailyCheckinViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository: DailyCheckinRepository
+    private val currentUsername = CurrentAccount.requireUsername(application)
 
     val allCheckins: LiveData<List<DailyCheckin>>
     val totalCheckinCount: LiveData<Int>
@@ -25,7 +27,7 @@ class DailyCheckinViewModel(application: Application) : AndroidViewModel(applica
 
     init {
         val dao = AppDatabase.getInstance(application).dailyCheckinDao()
-        repository = DailyCheckinRepository(dao)
+        repository = DailyCheckinRepository(dao, currentUsername)
         allCheckins = repository.allCheckins
         totalCheckinCount = repository.totalCheckinCount
 

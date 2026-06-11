@@ -17,64 +17,67 @@ interface WorkoutRecordDao {
     @Delete
     suspend fun delete(record: WorkoutRecord)
 
-    @Query("DELETE FROM workout_records WHERE id = :id")
-    suspend fun deleteById(id: Long)
+    @Query("DELETE FROM workout_records WHERE owner_username = :ownerUsername AND id = :id")
+    suspend fun deleteById(ownerUsername: String, id: Long)
+
+    @Query("DELETE FROM workout_records WHERE owner_username = :ownerUsername")
+    suspend fun deleteByOwnerUsername(ownerUsername: String)
 
     /** 获取所有记录，按时间倒序 */
-    @Query("SELECT * FROM workout_records ORDER BY timestamp DESC")
-    fun getAllRecords(): LiveData<List<WorkoutRecord>>
+    @Query("SELECT * FROM workout_records WHERE owner_username = :ownerUsername ORDER BY timestamp DESC")
+    fun getAllRecords(ownerUsername: String): LiveData<List<WorkoutRecord>>
 
     /** 按日期分组获取所有日期，倒序 */
-    @Query("SELECT DISTINCT date FROM workout_records ORDER BY date DESC")
-    fun getAllDates(): LiveData<List<String>>
+    @Query("SELECT DISTINCT date FROM workout_records WHERE owner_username = :ownerUsername ORDER BY date DESC")
+    fun getAllDates(ownerUsername: String): LiveData<List<String>>
 
     /** 获取指定日期的记录 */
-    @Query("SELECT * FROM workout_records WHERE date = :date ORDER BY timestamp DESC")
-    fun getRecordsByDate(date: String): LiveData<List<WorkoutRecord>>
+    @Query("SELECT * FROM workout_records WHERE owner_username = :ownerUsername AND date = :date ORDER BY timestamp DESC")
+    fun getRecordsByDate(ownerUsername: String, date: String): LiveData<List<WorkoutRecord>>
 
     /** 指定日期的总卡路里 */
-    @Query("SELECT COALESCE(SUM(total_calories), 0) FROM workout_records WHERE date = :date")
-    suspend fun getTotalCaloriesByDate(date: String): Int
+    @Query("SELECT COALESCE(SUM(total_calories), 0) FROM workout_records WHERE owner_username = :ownerUsername AND date = :date")
+    suspend fun getTotalCaloriesByDate(ownerUsername: String, date: String): Int
 
     /** 指定日期的总时长（秒） */
-    @Query("SELECT COALESCE(SUM(elapsed_seconds), 0) FROM workout_records WHERE date = :date")
-    suspend fun getTotalDurationByDate(date: String): Int
+    @Query("SELECT COALESCE(SUM(elapsed_seconds), 0) FROM workout_records WHERE owner_username = :ownerUsername AND date = :date")
+    suspend fun getTotalDurationByDate(ownerUsername: String, date: String): Int
 
     /** 指定日期的运动次数 */
-    @Query("SELECT COUNT(*) FROM workout_records WHERE date = :date")
-    suspend fun getWorkoutCountByDate(date: String): Int
+    @Query("SELECT COUNT(*) FROM workout_records WHERE owner_username = :ownerUsername AND date = :date")
+    suspend fun getWorkoutCountByDate(ownerUsername: String, date: String): Int
 
     /** 指定月份的总卡路里 */
-    @Query("SELECT COALESCE(SUM(total_calories), 0) FROM workout_records WHERE date LIKE :monthPattern")
-    suspend fun getTotalCaloriesByMonth(monthPattern: String): Int
+    @Query("SELECT COALESCE(SUM(total_calories), 0) FROM workout_records WHERE owner_username = :ownerUsername AND date LIKE :monthPattern")
+    suspend fun getTotalCaloriesByMonth(ownerUsername: String, monthPattern: String): Int
 
     /** 指定月份的总时长 */
-    @Query("SELECT COALESCE(SUM(elapsed_seconds), 0) FROM workout_records WHERE date LIKE :monthPattern")
-    suspend fun getTotalDurationByMonth(monthPattern: String): Int
+    @Query("SELECT COALESCE(SUM(elapsed_seconds), 0) FROM workout_records WHERE owner_username = :ownerUsername AND date LIKE :monthPattern")
+    suspend fun getTotalDurationByMonth(ownerUsername: String, monthPattern: String): Int
 
     /** 指定月份的运动次数 */
-    @Query("SELECT COUNT(*) FROM workout_records WHERE date LIKE :monthPattern")
-    suspend fun getWorkoutCountByMonth(monthPattern: String): Int
+    @Query("SELECT COUNT(*) FROM workout_records WHERE owner_username = :ownerUsername AND date LIKE :monthPattern")
+    suspend fun getWorkoutCountByMonth(ownerUsername: String, monthPattern: String): Int
 
     /** 按运动类型统计月份内次数 */
     @Query("""
         SELECT sport_type, COUNT(*) as count FROM workout_records 
-        WHERE date LIKE :monthPattern 
+        WHERE owner_username = :ownerUsername AND date LIKE :monthPattern 
         GROUP BY sport_type ORDER BY count DESC
     """)
-    suspend fun getMonthlyTypeStats(monthPattern: String): List<TypeCount>
+    suspend fun getMonthlyTypeStats(ownerUsername: String, monthPattern: String): List<TypeCount>
 
     /** 按运动类型统计日期内次数 */
     @Query("""
         SELECT sport_type, COUNT(*) as count FROM workout_records 
-        WHERE date = :date 
+        WHERE owner_username = :ownerUsername AND date = :date 
         GROUP BY sport_type ORDER BY count DESC
     """)
-    suspend fun getDailyTypeStats(date: String): List<TypeCount>
+    suspend fun getDailyTypeStats(ownerUsername: String, date: String): List<TypeCount>
 
     /** 获取所有记录总数 */
-    @Query("SELECT COUNT(*) FROM workout_records")
-    suspend fun getTotalRecordCount(): Int
+    @Query("SELECT COUNT(*) FROM workout_records WHERE owner_username = :ownerUsername")
+    suspend fun getTotalRecordCount(ownerUsername: String): Int
 
     // ============================================================
     // 统计查询方法 — Phase 2 增强
@@ -86,11 +89,11 @@ interface WorkoutRecordDao {
                COALESCE(SUM(total_calories), 0) as calories,
                COALESCE(SUM(elapsed_seconds), 0) as duration
         FROM workout_records
-        WHERE date BETWEEN :startDate AND :endDate
+        WHERE owner_username = :ownerUsername AND date BETWEEN :startDate AND :endDate
         GROUP BY date
         ORDER BY date DESC
     """)
-    suspend fun getDailyAggregation(startDate: String, endDate: String): List<DailyAggregation>
+    suspend fun getDailyAggregation(ownerUsername: String, startDate: String, endDate: String): List<DailyAggregation>
 
     /** 获取指定日期的按类型分布统计 */
     @Query("""
@@ -99,11 +102,11 @@ interface WorkoutRecordDao {
                COALESCE(SUM(total_distance), 0) as distance,
                COALESCE(SUM(elapsed_seconds), 0) as duration
         FROM workout_records
-        WHERE date = :date
+        WHERE owner_username = :ownerUsername AND date = :date
         GROUP BY sport_type
         ORDER BY count DESC
     """)
-    suspend fun getTypeDistributionByDate(date: String): List<TypeDistribution>
+    suspend fun getTypeDistributionByDate(ownerUsername: String, date: String): List<TypeDistribution>
 
     /** 获取指定月份的按类型分布统计 */
     @Query("""
@@ -112,60 +115,60 @@ interface WorkoutRecordDao {
                COALESCE(SUM(total_distance), 0) as distance,
                COALESCE(SUM(elapsed_seconds), 0) as duration
         FROM workout_records
-        WHERE date LIKE :monthPattern
+        WHERE owner_username = :ownerUsername AND date LIKE :monthPattern
         GROUP BY sport_type
         ORDER BY count DESC
     """)
-    suspend fun getTypeDistributionByMonth(monthPattern: String): List<TypeDistribution>
+    suspend fun getTypeDistributionByMonth(ownerUsername: String, monthPattern: String): List<TypeDistribution>
 
     /** 获取最佳成绩卡片对应的完整记录 */
     @Query("""
         SELECT * FROM workout_records
-        WHERE sport_type = 'RUN' AND total_distance > 0
+        WHERE owner_username = :ownerUsername AND sport_type = 'RUN' AND total_distance > 0
         ORDER BY total_distance DESC, timestamp DESC
         LIMIT 1
     """)
-    suspend fun getRunRecordWithLongestDistance(): WorkoutRecord?
+    suspend fun getRunRecordWithLongestDistance(ownerUsername: String): WorkoutRecord?
 
     @Query("""
         SELECT * FROM workout_records
-        WHERE sport_type = 'CYCLING' AND total_distance > 0
+        WHERE owner_username = :ownerUsername AND sport_type = 'CYCLING' AND total_distance > 0
         ORDER BY total_distance DESC, timestamp DESC
         LIMIT 1
     """)
-    suspend fun getCyclingRecordWithLongestDistance(): WorkoutRecord?
+    suspend fun getCyclingRecordWithLongestDistance(ownerUsername: String): WorkoutRecord?
 
     @Query("""
         SELECT * FROM workout_records
-        WHERE sport_type = 'STRENGTH' AND strength_max_weight > 0
+        WHERE owner_username = :ownerUsername AND sport_type = 'STRENGTH' AND strength_max_weight > 0
         ORDER BY strength_max_weight DESC, timestamp DESC
         LIMIT 1
     """)
-    suspend fun getStrengthRecordWithMaxWeight(): WorkoutRecord?
+    suspend fun getStrengthRecordWithMaxWeight(ownerUsername: String): WorkoutRecord?
 
     @Query("""
         SELECT * FROM workout_records
-        WHERE sport_type = 'SWIMMING' AND swim_distance_m > 0
+        WHERE owner_username = :ownerUsername AND sport_type = 'SWIMMING' AND swim_distance_m > 0
         ORDER BY swim_distance_m DESC, timestamp DESC
         LIMIT 1
     """)
-    suspend fun getSwimmingRecordWithLongestDistance(): WorkoutRecord?
+    suspend fun getSwimmingRecordWithLongestDistance(ownerUsername: String): WorkoutRecord?
 
     @Query("""
         SELECT * FROM workout_records
-        WHERE sport_type = 'JUMP_ROPE' AND jump_count > 0
+        WHERE owner_username = :ownerUsername AND sport_type = 'JUMP_ROPE' AND jump_count > 0
         ORDER BY jump_count DESC, timestamp DESC
         LIMIT 1
     """)
-    suspend fun getJumpRopeRecordWithMaxCount(): WorkoutRecord?
+    suspend fun getJumpRopeRecordWithMaxCount(ownerUsername: String): WorkoutRecord?
 
     @Query("""
         SELECT * FROM workout_records
-        WHERE sport_type = 'JUMP_ROPE' AND jump_frequency > 0
+        WHERE owner_username = :ownerUsername AND sport_type = 'JUMP_ROPE' AND jump_frequency > 0
         ORDER BY jump_frequency DESC, timestamp DESC
         LIMIT 1
     """)
-    suspend fun getJumpRopeRecordWithMaxFrequency(): WorkoutRecord?
+    suspend fun getJumpRopeRecordWithMaxFrequency(ownerUsername: String): WorkoutRecord?
 
     /** 获取最近30天的趋势数据 */
     @Query("""
@@ -173,11 +176,11 @@ interface WorkoutRecordDao {
                COALESCE(SUM(total_calories), 0) as calories,
                COALESCE(SUM(elapsed_seconds), 0) as duration
         FROM workout_records
-        WHERE date >= :startDate
+        WHERE owner_username = :ownerUsername AND date >= :startDate
         GROUP BY date
         ORDER BY date DESC
     """)
-    suspend fun get30DaysTrend(startDate: String): List<DailyAggregation>
+    suspend fun get30DaysTrend(ownerUsername: String, startDate: String): List<DailyAggregation>
 }
 
 /** 按类型统计的结果 */

@@ -13,7 +13,7 @@
         android:id="@+id/toolbar_achievements"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@android:color/white"
+        android:background="@color/card_background"
         app:elevation="2dp">
 
         <ImageView
@@ -42,7 +42,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/indigo_primary"
+        android:background="@color/achievement_hero_fill"
         android:gravity="center"
         android:orientation="vertical"
         android:padding="24dp">
@@ -51,7 +51,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="已解锁徽章"
-            android:textColor="#CCFFFFFF"
+            android:textColor="@color/achievement_hero_secondary_text"
             android:textSize="14sp" />
 
         <LinearLayout
@@ -66,7 +66,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="0"
-                android:textColor="@android:color/white"
+                android:textColor="@color/achievement_hero_primary_text"
                 android:textSize="36sp"
                 android:textStyle="bold" />
 
@@ -76,7 +76,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
                 android:text="/ 0"
-                android:textColor="#CCFFFFFF"
+                android:textColor="@color/achievement_hero_secondary_text"
                 android:textSize="18sp" />
         </LinearLayout>
 
@@ -98,7 +98,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Lv.1"
-                    android:textColor="@android:color/white"
+                    android:textColor="@color/achievement_hero_primary_text"
                     android:textSize="18sp"
                     android:textStyle="bold"
                     tools:text="Lv.6" />
@@ -108,7 +108,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
                     android:text="当前等级"
-                    android:textColor="#CCFFFFFF"
+                    android:textColor="@color/achievement_hero_secondary_text"
                     android:textSize="11sp" />
             </LinearLayout>
 
@@ -124,7 +124,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="0"
-                    android:textColor="@android:color/white"
+                    android:textColor="@color/achievement_hero_primary_text"
                     android:textSize="18sp"
                     android:textStyle="bold"
                     tools:text="18" />
@@ -134,7 +134,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
                     android:text="训练次数"
-                    android:textColor="#CCFFFFFF"
+                    android:textColor="@color/achievement_hero_secondary_text"
                     android:textSize="11sp" />
             </LinearLayout>
 
@@ -150,7 +150,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="0"
-                    android:textColor="@android:color/white"
+                    android:textColor="@color/achievement_hero_primary_text"
                     android:textSize="18sp"
                     android:textStyle="bold"
                     tools:text="7" />
@@ -160,7 +160,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
                     android:text="签到连击"
-                    android:textColor="#CCFFFFFF"
+                    android:textColor="@color/achievement_hero_secondary_text"
                     android:textSize="11sp" />
             </LinearLayout>
         </LinearLayout>
@@ -171,14 +171,14 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="14dp"
             android:text="继续训练和签到，会自动解锁更多徽章"
-            android:textColor="#CCFFFFFF"
+            android:textColor="@color/achievement_hero_secondary_text"
             android:textSize="12sp" />
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@android:color/white"
+        android:background="@color/card_background"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingLeft="12dp"
@@ -250,7 +250,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@android:color/white"
+        android:background="@color/card_background"
         android:gravity="center_vertical"
         android:orientation="vertical"
         android:paddingLeft="12dp"
@@ -263,7 +263,7 @@
             android:layout_height="wrap_content"
             android:id="@+id/tv_badge_filter_hint"
             android:text="优先查看还未完成的徽章，继续推进训练目标"
-            android:textColor="@color/gray_600"
+            android:textColor="@color/text_secondary"
             android:textSize="13sp"
             tools:text="可按解锁时间查看已点亮的成长轨迹" />
     </LinearLayout>
@@ -276,7 +276,7 @@
         android:gravity="center"
         android:padding="24dp"
         android:text="当前筛选下还没有可显示的徽章"
-        android:textColor="@color/gray_600"
+        android:textColor="@color/text_secondary"
         android:textSize="14sp"
         android:visibility="gone" />
 

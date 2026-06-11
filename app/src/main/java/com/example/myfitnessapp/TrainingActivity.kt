@@ -1,12 +1,12 @@
 package com.example.myfitnessapp
 
 import android.app.AlertDialog
+import android.content.res.ColorStateList
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.NestedScrollView
 import com.example.myfitnessapp.course.data.ActiveCourseSessionStore
@@ -117,7 +117,7 @@ class TrainingActivity : AppCompatActivity() {
             val runningWorkoutCard = findViewById<View>(R.id.workout_running)
             quickStartCard.scrollIntoContainer(scrollView, 16.dp())
             runningWorkoutCard.playReminderFocusAnimation()
-            Toast.makeText(this, R.string.reminder_workout_opened_hint, Toast.LENGTH_SHORT).show()
+            showAppFeedback(getString(R.string.reminder_workout_opened_hint), FeedbackType.INFO)
         }
 
         intent.removeExtra(ReminderScheduler.EXTRA_FROM_REMINDER)
@@ -192,6 +192,7 @@ class TrainingActivity : AppCompatActivity() {
         // 更新图标
         val iconView = cardView.findViewById<ImageView>(R.id.iv_course_icon)
         iconView?.setImageResource(course.iconResId)
+        iconView?.backgroundTintList = ColorStateList.valueOf(getColor(courseBadgeColor(course.sportType)))
 
         // 更新标题
         val titleView = cardView.findViewById<TextView>(titleId)
@@ -220,6 +221,18 @@ class TrainingActivity : AppCompatActivity() {
         }
         startBtn?.setOnClickListener {
             launchCourse(course)
+        }
+    }
+
+    private fun courseBadgeColor(sportType: String): Int {
+        return when (sportType) {
+            "RUN" -> R.color.training_running_badge_fill
+            "CYCLING" -> R.color.training_cycling_badge_fill
+            "YOGA" -> R.color.training_yoga_badge_fill
+            "STRENGTH" -> R.color.training_strength_badge_fill
+            "SWIMMING" -> R.color.training_swimming_badge_fill
+            "JUMP_ROPE" -> R.color.training_jump_rope_badge_fill
+            else -> R.color.training_running_badge_fill
         }
     }
 
@@ -353,19 +366,22 @@ class TrainingActivity : AppCompatActivity() {
         } else {
             getString(R.string.course_action_start)
         }
-        AlertDialog.Builder(this)
+        createAppAlertDialogBuilder()
             .setTitle(course.title)
             .setMessage(message)
             .setNegativeButton(android.R.string.cancel, null)
             .setPositiveButton(startLabel) { _, _ ->
                 launchCourse(course)
             }
-            .show()
+            .create()
+            .also {
+                it.show()
+                it.applyAppDialogStyling(this)
+            }
     }
 
     private fun launchCourse(course: TrainingCourse) {
         courseNavigator.openCourse(this, course)
-        Toast.makeText(this, getString(R.string.course_start_toast, course.title), Toast.LENGTH_SHORT).show()
     }
 
     private fun buildCourseProgressLabel(course: TrainingCourse, session: ActiveCourseSession): String {

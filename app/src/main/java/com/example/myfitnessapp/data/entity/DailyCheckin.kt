@@ -2,11 +2,14 @@ package com.example.myfitnessapp.data.entity
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
-import androidx.room.PrimaryKey
-
-@Entity(tableName = "daily_checkins")
+@Entity(
+    tableName = "daily_checkins",
+    primaryKeys = ["owner_username", "date"]
+)
 data class DailyCheckin(
-    @PrimaryKey
+    @ColumnInfo(name = "owner_username")
+    val ownerUsername: String = "",
+
     @ColumnInfo(name = "date")
     val date: String, // 签到日期，格式：YYYY-MM-DD
 

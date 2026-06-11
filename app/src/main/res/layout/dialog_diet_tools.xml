@@ -66,7 +66,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="18dp"
-            android:background="@drawable/dialog_goal_preview_bg"
+            android:background="@drawable/health_dialog_preview_bg"
             android:orientation="vertical"
             android:padding="14dp">
 
@@ -75,7 +75,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/diet_tools_status_title"
-                android:textColor="@color/indigo_primary"
+                android:textColor="@color/health_action_text"
                 android:textSize="14sp"
                 android:textStyle="bold" />
 
@@ -109,13 +109,14 @@
                 <FrameLayout
                     android:layout_width="40dp"
                     android:layout_height="40dp"
-                    android:background="@drawable/dialog_tool_icon_bg">
+                    android:background="@drawable/health_dialog_tool_icon_bg">
 
                     <ImageView
                         android:layout_width="20dp"
                         android:layout_height="20dp"
                         android:layout_gravity="center"
-                        android:src="@drawable/ic_apple" />
+                        android:src="@drawable/ic_apple"
+                        android:tint="@color/health_snack_icon" />
                 </FrameLayout>
 
                 <LinearLayout
@@ -144,7 +145,7 @@
                         android:paddingTop="4dp"
                         android:paddingRight="10dp"
                         android:paddingBottom="4dp"
-                        android:textColor="@color/gray_600"
+                        android:textColor="@color/text_secondary"
                         android:textSize="12sp"
                         android:textStyle="bold" />
                 </LinearLayout>
@@ -153,7 +154,7 @@
                     android:layout_width="18dp"
                     android:layout_height="18dp"
                     android:src="@drawable/ic_arrow_right"
-                    android:tint="@color/gray_600" />
+                    android:tint="@color/text_secondary" />
             </LinearLayout>
 
             <TextView
@@ -175,7 +176,7 @@
                 android:paddingTop="5dp"
                 android:paddingRight="10dp"
                 android:paddingBottom="5dp"
-                android:textColor="@color/gray_600"
+                android:textColor="@color/text_secondary"
                 android:textSize="12sp" />
         </LinearLayout>
 
@@ -200,13 +201,14 @@
                 <FrameLayout
                     android:layout_width="40dp"
                     android:layout_height="40dp"
-                    android:background="@drawable/dialog_tool_icon_bg">
+                    android:background="@drawable/health_dialog_tool_icon_bg">
 
                     <ImageView
                         android:layout_width="20dp"
                         android:layout_height="20dp"
                         android:layout_gravity="center"
-                        android:src="@drawable/ic_lightbulb" />
+                        android:src="@drawable/ic_lightbulb"
+                        android:tint="@color/health_hint_icon" />
                 </FrameLayout>
 
                 <LinearLayout
@@ -235,7 +237,7 @@
                         android:paddingTop="4dp"
                         android:paddingRight="10dp"
                         android:paddingBottom="4dp"
-                        android:textColor="@color/gray_600"
+                        android:textColor="@color/text_secondary"
                         android:textSize="12sp"
                         android:textStyle="bold" />
                 </LinearLayout>
@@ -244,7 +246,7 @@
                     android:layout_width="18dp"
                     android:layout_height="18dp"
                     android:src="@drawable/ic_arrow_right"
-                    android:tint="@color/gray_600" />
+                    android:tint="@color/text_secondary" />
             </LinearLayout>
 
             <TextView
@@ -266,7 +268,7 @@
                 android:paddingTop="5dp"
                 android:paddingRight="10dp"
                 android:paddingBottom="5dp"
-                android:textColor="@color/gray_600"
+                android:textColor="@color/text_secondary"
                 android:textSize="12sp" />
         </LinearLayout>
 
@@ -291,14 +293,14 @@
                 <FrameLayout
                     android:layout_width="40dp"
                     android:layout_height="40dp"
-                    android:background="@drawable/dialog_tool_icon_bg">
+                    android:background="@drawable/health_dialog_tool_icon_bg">
 
                     <ImageView
                         android:layout_width="20dp"
                         android:layout_height="20dp"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_goal"
-                        android:tint="@color/emerald_secondary" />
+                        android:tint="@color/health_goal_icon" />
                 </FrameLayout>
 
                 <LinearLayout
@@ -327,7 +329,7 @@
                         android:paddingTop="4dp"
                         android:paddingRight="10dp"
                         android:paddingBottom="4dp"
-                        android:textColor="@color/gray_600"
+                        android:textColor="@color/text_secondary"
                         android:textSize="12sp"
                         android:textStyle="bold" />
                 </LinearLayout>
@@ -336,7 +338,7 @@
                     android:layout_width="18dp"
                     android:layout_height="18dp"
                     android:src="@drawable/ic_arrow_right"
-                    android:tint="@color/gray_600" />
+                    android:tint="@color/text_secondary" />
             </LinearLayout>
 
             <TextView
@@ -358,7 +360,7 @@
                 android:paddingTop="5dp"
                 android:paddingRight="10dp"
                 android:paddingBottom="5dp"
-                android:textColor="@color/gray_600"
+                android:textColor="@color/text_secondary"
                 android:textSize="12sp" />
         </LinearLayout>
 

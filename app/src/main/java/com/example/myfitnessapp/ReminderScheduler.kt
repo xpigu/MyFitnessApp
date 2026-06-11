@@ -20,12 +20,15 @@ object ReminderScheduler {
     const val EXTRA_REPEAT_MODE = "extra_repeat_mode"
     const val EXTRA_REMINDER_TYPE = "extra_reminder_type"
     const val EXTRA_FROM_REMINDER = "extra_from_reminder"
+    const val EXTRA_REMINDER_HOUR = "extra_reminder_hour"
+    const val EXTRA_REMINDER_MINUTE = "extra_reminder_minute"
 
     private const val BASE_REQ_WORKOUT = 2000
     private const val BASE_REQ_WATER = 3000
     private const val BASE_REQ_CHECKIN = 4000
     private const val MAX_REMINDER_SLOTS = 8
     private const val NOTIFY_TEST = 2999
+    private const val TRIGGER_RESCHEDULE_OFFSET_MS = 1000L
 
     fun createChannel(context: Context) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
@@ -157,29 +160,35 @@ object ReminderScheduler {
             .take(MAX_REMINDER_SLOTS)
             .forEachIndexed { index, time ->
                 val requestCode = baseRequestCode + index
-                val pendingIntent = buildReminderPendingIntent(
+                scheduleNextOccurrence(
                     context = context,
                     requestCode = requestCode,
                     repeatMode = repeatMode,
-                    type = type
-                )
-                val calendar = Calendar.getInstance().apply {
-                    set(Calendar.HOUR_OF_DAY, time.hour)
-                    set(Calendar.MINUTE, time.minute)
-                    set(Calendar.SECOND, 0)
-                    set(Calendar.MILLISECOND, 0)
-                    if (timeInMillis <= System.currentTimeMillis()) {
-                        add(Calendar.DAY_OF_YEAR, 1)
-                    }
-                }
-
-                alarmManager.setInexactRepeating(
-                    AlarmManager.RTC_WAKEUP,
-                    calendar.timeInMillis,
-                    AlarmManager.INTERVAL_DAY,
-                    pendingIntent
+                    type = type,
+                    time = time
                 )
             }
+    }
+
+    fun handleReminderTrigger(
+        context: Context,
+        notificationId: Int,
+        repeatModeRaw: String?,
+        type: ReminderType,
+        hour: Int,
+        minute: Int
+    ) {
+        if (shouldDeliverToday(repeatModeRaw)) {
+            showReminderNotification(context, notificationId, type)
+        }
+        scheduleNextOccurrence(
+            context = context,
+            requestCode = notificationId,
+            repeatMode = parseRepeatMode(repeatModeRaw),
+            type = type,
+            time = ReminderTime(hour, minute),
+            nowMillis = System.currentTimeMillis() + TRIGGER_RESCHEDULE_OFFSET_MS
+        )
     }
 
     private fun clearReminderGroup(
@@ -193,22 +202,106 @@ object ReminderScheduler {
                 context = context,
                 requestCode = requestCode,
                 repeatMode = ReminderRepeatMode.DAILY,
-                type = ReminderType.WORKOUT
+                type = ReminderType.WORKOUT,
+                hour = 0,
+                minute = 0
             )
             alarmManager.cancel(pendingIntent)
         }
+    }
+
+    private fun scheduleNextOccurrence(
+        context: Context,
+        requestCode: Int,
+        repeatMode: ReminderRepeatMode,
+        type: ReminderType,
+        time: ReminderTime,
+        nowMillis: Long = System.currentTimeMillis()
+    ) {
+        val triggerAtMillis = calculateNextTriggerTime(
+            hour = time.hour,
+            minute = time.minute,
+            repeatMode = repeatMode,
+            nowMillis = nowMillis
+        ) ?: return
+
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val pendingIntent = buildReminderPendingIntent(
+            context = context,
+            requestCode = requestCode,
+            repeatMode = repeatMode,
+            type = type,
+            hour = time.hour,
+            minute = time.minute
+        )
+
+        when {
+            canScheduleExactAlarms(context, alarmManager) -> {
+                alarmManager.setExactAndAllowWhileIdle(
+                    AlarmManager.RTC_WAKEUP,
+                    triggerAtMillis,
+                    pendingIntent
+                )
+            }
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.M -> {
+                alarmManager.setAndAllowWhileIdle(
+                    AlarmManager.RTC_WAKEUP,
+                    triggerAtMillis,
+                    pendingIntent
+                )
+            }
+            else -> {
+                alarmManager.set(
+                    AlarmManager.RTC_WAKEUP,
+                    triggerAtMillis,
+                    pendingIntent
+                )
+            }
+        }
+    }
+
+    private fun calculateNextTriggerTime(
+        hour: Int,
+        minute: Int,
+        repeatMode: ReminderRepeatMode,
+        nowMillis: Long
+    ): Long? {
+        val calendar = Calendar.getInstance().apply {
+            timeInMillis = nowMillis
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+
+        repeat(8) { dayOffset ->
+            if (dayOffset > 0) {
+                calendar.add(Calendar.DAY_OF_YEAR, 1)
+            }
+            calendar.set(Calendar.HOUR_OF_DAY, hour)
+            calendar.set(Calendar.MINUTE, minute)
+
+            val isFuture = calendar.timeInMillis > nowMillis
+            val matchesRepeat = repeatMode == ReminderRepeatMode.DAILY || isWorkday(calendar)
+            if (isFuture && matchesRepeat) {
+                return calendar.timeInMillis
+            }
+        }
+        return null
     }
 
     private fun buildReminderPendingIntent(
         context: Context,
         requestCode: Int,
         repeatMode: ReminderRepeatMode,
-        type: ReminderType
+        type: ReminderType,
+        hour: Int,
+        minute: Int
     ): PendingIntent {
         val intent = Intent(context, ReminderReceiver::class.java).apply {
             putExtra(EXTRA_NOTIFICATION_ID, requestCode)
             putExtra(EXTRA_REPEAT_MODE, repeatMode.name)
             putExtra(EXTRA_REMINDER_TYPE, type.name)
+            putExtra(EXTRA_REMINDER_HOUR, hour)
+            putExtra(EXTRA_REMINDER_MINUTE, minute)
         }
         return PendingIntent.getBroadcast(
             context,
@@ -228,12 +321,30 @@ object ReminderScheduler {
     }
 
     fun shouldDeliverToday(repeatModeRaw: String?): Boolean {
-        val repeatMode = repeatModeRaw
-            ?.let { raw -> ReminderRepeatMode.entries.firstOrNull { it.name == raw } }
-            ?: ReminderRepeatMode.DAILY
+        val repeatMode = parseRepeatMode(repeatModeRaw)
         if (repeatMode == ReminderRepeatMode.DAILY) return true
 
         val dayOfWeek = Calendar.getInstance().get(Calendar.DAY_OF_WEEK)
+        return dayOfWeek != Calendar.SATURDAY && dayOfWeek != Calendar.SUNDAY
+    }
+
+    fun canScheduleExactAlarms(context: Context): Boolean {
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        return canScheduleExactAlarms(context, alarmManager)
+    }
+
+    private fun canScheduleExactAlarms(context: Context, alarmManager: AlarmManager): Boolean {
+        return Build.VERSION.SDK_INT < Build.VERSION_CODES.S || alarmManager.canScheduleExactAlarms()
+    }
+
+    private fun parseRepeatMode(repeatModeRaw: String?): ReminderRepeatMode {
+        return repeatModeRaw
+            ?.let { raw -> ReminderRepeatMode.entries.firstOrNull { it.name == raw } }
+            ?: ReminderRepeatMode.DAILY
+    }
+
+    private fun isWorkday(calendar: Calendar): Boolean {
+        val dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
         return dayOfWeek != Calendar.SATURDAY && dayOfWeek != Calendar.SUNDAY
     }
 

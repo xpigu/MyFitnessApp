@@ -69,11 +69,11 @@
                             android:layout_width="28dp"
                             android:layout_height="28dp"
                             android:layout_gravity="end|bottom"
-                            android:background="@drawable/circle_bg"
+                            android:background="@drawable/profile_avatar_edit_badge_bg"
                             android:contentDescription="编辑头像"
                             android:padding="6dp"
                             android:src="@drawable/ic_edit"
-                            app:tint="@color/white" />
+                            app:tint="@color/profile_header_button_text" />
                     </FrameLayout>
 
                     <!-- 用户名 -->
@@ -83,7 +83,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
                         android:text="@string/profile_username"
-                        android:textColor="#FFFFFF"
+                        android:textColor="@color/profile_header_primary_text"
                         android:textSize="20sp"
                         android:textStyle="bold"
                         tools:text="健身达人" />
@@ -95,7 +95,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
                         android:text="@string/profile_bio"
-                        android:textColor="#CCFFFFFF"
+                        android:textColor="@color/profile_header_secondary_text"
                         android:textSize="13sp" />
 
                     <!-- 编辑资料按钮 -->
@@ -104,7 +104,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
-                        android:background="@drawable/tab_bg_unselected"
+                        android:background="@drawable/profile_header_button_bg"
                         android:clickable="true"
                         android:drawableStart="@drawable/ic_edit"
                         android:drawablePadding="6dp"
@@ -115,7 +115,7 @@
                         android:paddingEnd="16dp"
                         android:paddingBottom="6dp"
                         android:text="@string/profile_edit"
-                        android:textColor="#FFFFFF"
+                        android:textColor="@color/profile_header_button_text"
                         android:textSize="12sp" />
 
                     <!-- 分隔线 -->
@@ -124,7 +124,7 @@
                         android:layout_height="0.5dp"
                         android:layout_marginTop="20dp"
                         android:layout_marginBottom="12dp"
-                        android:background="#33FFFFFF" />
+                        android:background="@color/profile_header_divider" />
 
                     <!-- 数据统计行 -->
                     <LinearLayout
@@ -145,7 +145,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="34"
-                                android:textColor="#FFFFFF"
+                                android:textColor="@color/profile_header_primary_text"
                                 android:textSize="20sp"
                                 android:textStyle="bold"
                                 tools:text="34" />
@@ -155,7 +155,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="2dp"
                                 android:text="@string/profile_total_workouts"
-                                android:textColor="#CCFFFFFF"
+                                android:textColor="@color/profile_header_secondary_text"
                                 android:textSize="11sp" />
                         </LinearLayout>
 
@@ -163,7 +163,7 @@
                             android:layout_width="0.5dp"
                             android:layout_height="36dp"
                             android:layout_gravity="center_vertical"
-                            android:background="#33FFFFFF" />
+                            android:background="@color/profile_header_divider" />
 
                         <!-- 活跃天数 -->
                         <LinearLayout
@@ -178,7 +178,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="28"
-                                android:textColor="#FFFFFF"
+                                android:textColor="@color/profile_header_primary_text"
                                 android:textSize="20sp"
                                 android:textStyle="bold"
                                 tools:text="28" />
@@ -188,7 +188,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="2dp"
                                 android:text="@string/profile_active_days"
-                                android:textColor="#CCFFFFFF"
+                                android:textColor="@color/profile_header_secondary_text"
                                 android:textSize="11sp" />
                         </LinearLayout>
 
@@ -196,7 +196,7 @@
                             android:layout_width="0.5dp"
                             android:layout_height="36dp"
                             android:layout_gravity="center_vertical"
-                            android:background="#33FFFFFF" />
+                            android:background="@color/profile_header_divider" />
 
                         <!-- 运动等级 -->
                         <LinearLayout
@@ -221,7 +221,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="2dp"
                                 android:text="@string/profile_level"
-                                android:textColor="#CCFFFFFF"
+                                android:textColor="@color/profile_header_secondary_text"
                                 android:textSize="11sp" />
                         </LinearLayout>
                     </LinearLayout>
@@ -230,7 +230,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="18dp"
-                        android:background="#1FFFFFFF"
+                        android:background="@drawable/profile_header_panel_bg"
                         android:orientation="vertical"
                         android:padding="14dp">
 
@@ -246,7 +246,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:text="@string/profile_level_title_default"
-                                android:textColor="#FFFFFF"
+                                android:textColor="@color/profile_header_primary_text"
                                 android:textSize="14sp"
                                 android:textStyle="bold"
                                 tools:text="稳定训练者" />
@@ -256,7 +256,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/profile_level_progress_default"
-                                android:textColor="#CCFFFFFF"
+                                android:textColor="@color/profile_header_secondary_text"
                                 android:textSize="12sp"
                                 tools:text="距离下一级还差 68 经验" />
                         </LinearLayout>
@@ -285,7 +285,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:text="@string/profile_exp_training_default"
-                                android:textColor="#CCFFFFFF"
+                                android:textColor="@color/profile_header_secondary_text"
                                 android:textSize="12sp"
                                 tools:text="训练 +96" />
 
@@ -296,7 +296,7 @@
                                 android:layout_weight="1"
                                 android:gravity="center"
                                 android:text="@string/profile_exp_active_default"
-                                android:textColor="#CCFFFFFF"
+                                android:textColor="@color/profile_header_secondary_text"
                                 android:textSize="12sp"
                                 tools:text="活跃 +64" />
 
@@ -307,7 +307,7 @@
                                 android:layout_weight="1"
                                 android:gravity="end"
                                 android:text="@string/profile_exp_streak_default"
-                                android:textColor="#CCFFFFFF"
+                                android:textColor="@color/profile_header_secondary_text"
                                 android:textSize="12sp"
                                 tools:text="签到 +45" />
                         </LinearLayout>
@@ -325,7 +325,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:text="@string/profile_weekly_exp_default"
-                                android:textColor="#FFFFFF"
+                                android:textColor="@color/profile_header_primary_text"
                                 android:textSize="13sp"
                                 android:textStyle="bold"
                                 tools:text="本周新增经验 +84" />
@@ -334,7 +334,7 @@
                                 android:id="@+id/btn_profile_level_guide"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:background="@drawable/dialog_goal_secondary_btn_bg"
+                                android:background="@drawable/profile_header_button_bg"
                                 android:clickable="true"
                                 android:focusable="true"
                                 android:paddingLeft="12dp"
@@ -342,7 +342,7 @@
                                 android:paddingRight="12dp"
                                 android:paddingBottom="6dp"
                                 android:text="@string/profile_level_guide"
-                                android:textColor="@color/text_primary"
+                                android:textColor="@color/profile_header_button_text"
                                 android:textSize="12sp"
                                 android:textStyle="bold" />
                         </LinearLayout>
@@ -603,6 +603,49 @@
                         android:layout_marginStart="54dp"
                         android:background="@color/gray_200" />
 
+                    <!-- 账号管理 -->
+                    <LinearLayout
+                        android:id="@+id/menu_account_management"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingStart="16dp"
+                        android:paddingTop="14dp"
+                        android:paddingEnd="16dp"
+                        android:paddingBottom="14dp">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:contentDescription="账号管理"
+                            android:src="@drawable/ic_profile" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="14dp"
+                            android:layout_weight="1"
+                            android:text="@string/profile_account_management"
+                            android:textColor="@color/text_primary"
+                            android:textSize="15sp" />
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:contentDescription="进入"
+                            android:src="@drawable/ic_arrow_right" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="0.5dp"
+                        android:layout_marginStart="54dp"
+                        android:background="@color/gray_200" />
+
                     <!-- 隐私设置 -->
                     <LinearLayout
                         android:id="@+id/menu_privacy"
@@ -761,12 +804,13 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:minHeight="80dp"
+        android:background="@drawable/bottom_nav_background"
         app:menu="@menu/bottom_nav_menu"
-        app:itemIconTint="@color/indigo_primary"
-        app:itemTextColor="@color/indigo_primary"
-        app:itemRippleColor="@color/indigo_light"
+        app:itemBackground="@drawable/bottom_nav_item_bg"
+        app:itemIconTint="@color/bottom_nav_item_tint"
+        app:itemTextColor="@color/bottom_nav_item_tint"
+        app:itemRippleColor="@color/health_action_stroke"
         app:labelVisibilityMode="labeled"
-        android:background="@color/card_background"
         app:elevation="8dp" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

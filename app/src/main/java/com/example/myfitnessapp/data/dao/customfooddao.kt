@@ -17,6 +17,9 @@ interface CustomFoodDao {
     @Delete
     suspend fun delete(food: CustomFood)
 
-    @Query("SELECT * FROM custom_foods ORDER BY created_at DESC")
-    fun getAllFoods(): LiveData<List<CustomFood>>
+    @Query("SELECT * FROM custom_foods WHERE owner_username = :ownerUsername ORDER BY created_at DESC")
+    fun getAllFoods(ownerUsername: String): LiveData<List<CustomFood>>
+
+    @Query("DELETE FROM custom_foods WHERE owner_username = :ownerUsername")
+    suspend fun deleteByOwnerUsername(ownerUsername: String)
 }

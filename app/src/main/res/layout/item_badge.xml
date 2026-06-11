@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
-    app:cardBackgroundColor="@android:color/white"
+    app:cardBackgroundColor="@color/card_background"
     app:cardCornerRadius="12dp"
     app:cardElevation="2dp">
 
@@ -60,7 +60,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:gravity="center"
-            android:textColor="@color/gray_600"
+            android:textColor="@color/text_secondary"
             android:textSize="10sp"
             android:visibility="gone"
             tools:text="当前进度 2/7"
@@ -74,7 +74,7 @@
             android:layout_marginTop="6dp"
             android:max="100"
             android:progress="35"
-            android:progressTint="@color/indigo_primary"
+            android:progressTint="@color/achievement_progress_tint"
             android:visibility="gone"
             tools:progress="35"
             tools:visibility="visible" />

@@ -1,6 +1,5 @@
 package com.example.myfitnessapp
 
-import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Intent
 import android.net.Uri
@@ -12,7 +11,6 @@ import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -42,7 +40,6 @@ class ProfileActivity : AppCompatActivity() {
     private var currentProfile = UserProfile()
     private var currentWorkoutRecords: List<WorkoutRecord> = emptyList()
     private var currentCheckins: List<DailyCheckin> = emptyList()
-    private var lastRenderedLevel: Int? = null
 
     private val pickAvatarLauncher = registerForActivityResult(
         ActivityResultContracts.PickVisualMedia()
@@ -50,8 +47,25 @@ class ProfileActivity : AppCompatActivity() {
         if (uri != null) startCrop(uri)
     }
 
+    private val themeSettingsLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            recreate()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (!AuthSessionManager.isLoggedIn(this)) {
+            startActivity(
+                Intent(this, LoginActivity::class.java).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                }
+            )
+            finish()
+            return
+        }
         setContentView(R.layout.activity_profile)
 
         viewModel = ViewModelProvider(this).get(UserProfileViewModel::class.java)
@@ -189,18 +203,43 @@ class ProfileActivity : AppCompatActivity() {
     }
 
     private fun maybeShowLevelUpFeedback(profile: UserProfile) {
-        val previousLevel = lastRenderedLevel
-        lastRenderedLevel = profile.level
-
-        if (previousLevel == null || profile.level <= previousLevel) {
+        val username = CurrentAccount.requireUsername(this)
+        if (!SettingsPrefs.shouldShowLevelUp(this, username, profile.level)) {
             return
         }
 
-        Toast.makeText(
-            this,
-            getString(R.string.profile_level_up_message, profile.level, levelTitle(profile.level)),
-            Toast.LENGTH_SHORT
-        ).show()
+        showLevelUpDialog(profile.level, levelTitle(profile.level))
+    }
+
+    private fun showLevelUpDialog(level: Int, title: String) {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_level_up, null)
+        val dialog = Dialog(this)
+        dialog.setContentView(dialogView)
+        dialog.setCancelable(true)
+
+        dialogView.findViewById<TextView>(R.id.tv_level_up_subtitle).text =
+            getString(R.string.profile_level_up_message, level, title)
+        dialogView.findViewById<TextView>(R.id.tv_level_up_new_level).text =
+            getString(R.string.profile_level_format, level)
+        dialogView.findViewById<TextView>(R.id.tv_level_up_message).text =
+            "恭喜你达到了新的等级！继续保持训练，解锁更多成就。"
+
+        dialogView.findViewById<View>(R.id.btn_level_up_close).setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
+        dialog.window?.apply {
+            setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            val displayMetrics = resources.displayMetrics
+            val screenWidth = displayMetrics.widthPixels
+            val targetWidth = (screenWidth * 0.9f).toInt()
+            val maxWidth = (420 * displayMetrics.density).toInt()
+            setLayout(
+                if (targetWidth > maxWidth) maxWidth else targetWidth,
+                WindowManager.LayoutParams.WRAP_CONTENT
+            )
+        }
     }
 
     private fun calculateCurrentStreak(): Int {
@@ -349,12 +388,16 @@ class ProfileActivity : AppCompatActivity() {
             startActivity(Intent(this, ReminderSettingsActivity::class.java))
         }
 
+        findViewById<View>(R.id.menu_account_management).setOnClickListener {
+            startActivity(Intent(this, AccountManagementActivity::class.java))
+        }
+
         findViewById<View>(R.id.menu_privacy).setOnClickListener {
             startActivity(Intent(this, PrivacySettingsActivity::class.java))
         }
 
         findViewById<View>(R.id.menu_theme).setOnClickListener {
-            startActivity(Intent(this, ThemeSettingsActivity::class.java))
+            themeSettingsLauncher.launch(Intent(this, ThemeSettingsActivity::class.java))
         }
 
         findViewById<View>(R.id.menu_about).setOnClickListener {
@@ -379,7 +422,7 @@ class ProfileActivity : AppCompatActivity() {
     // ============================================================
     private fun onAvatarClicked() {
         if (!SettingsPrefs.getPrivacySettings(this).allowLocalAvatarAccess) {
-            Toast.makeText(this, R.string.privacy_settings_avatar_disabled, Toast.LENGTH_SHORT).show()
+            showAppFeedback(getString(R.string.privacy_settings_avatar_disabled), FeedbackType.WARNING)
             return
         }
         pickAvatarLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
@@ -399,10 +442,10 @@ class ProfileActivity : AppCompatActivity() {
             val resultUri = UCrop.getOutput(data) ?: return
             val current = viewModel.userProfile.value ?: return
             viewModel.updateUserProfile(current.copy(avatarUri = resultUri.toString()))
-            Toast.makeText(this, "头像已更新", Toast.LENGTH_SHORT).show()
+            showAppFeedback("头像已更新", FeedbackType.SUCCESS)
         }
         if (requestCode == UCrop.REQUEST_CROP && resultCode == UCrop.RESULT_ERROR && data != null) {
-            Toast.makeText(this, "头像裁剪失败", Toast.LENGTH_SHORT).show()
+            showAppFeedback("头像裁剪失败", FeedbackType.WARNING)
         }
     }
 
@@ -410,28 +453,39 @@ class ProfileActivity : AppCompatActivity() {
     // 功能开发中提示
     // ============================================================
     private fun showComingSoon(feature: String) {
-        Toast.makeText(this, "$feature 功能开发中，敬请期待", Toast.LENGTH_SHORT).show()
+        showAppFeedback("$feature 功能开发中，敬请期待", FeedbackType.INFO)
     }
 
     // ============================================================
     // 退出登录确认弹窗
     // ============================================================
     private fun showLogoutConfirmDialog() {
-        AlertDialog.Builder(this)
+        createAppAlertDialogBuilder()
             .setTitle("退出登录")
             .setMessage("确定要退出当前账号吗？")
             .setPositiveButton("确定") { _, _ ->
                 onLogoutConfirmed()
             }
             .setNegativeButton("取消", null)
-            .show()
+            .create()
+            .also {
+                it.show()
+                it.applyAppDialogStyling(this)
+            }
     }
 
     // ============================================================
-    // 退出登录逻辑 — 预留接口
+    // 退出登录逻辑
     // ============================================================
     private fun onLogoutConfirmed() {
-        Toast.makeText(this, "已退出登录", Toast.LENGTH_SHORT).show()
+        AuthSessionManager.clearSession(this)
+        startActivity(
+            Intent(this, LoginActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                putExtra(MainActivity.EXTRA_PENDING_FEEDBACK_MESSAGE, "已退出登录")
+                putExtra(MainActivity.EXTRA_PENDING_FEEDBACK_TYPE, FeedbackType.INFO.name)
+            }
+        )
         finish()
     }
 }

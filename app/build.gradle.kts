@@ -17,9 +17,13 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         
-        // 从 local.properties 读取 API Key，如果没有则使用空字符串
-        val mapsApiKey = project.findProperty("MAPS_API_KEY") as? String ?: ""
-        manifestPlaceholders["MAPS_API_KEY"] = mapsApiKey
+        // 从 local.properties 读取高德 Key，如果没有则使用空字符串
+        val amapApiKey = project.findProperty("AMAP_API_KEY") as? String ?: ""
+        manifestPlaceholders["AMAP_API_KEY"] = amapApiKey
+
+        ndk {
+            abiFilters += listOf("armeabi-v7a", "arm64-v8a")
+        }
     }
 
     buildTypes {
@@ -63,11 +67,8 @@ dependencies {
     // Coroutines
     implementation(libs.kotlinx.coroutines.android)
     
-    // Google Play Services Location (GPS)
-    implementation("com.google.android.gms:play-services-location:21.0.1")
-    
-    // Google Maps
-    implementation("com.google.android.gms:play-services-maps:18.2.0")
+    // 高德地图
+    implementation("com.amap.api:3dmap-location-search:latest.integration")
 
     // 头像加载与裁剪
     implementation("com.github.bumptech.glide:glide:4.16.0")

@@ -9,7 +9,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F5F5"
+    android:background="@color/gray_100"
     android:orientation="vertical"
     android:fitsSystemWindows="true"
     tools:context=".StrengthActivity">
@@ -18,7 +18,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/indigo_primary"
+        android:background="@color/training_strength_badge_fill"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingTop="48dp"
@@ -33,7 +33,8 @@
             android:contentDescription="返回"
             android:padding="8dp"
             android:src="@drawable/ic_chevron_down"
-            android:rotation="90" />
+            android:rotation="90"
+            app:tint="@color/white" />
 
         <TextView
             android:id="@+id/tv_strength_header_title"
@@ -42,7 +43,7 @@
             android:layout_marginStart="8dp"
             android:layout_weight="1"
             android:text="力量训练"
-            android:textColor="#FFFFFF"
+            android:textColor="@color/white"
             android:textSize="18sp"
             android:textStyle="bold" />
 
@@ -52,7 +53,7 @@
             android:layout_height="wrap_content"
             android:fontFamily="monospace"
             android:text="00:00"
-            android:textColor="#FFFFFF"
+            android:textColor="@color/white"
             android:textSize="16sp" />
     </LinearLayout>
 
@@ -61,7 +62,7 @@
         android:id="@+id/rest_overlay"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#E74C3C"
+        android:background="@color/strength_rest_fill"
         android:gravity="center"
         android:orientation="vertical"
         android:padding="16dp"
@@ -72,7 +73,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="组间休息"
-            android:textColor="#FFFFFF"
+            android:textColor="@color/white"
             android:textSize="14sp" />
 
         <TextView
@@ -82,7 +83,7 @@
             android:layout_marginTop="4dp"
             android:fontFamily="monospace"
             android:text="60"
-            android:textColor="#FFFFFF"
+            android:textColor="@color/white"
             android:textSize="36sp"
             android:textStyle="bold" />
 
@@ -91,7 +92,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:text="秒"
-            android:textColor="#CCFFFFFF"
+            android:textColor="@color/sport_header_secondary_text"
             android:textSize="13sp" />
 
         <LinearLayout
@@ -104,7 +105,7 @@
                 android:id="@+id/btn_skip_rest"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/tab_bg_unselected"
+                android:background="@drawable/tracking_chip_bg"
                 android:clickable="true"
                 android:focusable="true"
                 android:paddingStart="20dp"
@@ -112,7 +113,7 @@
                 android:paddingEnd="20dp"
                 android:paddingBottom="6dp"
                 android:text="跳过休息"
-                android:textColor="#FFFFFF"
+                android:textColor="@color/tracking_on_primary"
                 android:textSize="13sp" />
         </LinearLayout>
     </LinearLayout>
@@ -133,13 +134,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
-                android:background="@drawable/tab_bg_unselected"
+                android:background="@drawable/dialog_goal_secondary_btn_bg"
                 android:paddingStart="12dp"
                 android:paddingTop="6dp"
                 android:paddingEnd="12dp"
                 android:paddingBottom="6dp"
                 android:text="上肢力量入门 · 3 个动作"
-                android:textColor="@color/indigo_primary"
+                android:textColor="@color/training_course_action_text"
                 android:textSize="12sp"
                 android:visibility="gone"
                 tools:text="上肢力量入门 · 3 个动作"
@@ -184,7 +185,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:text="第 1 组 / 共 4 组"
-                        android:textColor="@color/indigo_primary"
+                        android:textColor="@color/training_course_action_text"
                         android:textSize="14sp" />
 
                     <TextView
@@ -231,7 +232,7 @@
                                     android:id="@+id/btn_weight_minus"
                                     android:layout_width="36dp"
                                     android:layout_height="36dp"
-                                    android:background="@drawable/tab_bg_unselected"
+                                    android:background="@drawable/dialog_goal_secondary_btn_bg"
                                     android:clickable="true"
                                     android:focusable="true"
                                     android:gravity="center"
@@ -254,7 +255,7 @@
                                     android:id="@+id/btn_weight_plus"
                                     android:layout_width="36dp"
                                     android:layout_height="36dp"
-                                    android:background="@drawable/tab_bg_unselected"
+                                    android:background="@drawable/dialog_goal_secondary_btn_bg"
                                     android:clickable="true"
                                     android:focusable="true"
                                     android:gravity="center"
@@ -291,7 +292,7 @@
                                     android:id="@+id/btn_reps_minus"
                                     android:layout_width="36dp"
                                     android:layout_height="36dp"
-                                    android:background="@drawable/tab_bg_unselected"
+                                    android:background="@drawable/dialog_goal_secondary_btn_bg"
                                     android:clickable="true"
                                     android:focusable="true"
                                     android:gravity="center"
@@ -314,7 +315,7 @@
                                     android:id="@+id/btn_reps_plus"
                                     android:layout_width="36dp"
                                     android:layout_height="36dp"
-                                    android:background="@drawable/tab_bg_unselected"
+                                    android:background="@drawable/dialog_goal_secondary_btn_bg"
                                     android:clickable="true"
                                     android:focusable="true"
                                     android:gravity="center"
@@ -332,12 +333,12 @@
                         android:layout_width="match_parent"
                         android:layout_height="48dp"
                         android:layout_marginTop="16dp"
-                        android:background="@drawable/start_button_bg"
+                        android:background="@drawable/reminder_primary_btn_bg"
                         android:clickable="true"
                         android:focusable="true"
                         android:gravity="center"
                         android:text="完成此组"
-                        android:textColor="#FFFFFF"
+                        android:textColor="@color/white"
                         android:textSize="15sp"
                         android:textStyle="bold" />
                 </LinearLayout>
@@ -384,7 +385,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="0"
-                                android:textColor="@color/indigo_primary"
+                                android:textColor="@color/training_course_action_text"
                                 android:textSize="20sp"
                                 android:textStyle="bold" />
 
@@ -432,7 +433,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="0"
-                                android:textColor="#E67E22"
+                                android:textColor="@color/tracking_summary_calories"
                                 android:textSize="20sp"
                                 android:textStyle="bold" />
 
@@ -481,7 +482,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="暂无记录，完成第一组后显示"
-                            android:textColor="@color/gray_400"
+                            android:textColor="@color/text_secondary"
                             android:textSize="13sp" />
                     </LinearLayout>
                 </LinearLayout>
@@ -505,7 +506,7 @@
             android:focusable="true"
             android:gravity="center"
             android:text="结束训练"
-            android:textColor="#FFFFFF"
+            android:textColor="@color/white"
             android:textSize="15sp"
             android:textStyle="bold" />
     </LinearLayout>

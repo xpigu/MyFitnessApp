@@ -2,12 +2,20 @@ package com.example.myfitnessapp.data.entity
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "user_profiles")
+@Entity(
+    tableName = "user_profiles",
+    indices = [Index(value = ["account_username"], unique = true)]
+)
 data class UserProfile(
-    @PrimaryKey(autoGenerate = false)
-    val id: Long = 1L,
+    @PrimaryKey(autoGenerate = true)
+    val id: Long = 0L,
+
+    /** 账号用户名，用于多账号数据隔离 */
+    @ColumnInfo(name = "account_username")
+    val accountUsername: String = "",
 
     /** 用户名 */
     @ColumnInfo(name = "username")

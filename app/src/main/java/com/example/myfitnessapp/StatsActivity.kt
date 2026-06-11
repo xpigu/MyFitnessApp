@@ -1,5 +1,6 @@
 package com.example.myfitnessapp
 
+import android.content.res.ColorStateList
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -7,7 +8,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -19,12 +19,14 @@ import com.example.myfitnessapp.data.viewmodel.SummaryData
 import com.example.myfitnessapp.data.viewmodel.WorkoutRecordViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import java.util.Calendar
 
 class StatsActivity : AppCompatActivity() {
 
     private lateinit var viewModel: WorkoutRecordViewModel
     private lateinit var groupedAdapter: GroupedRecordAdapter
     private var isDayMode = true
+    private var selectedYear = Calendar.getInstance().get(Calendar.YEAR)
 
     // Phase 2 增强：最佳成绩显示
     private lateinit var pbAdapter: PBRecordsAdapter
@@ -79,26 +81,62 @@ class StatsActivity : AppCompatActivity() {
     private fun setupTabToggle() {
         val tabDay = findViewById<TextView>(R.id.tab_day)
         val tabMonth = findViewById<TextView>(R.id.tab_month)
+        val prevYearButton = findViewById<TextView>(R.id.btn_prev_year)
+        val nextYearButton = findViewById<TextView>(R.id.btn_next_year)
 
         tabDay.setOnClickListener { switchToDayMode() }
         tabMonth.setOnClickListener { switchToMonthMode() }
+        prevYearButton.setOnClickListener {
+            if (!prevYearButton.isEnabled) return@setOnClickListener
+            selectedYear -= 1
+            if (!isDayMode) {
+                viewModel.setCurrentDate(String.format("%04d-01-01", selectedYear))
+                updateSummaryForMode(viewModel.allRecords.value.orEmpty())
+                refreshStatsDisplay(viewModel.allRecords.value.orEmpty())
+                updateYearNavigation(viewModel.allRecords.value.orEmpty())
+            }
+            updateTabUI()
+        }
+        nextYearButton.setOnClickListener {
+            if (!nextYearButton.isEnabled) return@setOnClickListener
+            selectedYear += 1
+            if (!isDayMode) {
+                viewModel.setCurrentDate(String.format("%04d-01-01", selectedYear))
+                updateSummaryForMode(viewModel.allRecords.value.orEmpty())
+                refreshStatsDisplay(viewModel.allRecords.value.orEmpty())
+                updateYearNavigation(viewModel.allRecords.value.orEmpty())
+            }
+            updateTabUI()
+        }
     }
 
     private fun switchToDayMode() {
         isDayMode = true
+        viewModel.setCurrentDate(WorkoutRecordViewModel.todayStr())
         viewModel.setDayMode(true)
         updateTabUI()
+        updateYearNavigation(viewModel.allRecords.value.orEmpty())
+        updateSummaryForMode(viewModel.allRecords.value.orEmpty())
+        refreshStatsDisplay(viewModel.allRecords.value.orEmpty())
     }
 
     private fun switchToMonthMode() {
         isDayMode = false
+        viewModel.setCurrentDate(String.format("%04d-01-01", selectedYear))
         viewModel.setDayMode(false)
         updateTabUI()
+        updateYearNavigation(viewModel.allRecords.value.orEmpty())
+        updateSummaryForMode(viewModel.allRecords.value.orEmpty())
+        refreshStatsDisplay(viewModel.allRecords.value.orEmpty())
     }
 
     private fun updateTabUI() {
         val tabDay = findViewById<TextView>(R.id.tab_day)
         val tabMonth = findViewById<TextView>(R.id.tab_month)
+        val yearSelector = findViewById<View>(R.id.layout_year_selector)
+        val selectedYearText = findViewById<TextView>(R.id.tv_selected_year)
+        val summaryScope = findViewById<TextView>(R.id.tv_stats_summary_scope)
+        val recordSectionTitle = findViewById<TextView>(R.id.tv_record_section_title)
 
         if (isDayMode) {
             tabDay.background = getDrawable(R.drawable.tab_bg_selected)
@@ -108,6 +146,9 @@ class StatsActivity : AppCompatActivity() {
             tabMonth.background = getDrawable(R.drawable.tab_bg_unselected)
             tabMonth.setTextColor(getColor(R.color.text_secondary))
             tabMonth.setTypeface(null, android.graphics.Typeface.NORMAL)
+            yearSelector.visibility = View.GONE
+            summaryScope.text = getString(R.string.stats_summary_today)
+            recordSectionTitle.text = getString(R.string.stats_record_title_day)
         } else {
             tabMonth.background = getDrawable(R.drawable.tab_bg_selected)
             tabMonth.setTextColor(getColor(android.R.color.white))
@@ -115,6 +156,10 @@ class StatsActivity : AppCompatActivity() {
             tabDay.background = getDrawable(R.drawable.tab_bg_unselected)
             tabDay.setTextColor(getColor(R.color.text_secondary))
             tabDay.setTypeface(null, android.graphics.Typeface.NORMAL)
+            yearSelector.visibility = View.VISIBLE
+            selectedYearText.text = getString(R.string.stats_year_format, selectedYear)
+            summaryScope.text = getString(R.string.stats_summary_year_format, selectedYear)
+            recordSectionTitle.text = getString(R.string.stats_record_title_month)
         }
     }
 
@@ -122,17 +167,11 @@ class StatsActivity : AppCompatActivity() {
     // 观察数据变化
     // ============================================================
     private fun observeData() {
-        // 观察汇总数据
-        viewModel.summary.observe(this) { data ->
-            updateSummary(data)
-        }
-
         // 观察所有记录，构建分组
         viewModel.allRecords.observe(this) { records ->
-            val dates = records.map { it.date }.distinct().sortedDescending()
-            val groups = viewModel.buildGroupedRecords(dates, records)
-            groupedAdapter.updateData(groups)
-            updateEmptyState(records.isEmpty())
+            updateSummaryForMode(records)
+            refreshStatsDisplay(records)
+            updateYearNavigation(records)
 
             // Phase 2 增强：加载最佳成绩
             if (records.isNotEmpty()) {
@@ -149,9 +188,87 @@ class StatsActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.tv_total_duration).text = data.formatDuration()
     }
 
+    private fun updateSummaryForMode(records: List<WorkoutRecord>) {
+        val summary = if (isDayMode) {
+            val today = WorkoutRecordViewModel.todayStr()
+            val todayRecords = records.filter { it.date == today }
+            SummaryData(
+                workoutCount = todayRecords.size,
+                totalCalories = todayRecords.sumOf { it.totalCalories },
+                totalDurationSeconds = todayRecords.sumOf { it.elapsedSeconds }
+            )
+        } else {
+            val yearPrefix = String.format("%04d-", selectedYear)
+            val yearRecords = records.filter { it.date.startsWith(yearPrefix) }
+            SummaryData(
+                workoutCount = yearRecords.size,
+                totalCalories = yearRecords.sumOf { it.totalCalories },
+                totalDurationSeconds = yearRecords.sumOf { it.elapsedSeconds }
+            )
+        }
+        updateSummary(summary)
+    }
+
+    private fun updateYearNavigation(records: List<WorkoutRecord>) {
+        val prevYearButton = findViewById<TextView>(R.id.btn_prev_year)
+        val nextYearButton = findViewById<TextView>(R.id.btn_next_year)
+        val availableYears = records.mapNotNull { it.date.take(4).toIntOrNull() }
+        val currentYear = Calendar.getInstance().get(Calendar.YEAR)
+        val minYear = availableYears.minOrNull() ?: currentYear
+        val maxYear = maxOf(availableYears.maxOrNull() ?: currentYear, currentYear)
+        prevYearButton.isEnabled = selectedYear > minYear
+        nextYearButton.isEnabled = selectedYear < maxYear
+        prevYearButton.alpha = if (prevYearButton.isEnabled) 1f else 0.45f
+        nextYearButton.alpha = if (nextYearButton.isEnabled) 1f else 0.45f
+    }
+
     private fun updateEmptyState(isEmpty: Boolean) {
+        val emptyTitle = findViewById<TextView>(R.id.tv_empty_title)
+        val emptySubtitle = findViewById<TextView>(R.id.tv_empty_subtitle)
         findViewById<View>(R.id.ll_empty_state).visibility = if (isEmpty) View.VISIBLE else View.GONE
         findViewById<RecyclerView>(R.id.rv_sport_list).visibility = if (isEmpty) View.GONE else View.VISIBLE
+        if (isDayMode) {
+            emptyTitle.text = getString(R.string.stats_empty_day_title)
+            emptySubtitle.text = getString(R.string.stats_empty_day_subtitle)
+        } else {
+            emptyTitle.text = getString(R.string.stats_empty_year_title_format, selectedYear)
+            emptySubtitle.text = getString(R.string.stats_empty_year_subtitle)
+        }
+    }
+
+    private fun refreshStatsDisplay(records: List<WorkoutRecord>) {
+        val groups = if (isDayMode) {
+            buildDayGroups(records)
+        } else {
+            buildMonthGroups(records, selectedYear)
+        }
+        groupedAdapter.updateData(groups)
+        updateEmptyState(groups.isEmpty())
+    }
+
+    private fun buildDayGroups(records: List<WorkoutRecord>): List<DateGroup> {
+        val dates = records.map { it.date }.distinct().sortedDescending()
+        return dates.map { date ->
+            val dayRecords = records.filter { it.date == date }
+            DateGroup(
+                date = date,
+                title = WorkoutRecordHelper.dateToDisplay(date),
+                records = dayRecords
+            )
+        }
+    }
+
+    private fun buildMonthGroups(records: List<WorkoutRecord>, year: Int): List<DateGroup> {
+        val yearPrefix = String.format("%04d-", year)
+        val recordsInYear = records.filter { it.date.startsWith(yearPrefix) }
+        val groupedByMonth = recordsInYear.groupBy { it.date.substring(0, 7) }
+        return groupedByMonth.keys.sortedDescending().map { month ->
+            DateGroup(
+                date = month,
+                title = WorkoutRecordHelper.monthToDisplay(month),
+                records = groupedByMonth[month].orEmpty()
+            )
+        }
     }
 
     // ============================================================
@@ -231,10 +348,14 @@ class StatsActivity : AppCompatActivity() {
         val duration = WorkoutRecordHelper.formatDuration(record.elapsedSeconds)
 
         view.findViewById<ImageView>(R.id.detail_iv_sport_type)
-            .setImageResource(record.sportIconResId)
+            .apply {
+                setImageResource(record.sportIconResId)
+                backgroundTintList = ColorStateList.valueOf(getColor(sportBadgeColor(record.sportType)))
+            }
         view.findViewById<TextView>(R.id.detail_tv_sport_name).text = label
         view.findViewById<TextView>(R.id.detail_tv_sport_time).text = time
         view.findViewById<TextView>(R.id.detail_tv_duration).text = duration
+        applyDetailMetricColors(view, record)
 
         when (record.sportType.uppercase()) {
             "RUN", "CYCLING" -> {
@@ -332,6 +453,60 @@ class StatsActivity : AppCompatActivity() {
         view.findViewById<TextView>(R.id.detail_unit_pace).setText(paceUnitRes)
     }
 
+    private fun applyDetailMetricColors(view: View, record: WorkoutRecord) {
+        view.findViewById<TextView>(R.id.detail_tv_duration)
+            .setTextColor(getColor(R.color.training_course_action_text))
+        view.findViewById<TextView>(R.id.detail_tv_distance)
+            .setTextColor(getColor(metricAccentColor(record.sportType)))
+        view.findViewById<TextView>(R.id.detail_tv_avg_speed)
+            .setTextColor(getColor(metricSecondaryColor(record.sportType)))
+        view.findViewById<TextView>(R.id.detail_tv_pace)
+            .setTextColor(getColor(metricTertiaryColor(record.sportType)))
+    }
+
+    private fun sportBadgeColor(sportType: String): Int {
+        return when (sportType.uppercase()) {
+            "RUN" -> R.color.training_running_badge_fill
+            "CYCLING" -> R.color.training_cycling_badge_fill
+            "YOGA" -> R.color.training_yoga_badge_fill
+            "STRENGTH" -> R.color.training_strength_badge_fill
+            "SWIMMING" -> R.color.training_swimming_badge_fill
+            "JUMP_ROPE" -> R.color.training_jump_rope_badge_fill
+            else -> R.color.training_running_badge_fill
+        }
+    }
+
+    private fun metricAccentColor(sportType: String): Int {
+        return when (sportType.uppercase()) {
+            "RUN" -> R.color.tracking_metric_running
+            "CYCLING", "SWIMMING" -> R.color.tracking_metric_cycling
+            "STRENGTH" -> R.color.training_strength_badge_fill
+            "JUMP_ROPE" -> R.color.tracking_summary_primary
+            "YOGA" -> R.color.training_yoga_badge_fill
+            else -> R.color.training_course_action_text
+        }
+    }
+
+    private fun metricSecondaryColor(sportType: String): Int {
+        return when (sportType.uppercase()) {
+            "RUN", "JUMP_ROPE" -> R.color.tracking_summary_primary
+            "CYCLING", "SWIMMING" -> R.color.tracking_metric_cycling
+            "STRENGTH" -> R.color.tracking_metric_fast
+            "YOGA" -> R.color.text_secondary
+            else -> R.color.text_secondary
+        }
+    }
+
+    private fun metricTertiaryColor(sportType: String): Int {
+        return when (sportType.uppercase()) {
+            "RUN" -> R.color.tracking_stop_text
+            "CYCLING", "SWIMMING", "YOGA" -> R.color.text_secondary
+            "STRENGTH" -> R.color.tracking_summary_calories
+            "JUMP_ROPE" -> R.color.text_secondary
+            else -> R.color.text_secondary
+        }
+    }
+
     companion object {
         private const val KEY_PB_SWIPE_HINT_SHOWN = "pb_swipe_hint_shown"
     }
@@ -353,7 +528,7 @@ class GroupedRecordAdapter(
     }
 
     sealed class ListItem {
-        data class HeaderItem(val date: String, val count: Int, val calories: Int) : ListItem()
+        data class HeaderItem(val title: String, val count: Int, val calories: Int) : ListItem()
         data class RecordItem(val record: WorkoutRecord) : ListItem()
     }
 
@@ -395,7 +570,7 @@ class GroupedRecordAdapter(
         items.clear()
         for (group in groups) {
             val totalCal = group.records.sumOf { it.totalCalories }
-            items.add(ListItem.HeaderItem(group.date, group.records.size, totalCal))
+            items.add(ListItem.HeaderItem(group.title, group.records.size, totalCal))
             for (record in group.records) {
                 items.add(ListItem.RecordItem(record))
             }
@@ -405,8 +580,7 @@ class GroupedRecordAdapter(
 
     class DateHeaderViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         fun bind(item: ListItem.HeaderItem) {
-            val display = WorkoutRecordHelper.dateToDisplay(item.date)
-            itemView.findViewById<TextView>(R.id.tv_date_header).text = display
+            itemView.findViewById<TextView>(R.id.tv_date_header).text = item.title
             itemView.findViewById<TextView>(R.id.tv_date_summary).text =
                 "${item.count} 次运动 · ${item.calories} kcal"
         }
@@ -415,13 +589,41 @@ class GroupedRecordAdapter(
     class RecordViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         fun bind(record: WorkoutRecord, onClick: (WorkoutRecord) -> Unit) {
             itemView.findViewById<ImageView>(R.id.iv_sport_type)
-                .setImageResource(record.sportIconResId)
+                .apply {
+                    setImageResource(record.sportIconResId)
+                    backgroundTintList = ColorStateList.valueOf(
+                        context.getColor(
+                            when (record.sportType.uppercase()) {
+                                "RUN" -> R.color.training_running_badge_fill
+                                "CYCLING" -> R.color.training_cycling_badge_fill
+                                "YOGA" -> R.color.training_yoga_badge_fill
+                                "STRENGTH" -> R.color.training_strength_badge_fill
+                                "SWIMMING" -> R.color.training_swimming_badge_fill
+                                "JUMP_ROPE" -> R.color.training_jump_rope_badge_fill
+                                else -> R.color.training_running_badge_fill
+                            }
+                        )
+                    )
+                }
             itemView.findViewById<TextView>(R.id.tv_sport_name).text =
                 WorkoutRecordHelper.getSportLabel(record.sportType)
             itemView.findViewById<TextView>(R.id.tv_sport_time).text =
                 WorkoutRecordHelper.timestampToTime(record.timestamp)
-            itemView.findViewById<TextView>(R.id.tv_sport_summary).text =
-                WorkoutRecordHelper.buildSummary(record)
+            itemView.findViewById<TextView>(R.id.tv_sport_summary).apply {
+                text = WorkoutRecordHelper.buildSummary(record)
+                setTextColor(
+                    context.getColor(
+                        when (record.sportType.uppercase()) {
+                            "RUN" -> R.color.tracking_metric_running
+                            "CYCLING", "SWIMMING" -> R.color.tracking_metric_cycling
+                            "STRENGTH" -> R.color.training_strength_badge_fill
+                            "JUMP_ROPE" -> R.color.tracking_summary_primary
+                            "YOGA" -> R.color.training_yoga_badge_fill
+                            else -> R.color.training_course_action_text
+                        }
+                    )
+                )
+            }
 
             itemView.setOnClickListener { onClick(record) }
         }

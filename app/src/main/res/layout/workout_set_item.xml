@@ -26,7 +26,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="60kg × 10"
-        android:textColor="@color/emerald_dark"
+        android:textColor="@color/training_course_action_text"
         android:textSize="13sp"
         android:textStyle="bold"
         tools:text="60kg × 10" />

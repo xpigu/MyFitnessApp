@@ -4,6 +4,7 @@ import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
@@ -18,10 +19,11 @@ import android.widget.LinearLayout
 import android.widget.ArrayAdapter
 import android.widget.Spinner
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.NestedScrollView
 import androidx.lifecycle.ViewModelProvider
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.example.myfitnessapp.data.model.BasicFoodCatalog
 import com.example.myfitnessapp.data.model.DailyMealPlan
 import com.example.myfitnessapp.data.model.DietGoalType
@@ -48,6 +50,11 @@ import java.util.Date
 import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
+
+    companion object {
+        const val EXTRA_PENDING_FEEDBACK_MESSAGE = "extra_pending_feedback_message"
+        const val EXTRA_PENDING_FEEDBACK_TYPE = "extra_pending_feedback_type"
+    }
 
     private lateinit var dietViewModel: DietRecordViewModel
     private lateinit var userProfileViewModel: UserProfileViewModel
@@ -95,6 +102,15 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (!AuthSessionManager.isLoggedIn(this)) {
+            startActivity(
+                Intent(this, LoginActivity::class.java).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                }
+            )
+            finish()
+            return
+        }
         setContentView(R.layout.activity_main)
 
         dietViewModel = ViewModelProvider(this).get(DietRecordViewModel::class.java)
@@ -111,12 +127,14 @@ class MainActivity : AppCompatActivity() {
         setupHealthFocusActions()
         setupDietSection()
         observeData()
+        handlePendingFeedback(intent)
         handleReminderEntry(intent)
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
+        handlePendingFeedback(intent)
         handleReminderEntry(intent)
     }
 
@@ -259,11 +277,11 @@ class MainActivity : AppCompatActivity() {
         dialogView.findViewById<Button>(R.id.btn_dialog_checkin).setOnClickListener {
             checkinViewModel.checkinToday(
                 onSuccess = { streak ->
-                    Toast.makeText(this, "签到成功！连续签到 $streak 天", Toast.LENGTH_SHORT).show()
+                    showAppFeedback("签到成功！连续签到 $streak 天", FeedbackType.SUCCESS)
                     dialog.dismiss()
                 },
                 onAlreadyCheckedIn = {
-                    Toast.makeText(this, "今天已经签到过了哦", Toast.LENGTH_SHORT).show()
+                    showAppFeedback("今天已经签到过了哦", FeedbackType.WARNING)
                     dialog.dismiss()
                 }
             )
@@ -274,6 +292,19 @@ class MainActivity : AppCompatActivity() {
         }
 
         dialog.show()
+    }
+
+    private fun handlePendingFeedback(intent: Intent?) {
+        val message = intent?.getStringExtra(EXTRA_PENDING_FEEDBACK_MESSAGE).orEmpty()
+        if (message.isBlank()) return
+
+        val type = intent?.getStringExtra(EXTRA_PENDING_FEEDBACK_TYPE)
+            ?.let { runCatching { FeedbackType.valueOf(it) }.getOrNull() }
+            ?: FeedbackType.INFO
+
+        showAppFeedback(message, type)
+        intent?.removeExtra(EXTRA_PENDING_FEEDBACK_MESSAGE)
+        intent?.removeExtra(EXTRA_PENDING_FEEDBACK_TYPE)
     }
 
     private fun updateWaterDisplay(count: Int) {
@@ -292,6 +323,18 @@ class MainActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.tv_greeting).setText(greetingRes)
         findViewById<TextView>(R.id.tv_user_name).text =
             profile.username.ifBlank { getString(R.string.profile_username) }
+
+        // 更新头像
+        val avatarView = findViewById<ImageView>(R.id.iv_avatar)
+        if (SettingsPrefs.getPrivacySettings(this).allowLocalAvatarAccess && profile.avatarUri.isNotEmpty()) {
+            Glide.with(this)
+                .load(Uri.parse(profile.avatarUri))
+                .transform(CircleCrop())
+                .placeholder(R.drawable.avatar_placeholder)
+                .into(avatarView)
+        } else {
+            avatarView.setImageResource(R.drawable.avatar_placeholder)
+        }
     }
 
     // ============================================================
@@ -393,7 +436,7 @@ class MainActivity : AppCompatActivity() {
         when (ReminderType.from(intent.getStringExtra(ReminderScheduler.EXTRA_REMINDER_TYPE))) {
             ReminderType.WATER -> {
                 focusWaterAction()
-                Toast.makeText(this, R.string.reminder_water_opened_hint, Toast.LENGTH_SHORT).show()
+                showAppFeedback(getString(R.string.reminder_water_opened_hint), FeedbackType.INFO)
             }
             else -> Unit
         }
@@ -426,7 +469,10 @@ class MainActivity : AppCompatActivity() {
         // 饮水按钮
         findViewById<View>(R.id.btn_water).setOnClickListener {
             dietViewModel.addWater()
-            Toast.makeText(this, "已饮水 1 杯", Toast.LENGTH_SHORT).show()
+            showAppFeedback(
+                message = "已记录 1 杯饮水",
+                type = FeedbackType.SUCCESS
+            )
         }
 
         findViewById<View>(R.id.btn_generate_meal_plan).setOnClickListener {
@@ -472,42 +518,100 @@ class MainActivity : AppCompatActivity() {
         val foods = BasicFoodCatalog.foodsForMeal(meal) + customFoods
             .filter { it.mealType == meal.name }
             .map { it.toFoodCatalogItem() }
-        val labels = foods.map { food ->
-            val customTag = if (food.code.startsWith("custom_")) " · 自定义" else ""
-            "${food.name} · ${food.caloriesPer100g} kcal/100g$customTag"
-        }.toTypedArray()
-        AlertDialog.Builder(this)
-            .setTitle("选择${mealLabel}食物")
-            .setItems(labels) { _, which ->
-                showPortionPickerDialog(mealType, mealLabel, foods[which])
+        if (foods.isEmpty()) {
+            showAppFeedback("${mealLabel}还没有可选食物，先到饮食工具里添加自定义食物吧", FeedbackType.INFO)
+            return
+        }
+
+        val dialogView = layoutInflater.inflate(R.layout.dialog_diet_picker, null)
+        val dialog = Dialog(this)
+        dialog.setContentView(dialogView)
+        dialog.setCancelable(true)
+
+        dialogView.findViewById<TextView>(R.id.tv_diet_picker_title).text = "选择${mealLabel}食物"
+        dialogView.findViewById<TextView>(R.id.tv_diet_picker_subtitle).text =
+            "把常吃食物整理成更直观的卡片，先选食物，再挑合适份量。"
+        dialogView.findViewById<TextView>(R.id.tv_diet_picker_preview_title).text =
+            "${mealLabel}可选 ${foods.size} 项"
+        dialogView.findViewById<TextView>(R.id.tv_diet_picker_preview_summary).text =
+            "系统食物和你的自定义食物会一起展示，点击任意卡片继续选择份量。"
+
+        val container = dialogView.findViewById<LinearLayout>(R.id.layout_diet_picker_options)
+        foods.forEach { food ->
+            val itemView = layoutInflater.inflate(R.layout.item_diet_picker_option, container, false)
+            bindDietPickerOption(
+                itemView = itemView,
+                chipText = if (food.code.startsWith("custom_")) "自定义" else mealLabel,
+                title = food.name,
+                meta = "${food.caloriesPer100g} kcal/100g",
+                summary = buildFoodNutritionLine(food)
+            )
+            itemView.setOnClickListener {
+                dialog.dismiss()
+                showPortionPickerDialog(mealType, mealLabel, food)
             }
-            .setNegativeButton("取消", null)
-            .show()
+            container.addView(itemView)
+        }
+
+        dialogView.findViewById<View>(R.id.btn_diet_picker_close).setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
+        applyStandardDialogWindow(dialog)
     }
 
     private fun showPortionPickerDialog(mealType: String, mealLabel: String, food: FoodCatalogItem) {
         val portions = HealthyDietPlanner.portionOptions(food)
-        val labels = portions.map { grams ->
+        val defaultPortion = if (portions.contains(100)) 100 else portions.getOrElse(0) { 0 }
+        val dialogView = layoutInflater.inflate(R.layout.dialog_diet_picker, null)
+        val dialog = Dialog(this)
+        dialog.setContentView(dialogView)
+        dialog.setCancelable(true)
+
+        dialogView.findViewById<TextView>(R.id.tv_diet_picker_title).text = "选择${food.name}份量"
+        dialogView.findViewById<TextView>(R.id.tv_diet_picker_subtitle).text =
+            "根据今天的目标挑一个更合适的份量，点击后会直接加入${mealLabel}记录。"
+        dialogView.findViewById<TextView>(R.id.tv_diet_picker_preview_title).text =
+            "${mealLabel} · ${food.caloriesPer100g} kcal/100g"
+        dialogView.findViewById<TextView>(R.id.tv_diet_picker_preview_summary).text =
+            buildFoodNutritionLine(food)
+
+        val container = dialogView.findViewById<LinearLayout>(R.id.layout_diet_picker_options)
+        portions.forEach { grams ->
+            val itemView = layoutInflater.inflate(R.layout.item_diet_picker_option, container, false)
             val calories = HealthyDietPlanner.calculateCalories(food, grams)
-            "${grams}g · ${calories} kcal"
-        }.toTypedArray()
-        AlertDialog.Builder(this)
-            .setTitle("选择${food.name}份量")
-            .setItems(labels) { _, which ->
-                val grams = portions[which]
-                val calories = HealthyDietPlanner.calculateCalories(food, grams)
+            val protein = HealthyDietPlanner.calculateMacro(food.proteinPer100g, grams)
+            val carbs = HealthyDietPlanner.calculateMacro(food.carbsPer100g, grams)
+            val fat = HealthyDietPlanner.calculateMacro(food.fatPer100g, grams)
+            bindDietPickerOption(
+                itemView = itemView,
+                chipText = if (grams == defaultPortion) "常用" else "${grams}g",
+                title = "${food.name} $grams g",
+                meta = "$calories kcal",
+                summary = "蛋白质 ${formatMacro(protein)}g · 碳水 ${formatMacro(carbs)}g · 脂肪 ${formatMacro(fat)}g"
+            )
+            itemView.setOnClickListener {
                 val notes = "${grams}g · ${food.caloriesPer100g} kcal/100g"
                 dietViewModel.addDietRecord(mealType, food.name, calories, notes)
-                Toast.makeText(this, "${mealLabel}已添加 ${food.name} ${grams}g", Toast.LENGTH_SHORT).show()
+                showAppFeedback("${mealLabel}已添加 ${food.name} ${grams}g", FeedbackType.SUCCESS)
+                dialog.dismiss()
             }
-            .setNegativeButton("取消", null)
-            .show()
+            container.addView(itemView)
+        }
+
+        dialogView.findViewById<View>(R.id.btn_diet_picker_close).setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
+        applyStandardDialogWindow(dialog)
     }
 
     private fun addSmartSnack() {
         val snack = HealthyDietPlanner.recommendedSnack(remainingDietCalories(), currentDietGoal)
         addPlannedFood(MealType.SNACK, snack, "智能推荐")
-        Toast.makeText(this, "已添加智能加餐：${snack.food.name} ${snack.grams}g", Toast.LENGTH_SHORT).show()
+        showAppFeedback("已添加智能加餐：${snack.food.name} ${snack.grams}g", FeedbackType.SUCCESS)
     }
 
     private fun updateCaloriesDisplay(totalConsumed: Int) {
@@ -596,6 +700,8 @@ class MainActivity : AppCompatActivity() {
                 if (isNext) {
                     setBackgroundResource(R.drawable.category_chip_selected)
                     setTextColor(getColor(R.color.white))
+                } else {
+                    setTextColor(getColor(R.color.text_secondary))
                 }
             }
             
@@ -713,7 +819,7 @@ class MainActivity : AppCompatActivity() {
             saveDietGoal(currentDietGoal)
             updateCaloriesDisplay(currentConsumedCalories)
             updateMealPlanCard()
-            Toast.makeText(this, "已切换为${currentDietGoal.label}目标", Toast.LENGTH_SHORT).show()
+            showAppFeedback("已切换为${currentDietGoal.label}目标", FeedbackType.SUCCESS)
             dialog.dismiss()
         }
 
@@ -751,16 +857,16 @@ class MainActivity : AppCompatActivity() {
                 if (isSelected) R.drawable.category_chip_selected else R.drawable.category_chip_unselected
             )
             views.title.setTextColor(
-                getColor(if (isSelected) R.color.indigo_primary else R.color.text_primary)
+                getColor(if (isSelected) R.color.health_action_text else R.color.text_primary)
             )
             views.label.setTextColor(
-                getColor(if (isSelected) R.color.white else R.color.gray_600)
+                getColor(if (isSelected) R.color.white else R.color.text_secondary)
             )
             views.summary.setTextColor(
-                getColor(if (isSelected) R.color.indigo_dark else R.color.text_secondary)
+                getColor(if (isSelected) R.color.health_action_text else R.color.text_secondary)
             )
             views.focus.setTextColor(
-                getColor(if (isSelected) R.color.white else R.color.gray_600)
+                getColor(if (isSelected) R.color.white else R.color.text_secondary)
             )
             views.macro.setTextColor(
                 getColor(if (isSelected) R.color.text_primary else R.color.text_secondary)
@@ -904,7 +1010,7 @@ class MainActivity : AppCompatActivity() {
             if (enabled) R.drawable.category_chip_selected else R.drawable.category_chip_unselected
         )
         card.chip.setTextColor(
-            getColor(if (enabled) R.color.white else R.color.gray_600)
+            getColor(if (enabled) R.color.white else R.color.text_secondary)
         )
         card.container.setOnClickListener(
             if (enabled) {
@@ -981,7 +1087,7 @@ class MainActivity : AppCompatActivity() {
             val mealType = mealTypes[spinner.selectedItemPosition]
 
             if (name.isBlank() || calories == null || protein == null || carbs == null || fat == null) {
-                Toast.makeText(this, "请完整填写食物信息", Toast.LENGTH_SHORT).show()
+                showAppFeedback("请完整填写食物信息", FeedbackType.WARNING)
                 return@setOnClickListener
             }
 
@@ -993,7 +1099,7 @@ class MainActivity : AppCompatActivity() {
                 fatPer100g = fat,
                 mealType = mealType.name
             )
-            Toast.makeText(this, "已保存自定义食物：$name", Toast.LENGTH_SHORT).show()
+            showAppFeedback("已保存自定义食物：$name", FeedbackType.SUCCESS)
             dialog.dismiss()
         }
 
@@ -1014,7 +1120,7 @@ class MainActivity : AppCompatActivity() {
     private fun saveCurrentRecommendationAsFavorite() {
         val recommendation = currentMealPlan?.nextMeal
         if (recommendation == null) {
-            Toast.makeText(this, "当前还没有可收藏的推荐组合", Toast.LENGTH_SHORT).show()
+            showAppFeedback("当前还没有可收藏的推荐组合", FeedbackType.INFO)
             return
         }
 
@@ -1047,7 +1153,7 @@ class MainActivity : AppCompatActivity() {
                 itemsPayload = payload,
                 totalCalories = recommendation.totalCalories
             )
-            Toast.makeText(this, "已收藏常用组合：$name", Toast.LENGTH_SHORT).show()
+            showAppFeedback("已收藏常用组合：$name", FeedbackType.SUCCESS)
             dialog.dismiss()
         }
 
@@ -1067,7 +1173,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun showFavoriteCombosDialog() {
         if (favoriteCombos.isEmpty()) {
-            Toast.makeText(this, R.string.diet_favorite_empty, Toast.LENGTH_SHORT).show()
+            showAppFeedback(getString(R.string.diet_favorite_empty), FeedbackType.INFO)
             return
         }
 
@@ -1095,6 +1201,27 @@ class MainActivity : AppCompatActivity() {
         }
 
         dialog.show()
+        applyStandardDialogWindow(dialog)
+    }
+
+    private fun bindDietPickerOption(
+        itemView: View,
+        chipText: String,
+        title: String,
+        meta: String,
+        summary: String
+    ) {
+        itemView.findViewById<TextView>(R.id.tv_diet_picker_option_chip).text = chipText
+        itemView.findViewById<TextView>(R.id.tv_diet_picker_option_title).text = title
+        itemView.findViewById<TextView>(R.id.tv_diet_picker_option_meta).text = meta
+        itemView.findViewById<TextView>(R.id.tv_diet_picker_option_summary).text = summary
+    }
+
+    private fun buildFoodNutritionLine(food: FoodCatalogItem): String {
+        return "每100g 含蛋白质 ${formatMacro(food.proteinPer100g)}g · 碳水 ${formatMacro(food.carbsPer100g)}g · 脂肪 ${formatMacro(food.fatPer100g)}g"
+    }
+
+    private fun applyStandardDialogWindow(dialog: Dialog) {
         dialog.window?.apply {
             setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
             val displayMetrics = resources.displayMetrics
@@ -1112,11 +1239,11 @@ class MainActivity : AppCompatActivity() {
         val mealType = combo.mealType.toMealType()
         val portions = HealthyDietPlanner.deserializeFavoriteItems(combo.itemsPayload, mealType)
         if (portions.isEmpty()) {
-            Toast.makeText(this, "这个常用组合数据已损坏，无法使用", Toast.LENGTH_SHORT).show()
+            showAppFeedback("这个常用组合数据已损坏，无法使用", FeedbackType.WARNING)
             return
         }
         portions.forEach { addPlannedFood(mealType, it, "常用组合") }
-        Toast.makeText(this, "已添加常用组合：${combo.name}", Toast.LENGTH_SHORT).show()
+        showAppFeedback("已添加常用组合：${combo.name}", FeedbackType.SUCCESS)
     }
 
     private fun applyCurrentMealRecommendation() {
@@ -1128,11 +1255,10 @@ class MainActivity : AppCompatActivity() {
         recommendation.items.forEach { portion ->
             addPlannedFood(recommendation.mealType, portion, "食谱规划")
         }
-        Toast.makeText(
-            this,
+        showAppFeedback(
             "已加入${mealLabel(recommendation.mealType)}推荐，共 ${recommendation.totalCalories} kcal",
-            Toast.LENGTH_SHORT
-        ).show()
+            FeedbackType.SUCCESS
+        )
     }
 
     private fun addPlannedFood(mealType: MealType, portion: PlannedFoodPortion, source: String) {
@@ -1546,7 +1672,7 @@ class MainActivity : AppCompatActivity() {
         val label = TextView(this).apply {
             text = day.label
             textSize = 11f
-            setTextColor(getColor(if (day.isToday) R.color.indigo_primary else R.color.text_secondary))
+            setTextColor(getColor(if (day.isToday) R.color.health_trend_fill else R.color.text_secondary))
             gravity = Gravity.CENTER
         }
 
@@ -1670,7 +1796,7 @@ class MainActivity : AppCompatActivity() {
         val dietCard = findViewById<View>(R.id.cv_diet_record)
         dietCard.scrollIntoContainer(scrollView, 24.dp())
         expandSuggestedMealSection()
-        Toast.makeText(this, "已定位到饮食记录区域，可直接补充当前时段记录", Toast.LENGTH_SHORT).show()
+        showAppFeedback("已定位到饮食记录区域，可直接补充当前时段记录", FeedbackType.INFO)
     }
 
     private fun expandSuggestedMealSection() {
@@ -1959,13 +2085,15 @@ class MainActivity : AppCompatActivity() {
 
     private fun loadDietGoal(): DietGoalType {
         val prefs = getSharedPreferences("fitness_prefs", Context.MODE_PRIVATE)
-        val saved = prefs.getString("diet_goal_type", DietGoalType.MAINTAIN.name)
+        val username = AuthSessionManager.getUsername(this).ifBlank { "guest" }
+        val saved = prefs.getString("diet_goal_type_$username", DietGoalType.MAINTAIN.name)
         return DietGoalType.entries.firstOrNull { it.name == saved } ?: DietGoalType.MAINTAIN
     }
 
     private fun saveDietGoal(goalType: DietGoalType) {
         val prefs = getSharedPreferences("fitness_prefs", Context.MODE_PRIVATE)
-        prefs.edit().putString("diet_goal_type", goalType.name).apply()
+        val username = AuthSessionManager.getUsername(this).ifBlank { "guest" }
+        prefs.edit().putString("diet_goal_type_$username", goalType.name).apply()
     }
 
     private fun CustomFood.toFoodCatalogItem(): FoodCatalogItem {

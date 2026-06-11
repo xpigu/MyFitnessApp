@@ -68,6 +68,14 @@ object WorkoutRecordHelper {
         return displaySdf.format(date)
     }
 
+    /** 月份字符串转显示格式 "2026年6月" */
+    fun monthToDisplay(monthStr: String): String {
+        val sdf = SimpleDateFormat("yyyy-MM", Locale.getDefault())
+        val date = sdf.parse(monthStr) ?: return monthStr
+        val displaySdf = SimpleDateFormat("yyyy年M月", Locale.CHINESE)
+        return displaySdf.format(date)
+    }
+
     /** 格式化时长 */
     fun formatDuration(seconds: Int): String {
         val h = seconds / 3600

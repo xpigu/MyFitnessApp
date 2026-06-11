@@ -9,7 +9,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F5F5"
+    android:background="@color/gray_100"
     android:orientation="vertical"
     android:fitsSystemWindows="true"
     tools:context=".SwimmingActivity">
@@ -18,7 +18,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/indigo_primary"
+        android:background="@color/training_swimming_badge_fill"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingTop="48dp"
@@ -33,7 +33,8 @@
             android:contentDescription="返回"
             android:padding="8dp"
             android:rotation="90"
-            android:src="@drawable/ic_chevron_down" />
+            android:src="@drawable/ic_chevron_down"
+            app:tint="@color/white" />
 
         <TextView
             android:layout_width="0dp"
@@ -41,7 +42,7 @@
             android:layout_marginStart="8dp"
             android:layout_weight="1"
             android:text="游泳记录"
-            android:textColor="#FFFFFF"
+            android:textColor="@color/white"
             android:textSize="18sp"
             android:textStyle="bold" />
 
@@ -49,14 +50,14 @@
             android:id="@+id/btn_swimming_save"
             android:layout_width="wrap_content"
             android:layout_height="36dp"
-            android:background="@drawable/start_button_bg"
+            android:background="@drawable/reminder_primary_btn_bg"
             android:clickable="true"
             android:focusable="true"
             android:gravity="center"
             android:paddingStart="16dp"
             android:paddingEnd="16dp"
             android:text="保存"
-            android:textColor="#FFFFFF"
+            android:textColor="@color/white"
             android:textSize="14sp"
             android:textStyle="bold" />
     </LinearLayout>
@@ -108,6 +109,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:checked="true"
+                            android:buttonTint="@color/training_swimming_badge_fill"
                             android:text="自由泳"
                             android:textColor="@color/text_primary"
                             android:textSize="13sp" />
@@ -117,6 +119,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
+                            android:buttonTint="@color/training_swimming_badge_fill"
                             android:text="蛙泳"
                             android:textColor="@color/text_primary"
                             android:textSize="13sp" />
@@ -126,6 +129,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
+                            android:buttonTint="@color/training_swimming_badge_fill"
                             android:text="仰泳"
                             android:textColor="@color/text_primary"
                             android:textSize="13sp" />
@@ -135,6 +139,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
+                            android:buttonTint="@color/training_swimming_badge_fill"
                             android:text="蝶泳"
                             android:textColor="@color/text_primary"
                             android:textSize="13sp" />
@@ -175,7 +180,7 @@
                         android:hint="0"
                         android:inputType="number"
                         android:textColor="@color/text_primary"
-                        android:textColorHint="@color/gray_400"
+                        android:textColorHint="@color/text_secondary"
                         android:textSize="18sp"
                         android:textStyle="bold" />
                 </LinearLayout>
@@ -286,7 +291,7 @@
                             android:id="@+id/btn_hours_minus"
                             android:layout_width="36dp"
                             android:layout_height="36dp"
-                            android:background="@drawable/tab_bg_unselected"
+                            android:background="@drawable/dialog_goal_secondary_btn_bg"
                             android:clickable="true"
                             android:focusable="true"
                             android:gravity="center"
@@ -308,7 +313,7 @@
                             android:id="@+id/btn_hours_plus"
                             android:layout_width="36dp"
                             android:layout_height="36dp"
-                            android:background="@drawable/tab_bg_unselected"
+                            android:background="@drawable/dialog_goal_secondary_btn_bg"
                             android:clickable="true"
                             android:focusable="true"
                             android:gravity="center"
@@ -322,7 +327,7 @@
                             android:layout_width="36dp"
                             android:layout_height="36dp"
                             android:layout_marginStart="16dp"
-                            android:background="@drawable/tab_bg_unselected"
+                            android:background="@drawable/dialog_goal_secondary_btn_bg"
                             android:clickable="true"
                             android:focusable="true"
                             android:gravity="center"
@@ -344,7 +349,7 @@
                             android:id="@+id/btn_minutes_plus"
                             android:layout_width="36dp"
                             android:layout_height="36dp"
-                            android:background="@drawable/tab_bg_unselected"
+                            android:background="@drawable/dialog_goal_secondary_btn_bg"
                             android:clickable="true"
                             android:focusable="true"
                             android:gravity="center"
@@ -389,7 +394,7 @@
                         android:hint="0"
                         android:inputType="number"
                         android:textColor="@color/text_primary"
-                        android:textColorHint="@color/gray_400"
+                        android:textColorHint="@color/text_secondary"
                         android:textSize="18sp"
                         android:textStyle="bold" />
                 </LinearLayout>
@@ -423,7 +428,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="250 kcal"
-                        android:textColor="#E67E22"
+                        android:textColor="@color/tracking_summary_calories"
                         android:textSize="18sp"
                         android:textStyle="bold" />
                 </LinearLayout>

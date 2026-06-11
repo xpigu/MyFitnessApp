@@ -11,36 +11,43 @@ import com.example.myfitnessapp.data.viewmodel.PBMetricType
 import com.example.myfitnessapp.data.viewmodel.PBRecords
 import com.example.myfitnessapp.data.viewmodel.TypeStats
 
-class WorkoutRecordRepository(private val dao: WorkoutRecordDao) {
+class WorkoutRecordRepository(
+    private val dao: WorkoutRecordDao,
+    private val ownerUsername: String
+) {
 
-    val allRecords: LiveData<List<WorkoutRecord>> = dao.getAllRecords()
-    val allDates: LiveData<List<String>> = dao.getAllDates()
+    val allRecords: LiveData<List<WorkoutRecord>> = dao.getAllRecords(ownerUsername)
+    val allDates: LiveData<List<String>> = dao.getAllDates(ownerUsername)
 
-    suspend fun insert(record: WorkoutRecord): Long = dao.insert(record)
+    suspend fun insert(record: WorkoutRecord): Long = dao.insert(record.copy(ownerUsername = ownerUsername))
 
     suspend fun delete(record: WorkoutRecord) = dao.delete(record)
 
-    suspend fun deleteById(id: Long) = dao.deleteById(id)
+    suspend fun deleteById(id: Long) = dao.deleteById(ownerUsername, id)
 
-    fun getRecordsByDate(date: String): LiveData<List<WorkoutRecord>> = dao.getRecordsByDate(date)
+    fun getRecordsByDate(date: String): LiveData<List<WorkoutRecord>> = dao.getRecordsByDate(ownerUsername, date)
 
-    suspend fun getTotalCaloriesByDate(date: String): Int = dao.getTotalCaloriesByDate(date)
+    suspend fun getTotalCaloriesByDate(date: String): Int = dao.getTotalCaloriesByDate(ownerUsername, date)
 
-    suspend fun getTotalDurationByDate(date: String): Int = dao.getTotalDurationByDate(date)
+    suspend fun getTotalDurationByDate(date: String): Int = dao.getTotalDurationByDate(ownerUsername, date)
 
-    suspend fun getWorkoutCountByDate(date: String): Int = dao.getWorkoutCountByDate(date)
+    suspend fun getWorkoutCountByDate(date: String): Int = dao.getWorkoutCountByDate(ownerUsername, date)
 
-    suspend fun getTotalCaloriesByMonth(monthPattern: String): Int = dao.getTotalCaloriesByMonth(monthPattern)
+    suspend fun getTotalCaloriesByMonth(monthPattern: String): Int =
+        dao.getTotalCaloriesByMonth(ownerUsername, monthPattern)
 
-    suspend fun getTotalDurationByMonth(monthPattern: String): Int = dao.getTotalDurationByMonth(monthPattern)
+    suspend fun getTotalDurationByMonth(monthPattern: String): Int =
+        dao.getTotalDurationByMonth(ownerUsername, monthPattern)
 
-    suspend fun getWorkoutCountByMonth(monthPattern: String): Int = dao.getWorkoutCountByMonth(monthPattern)
+    suspend fun getWorkoutCountByMonth(monthPattern: String): Int =
+        dao.getWorkoutCountByMonth(ownerUsername, monthPattern)
 
-    suspend fun getMonthlyTypeStats(monthPattern: String): List<TypeCount> = dao.getMonthlyTypeStats(monthPattern)
+    suspend fun getMonthlyTypeStats(monthPattern: String): List<TypeCount> =
+        dao.getMonthlyTypeStats(ownerUsername, monthPattern)
 
-    suspend fun getDailyTypeStats(date: String): List<TypeCount> = dao.getDailyTypeStats(date)
+    suspend fun getDailyTypeStats(date: String): List<TypeCount> = dao.getDailyTypeStats(ownerUsername, date)
 
-    suspend fun getTotalRecordCount(): Int = dao.getTotalRecordCount()
+    suspend fun getTotalRecordCount(): Int = dao.getTotalRecordCount(ownerUsername)
 
     // ============================================================
     // 统计方法 — Phase 2 增强
@@ -48,35 +55,35 @@ class WorkoutRecordRepository(private val dao: WorkoutRecordDao) {
 
     /** 获取日期范围的日期统计 */
     suspend fun getDailyAggregation(startDate: String, endDate: String): List<DailyAggregation> =
-        dao.getDailyAggregation(startDate, endDate)
+        dao.getDailyAggregation(ownerUsername, startDate, endDate)
 
     /** 获取指定日期的按类型分布 */
     suspend fun getTypeDistributionByDate(date: String): List<TypeStats> =
-        dao.getTypeDistributionByDate(date).map { it.toTypeStats() }
+        dao.getTypeDistributionByDate(ownerUsername, date).map { it.toTypeStats() }
 
     /** 获取指定月份的按类型分布 */
     suspend fun getTypeDistributionByMonth(monthPattern: String): List<TypeStats> =
-        dao.getTypeDistributionByMonth(monthPattern).map { it.toTypeStats() }
+        dao.getTypeDistributionByMonth(ownerUsername, monthPattern).map { it.toTypeStats() }
 
     /** 获取最佳成绩 */
     suspend fun getPBRecords(): PBRecords {
         val cards = buildList {
-            dao.getRunRecordWithLongestDistance()?.let {
+            dao.getRunRecordWithLongestDistance(ownerUsername)?.let {
                 add(PBCardRecord(PBMetricType.RUN_LONGEST_DISTANCE, it))
             }
-            dao.getCyclingRecordWithLongestDistance()?.let {
+            dao.getCyclingRecordWithLongestDistance(ownerUsername)?.let {
                 add(PBCardRecord(PBMetricType.CYCLING_LONGEST_DISTANCE, it))
             }
-            dao.getStrengthRecordWithMaxWeight()?.let {
+            dao.getStrengthRecordWithMaxWeight(ownerUsername)?.let {
                 add(PBCardRecord(PBMetricType.STRENGTH_MAX_WEIGHT, it))
             }
-            dao.getSwimmingRecordWithLongestDistance()?.let {
+            dao.getSwimmingRecordWithLongestDistance(ownerUsername)?.let {
                 add(PBCardRecord(PBMetricType.SWIMMING_LONGEST_DISTANCE, it))
             }
-            dao.getJumpRopeRecordWithMaxCount()?.let {
+            dao.getJumpRopeRecordWithMaxCount(ownerUsername)?.let {
                 add(PBCardRecord(PBMetricType.JUMP_ROPE_MAX_COUNT, it))
             }
-            dao.getJumpRopeRecordWithMaxFrequency()?.let {
+            dao.getJumpRopeRecordWithMaxFrequency(ownerUsername)?.let {
                 add(PBCardRecord(PBMetricType.JUMP_ROPE_MAX_FREQUENCY, it))
             }
         }
@@ -86,7 +93,7 @@ class WorkoutRecordRepository(private val dao: WorkoutRecordDao) {
 
     /** 获取最近30天的趋势数据 */
     suspend fun get30DaysTrend(startDate: String): List<DailyAggregation> =
-        dao.get30DaysTrend(startDate)
+        dao.get30DaysTrend(ownerUsername, startDate)
 }
 
 /** TypeDistribution 转换为 TypeStats */

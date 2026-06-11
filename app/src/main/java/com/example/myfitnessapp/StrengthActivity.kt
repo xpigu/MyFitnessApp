@@ -6,7 +6,8 @@ import android.os.Looper
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
@@ -102,7 +103,11 @@ class StrengthActivity : AppCompatActivity() {
 
         loadCourseRuntime()
 
-        findViewById<View>(R.id.btn_strength_back).setOnClickListener { finish() }
+        setupBackPress()
+
+        findViewById<View>(R.id.btn_strength_back).setOnClickListener {
+            handleBackPressed()
+        }
 
         loadExercise(currentExerciseIndex, resetSet = false)
         updateTimer()
@@ -116,7 +121,9 @@ class StrengthActivity : AppCompatActivity() {
 
         findViewById<View>(R.id.btn_complete_set).setOnClickListener { completeSet() }
         findViewById<View>(R.id.btn_skip_rest).setOnClickListener { skipRest() }
-        findViewById<View>(R.id.btn_finish_strength).setOnClickListener { finishWorkout() }
+        findViewById<View>(R.id.btn_finish_strength).setOnClickListener {
+            showFinishConfirmDialog()
+        }
 
         if (isResting) {
             handler.post(restTimer)
@@ -124,9 +131,17 @@ class StrengthActivity : AppCompatActivity() {
         handler.post(mainTimer)
     }
 
+    private fun setupBackPress() {
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                this@StrengthActivity.handleBackPressed()
+            }
+        })
+    }
+
     private fun loadExercise(index: Int, resetSet: Boolean = true) {
         if (index >= exercises.size) {
-            finishWorkout()
+            showFinishConfirmDialog()
             return
         }
         val ex = exercises[index]
@@ -185,7 +200,7 @@ class StrengthActivity : AppCompatActivity() {
             // 当前动作完成，进入下一个动作
             currentExerciseIndex++
             if (currentExerciseIndex >= exercises.size) {
-                finishWorkout()
+                showFinishConfirmDialog()
                 return
             }
             currentSet = 1
@@ -227,7 +242,7 @@ class StrengthActivity : AppCompatActivity() {
         handler.removeCallbacks(restTimer)
         applyRestState()
         persistCourseSessionProgress()
-        Toast.makeText(this, "休息结束，开始下一组！", Toast.LENGTH_SHORT).show()
+        showAppFeedback("休息结束，开始下一组！", FeedbackType.INFO)
     }
 
     private fun updateRestDisplay() {
@@ -252,7 +267,56 @@ class StrengthActivity : AppCompatActivity() {
         updateSummary()
     }
 
-    private fun finishWorkout() {
+    private fun showFinishConfirmDialog() {
+        handler.removeCallbacks(mainTimer)
+        handler.removeCallbacks(restTimer)
+
+        createAppAlertDialogBuilder()
+            .setTitle("结束训练")
+            .setMessage("是否保存本次力量训练记录？")
+            .setPositiveButton("保存记录", null)
+            .setNegativeButton("放弃记录") { _, _ ->
+                completeWorkout(saveRecord = false)
+            }
+            .setNeutralButton("继续训练") { _, _ ->
+                resumeTracking()
+            }
+            .create()
+            .also { dialog ->
+                dialog.show()
+                dialog.applyAppDialogStyling(this)
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+                    if (!canSaveStrengthWorkoutRecord()) {
+                        return@setOnClickListener
+                    }
+                    dialog.dismiss()
+                    completeWorkout(saveRecord = true)
+                }
+            }
+    }
+
+    private fun hasWorkoutProgress(): Boolean {
+        return elapsedSeconds > 0 || totalSets > 0 || totalVolume > 0.0 || currentExerciseIndex > 0
+    }
+
+    private fun handleBackPressed() {
+        if (hasWorkoutProgress()) {
+            showFinishConfirmDialog()
+        } else {
+            finish()
+        }
+    }
+
+    private fun resumeTracking() {
+        handler.removeCallbacks(mainTimer)
+        handler.post(mainTimer)
+        if (isResting) {
+            handler.removeCallbacks(restTimer)
+            handler.post(restTimer)
+        }
+    }
+
+    private fun completeWorkout(saveRecord: Boolean) {
         handler.removeCallbacks(mainTimer)
         handler.removeCallbacks(restTimer)
 
@@ -260,6 +324,23 @@ class StrengthActivity : AppCompatActivity() {
         val courseTitle = activeCourse?.title
         val completedActions = currentExerciseIndex.coerceAtMost(exercises.size)
         val completionRate = ((completedActions * 100f) / exercises.size.coerceAtLeast(1)).toInt()
+
+        if (!saveRecord) {
+            shouldPersistCourseSession = false
+            sessionStore.clear(CourseNavigator.courseIdOf(intent))
+            showAppFeedback("已放弃本次训练记录", FeedbackType.WARNING)
+            finish()
+            return
+        }
+
+        if (!canSaveStrengthWorkoutRecord()) {
+            resumeTracking()
+            return
+        }
+
+        shouldPersistCourseSession = false
+        sessionStore.clear(CourseNavigator.courseIdOf(intent))
+
         val record = com.example.myfitnessapp.data.entity.WorkoutRecord(
             sportType = "STRENGTH",
             sportIconResId = WorkoutRecordHelper.getIconRes("STRENGTH"),
@@ -273,20 +354,33 @@ class StrengthActivity : AppCompatActivity() {
             strengthVolume = totalVolume,
             strengthMaxWeight = maxCompletedWeight
         )
-        viewModel.saveRecord(record)
-        shouldPersistCourseSession = false
-        sessionStore.clear(CourseNavigator.courseIdOf(intent))
+        viewModel.saveRecord(record) {
+            showAppFeedback(
+                if (courseTitle != null) {
+                    "课程完成：$courseTitle，动作完成度 $completionRate%，共完成 $totalSets 组"
+                } else {
+                    "力量训练完成！总组数: $totalSets, 最大重量: ${maxCompletedWeight.toInt()}kg"
+                },
+                FeedbackType.SUCCESS
+            )
+            finish()
+        }
+    }
 
-        Toast.makeText(
-            this,
-            if (courseTitle != null) {
-                "课程完成：$courseTitle，动作完成度 $completionRate%，共完成 $totalSets 组"
-            } else {
-                "力量训练完成！总组数: $totalSets, 最大重量: ${maxCompletedWeight.toInt()}kg"
-            },
-            Toast.LENGTH_LONG
-        ).show()
-        finish()
+    private fun canSaveStrengthWorkoutRecord(): Boolean {
+        val guardMessage = currentStrengthSaveGuardMessage()
+        if (guardMessage == null) {
+            return true
+        }
+        showAppFeedback(guardMessage, FeedbackType.WARNING)
+        return false
+    }
+
+    private fun currentStrengthSaveGuardMessage(): String? {
+        if (totalSets >= MIN_STRENGTH_SAVE_SETS && elapsedSeconds >= MIN_STRENGTH_SAVE_DURATION_SECONDS) {
+            return null
+        }
+        return "本次力量训练未达到保存条件，至少需要完成 ${MIN_STRENGTH_SAVE_SETS} 组，且时长不少于 ${MIN_STRENGTH_SAVE_DURATION_SECONDS} 秒。"
     }
 
     private fun loadCourseRuntime() {
@@ -395,6 +489,11 @@ class StrengthActivity : AppCompatActivity() {
         }
         handler.removeCallbacks(mainTimer)
         handler.removeCallbacks(restTimer)
+    }
+
+    companion object {
+        private const val MIN_STRENGTH_SAVE_SETS = 1
+        private const val MIN_STRENGTH_SAVE_DURATION_SECONDS = 30
     }
 }
 

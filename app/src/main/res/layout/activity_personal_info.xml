@@ -11,7 +11,7 @@
     <androidx.appcompat.widget.Toolbar
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/white"
+        android:background="@color/card_background"
         android:elevation="2dp">
 
         <LinearLayout
@@ -30,7 +30,8 @@
                 android:focusable="true"
                 android:padding="8dp"
                 android:rotation="90"
-                android:src="@drawable/ic_chevron_down" />
+                android:src="@drawable/ic_chevron_down"
+                app:tint="@color/text_primary" />
 
             <TextView
                 android:layout_width="0dp"
@@ -49,7 +50,7 @@
                 android:layout_marginEnd="16dp"
                 android:padding="8dp"
                 android:text="@string/personal_info_edit_action"
-                android:textColor="@color/indigo_primary"
+                android:textColor="@color/health_action_text"
                 android:textSize="15sp"
                 android:textStyle="bold" />
         </LinearLayout>
@@ -117,7 +118,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="6dp"
-                                android:textColor="#CCFFFFFF"
+                                android:textColor="@color/profile_header_secondary_text"
                                 android:textSize="13sp"
                                 tools:text="坚持运动，遇见更好的自己" />
                         </LinearLayout>
@@ -222,7 +223,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="4dp"
-                                android:textColor="@color/indigo_primary"
+                                android:textColor="@color/health_action_text"
                                 android:textSize="22sp"
                                 android:textStyle="bold"
                                 tools:text="86%" />
@@ -253,7 +254,7 @@
                         android:layout_marginTop="12dp"
                         android:max="100"
                         android:progress="86"
-                        android:progressTint="@color/indigo_primary"
+                        android:progressTint="@color/health_action_text"
                         tools:progress="86" />
 
                     <TextView
@@ -407,7 +408,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
-                        android:textColor="@color/indigo_primary"
+                        android:textColor="@color/health_action_text"
                         android:textSize="18sp"
                         android:textStyle="bold"
                         tools:text="当前状态比较均衡" />
@@ -879,7 +880,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="6dp"
-                                android:textColor="@color/indigo_primary"
+                                android:textColor="@color/health_action_text"
                                 android:textSize="18sp"
                                 android:textStyle="bold"
                                 tools:text="Lv.8" />
@@ -939,7 +940,7 @@
                         android:layout_height="0.5dp"
                         android:layout_marginTop="16dp"
                         android:layout_marginBottom="16dp"
-                        android:background="@color/gray_200" />
+                        android:background="@color/settings_divider" />
 
                     <TextView
                         android:id="@+id/tv_personal_info_last_updated"

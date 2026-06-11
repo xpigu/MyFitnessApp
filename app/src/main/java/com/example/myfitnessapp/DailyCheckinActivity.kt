@@ -7,7 +7,6 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.ScrollView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
@@ -63,10 +62,10 @@ class DailyCheckinActivity : AppCompatActivity() {
         btnCheckin.setOnClickListener {
             viewModel.checkinToday(
                 onSuccess = { streak ->
-                    Toast.makeText(this, "签到成功！连续签到 $streak 天", Toast.LENGTH_SHORT).show()
+                    showAppFeedback("签到成功！连续签到 $streak 天", FeedbackType.SUCCESS)
                 },
                 onAlreadyCheckedIn = {
-                    Toast.makeText(this, "今天已经签到过了哦", Toast.LENGTH_SHORT).show()
+                    showAppFeedback("今天已经签到过了哦", FeedbackType.WARNING)
                 }
             )
         }
@@ -77,17 +76,17 @@ class DailyCheckinActivity : AppCompatActivity() {
             if (isCheckedIn) {
                 ivStatus.setColorFilter(ContextCompat.getColor(this, R.color.gold_accent))
                 tvStatus.text = "今日已签到"
-                tvStatus.setTextColor(ContextCompat.getColor(this, R.color.gold_dark))
+                tvStatus.setTextColor(ContextCompat.getColor(this, R.color.checkin_done_text))
                 btnCheckin.isEnabled = false
                 btnCheckin.text = "已签到"
-                btnCheckin.setBackgroundColor(ContextCompat.getColor(this, R.color.gray_400))
+                btnCheckin.setBackgroundColor(ContextCompat.getColor(this, R.color.checkin_disabled_button_fill))
             } else {
-                ivStatus.setColorFilter(ContextCompat.getColor(this, R.color.gray_400))
+                ivStatus.setColorFilter(ContextCompat.getColor(this, R.color.checkin_idle_icon))
                 tvStatus.text = "今日未签到"
                 tvStatus.setTextColor(ContextCompat.getColor(this, R.color.text_primary))
                 btnCheckin.isEnabled = true
                 btnCheckin.text = "立即签到"
-                btnCheckin.setBackgroundColor(ContextCompat.getColor(this, R.color.indigo_primary))
+                btnCheckin.setBackgroundColor(ContextCompat.getColor(this, R.color.checkin_primary_button_fill))
             }
         }
 
@@ -107,7 +106,7 @@ class DailyCheckinActivity : AppCompatActivity() {
             val scrollView = findViewById<ScrollView>(R.id.scroll_checkin)
             btnCheckin.scrollIntoContainer(scrollView, 16.dp())
             btnCheckin.playReminderFocusAnimation()
-            Toast.makeText(this, R.string.reminder_checkin_opened_hint, Toast.LENGTH_SHORT).show()
+            showAppFeedback(getString(R.string.reminder_checkin_opened_hint), FeedbackType.INFO)
         }
 
         intent.removeExtra(ReminderScheduler.EXTRA_FROM_REMINDER)

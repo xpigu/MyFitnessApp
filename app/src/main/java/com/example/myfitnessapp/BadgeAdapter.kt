@@ -71,7 +71,7 @@ class BadgeAdapter(
                     wrappedDrawable,
                     ContextCompat.getColor(
                         itemView.context,
-                        if (badge.isUnlocked) R.color.gold_accent else R.color.gray_400
+                        if (badge.isUnlocked) R.color.gold_accent else R.color.achievement_locked_icon
                     )
                 )
                 ivIcon.setImageDrawable(wrappedDrawable)
@@ -92,7 +92,7 @@ class BadgeAdapter(
                 }
             } else {
                 // 未解锁状态（置灰）
-                tvName.setTextColor(ContextCompat.getColor(itemView.context, R.color.gray_600))
+                tvName.setTextColor(ContextCompat.getColor(itemView.context, R.color.text_secondary))
                 tvDate.visibility = View.GONE
 
                 val progress = progressProvider(badge)

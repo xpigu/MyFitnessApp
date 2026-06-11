@@ -61,6 +61,61 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
+            app:cardBackgroundColor="@android:color/transparent"
+            app:cardCornerRadius="18dp"
+            app:cardElevation="0dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/profile_header_bg"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/settings_badge_bg"
+                    android:paddingLeft="12dp"
+                    android:paddingTop="6dp"
+                    android:paddingRight="12dp"
+                    android:paddingBottom="6dp"
+                    android:text="@string/settings_center_badge"
+                    android:textColor="@color/settings_badge_text"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/privacy_settings_hero_title"
+                    android:textColor="@color/profile_header_primary_text"
+                    android:textSize="22sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="@string/privacy_settings_subtitle"
+                    android:textColor="@color/profile_header_secondary_text"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:text="@string/privacy_settings_hero_summary"
+                    android:textColor="@color/profile_header_primary_text"
+                    android:textSize="14sp" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
             app:cardBackgroundColor="@color/card_background"
             app:cardCornerRadius="16dp"
             app:cardElevation="2dp">
@@ -111,7 +166,7 @@
                     android:layout_height="0.5dp"
                     android:layout_marginStart="16dp"
                     android:layout_marginEnd="16dp"
-                    android:background="@color/gray_200" />
+                    android:background="@color/settings_divider" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -154,7 +209,7 @@
                     android:layout_height="0.5dp"
                     android:layout_marginStart="16dp"
                     android:layout_marginEnd="16dp"
-                    android:background="@color/gray_200" />
+                    android:background="@color/settings_divider" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -197,7 +252,7 @@
                     android:layout_height="0.5dp"
                     android:layout_marginStart="16dp"
                     android:layout_marginEnd="16dp"
-                    android:background="@color/gray_200" />
+                    android:background="@color/settings_divider" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -273,12 +328,13 @@
             android:id="@+id/btn_save_privacy_settings"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
             android:background="@drawable/start_button_bg"
             android:gravity="center"
             android:paddingTop="14dp"
             android:paddingBottom="14dp"
             android:text="@string/privacy_settings_save"
-            android:textColor="@android:color/white"
+            android:textColor="@color/white"
             android:textSize="15sp"
             android:textStyle="bold" />
     </LinearLayout>

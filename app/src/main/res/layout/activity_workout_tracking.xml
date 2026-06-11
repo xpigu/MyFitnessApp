@@ -10,7 +10,7 @@
     android:id="@+id/root_tracking"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#1A1A2E"
+    android:background="@color/tracking_surface"
     android:fitsSystemWindows="true"
     tools:context=".WorkoutTrackingActivity">
 
@@ -30,7 +30,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:visibility="visible"
-        app:cardBackgroundColor="#2A2A3E"
+        app:cardBackgroundColor="@color/tracking_map_surface"
         app:cardCornerRadius="0dp"
         app:cardElevation="0dp"
         app:layout_constraintBottom_toTopOf="@id/guideline_map"
@@ -38,9 +38,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <fragment
+        <com.amap.api.maps.MapView
             android:id="@+id/map"
-            android:name="com.google.android.gms.maps.SupportMapFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
@@ -58,13 +57,13 @@
             android:layout_gravity="top|end"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
-            android:background="@drawable/tab_bg_unselected"
+            android:background="@drawable/tracking_chip_bg"
             android:paddingStart="12dp"
             android:paddingTop="4dp"
             android:paddingEnd="12dp"
             android:paddingBottom="4dp"
             android:text="最高 0.0 km/h"
-            android:textColor="#FFFFFF"
+            android:textColor="@color/tracking_on_primary"
             android:textSize="13sp"
             android:visibility="gone"
             tools:visibility="visible" />
@@ -77,12 +76,12 @@
         android:layout_height="32dp"
         android:layout_marginTop="-16dp"
         android:layout_marginEnd="16dp"
-        android:background="@drawable/circle_bg"
+        android:background="@drawable/tracking_control_circle_bg"
         android:clickable="true"
         android:focusable="true"
         android:gravity="center"
         android:text="⌃"
-        android:textColor="#FFFFFF"
+        android:textColor="@color/tracking_on_primary"
         android:textSize="16sp"
         android:visibility="visible"
         app:layout_constraintEnd_toEndOf="parent"
@@ -117,7 +116,7 @@
                 android:layout_width="36dp"
                 android:layout_height="36dp"
                 android:layout_marginTop="12dp"
-                android:background="@drawable/start_button_bg"
+                android:background="@drawable/tracking_primary_btn_bg"
                 android:contentDescription="运动类型"
                 android:padding="8dp"
                 tools:src="@drawable/ic_running" />
@@ -127,7 +126,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:textColor="#FFFFFF"
+                android:textColor="@color/tracking_on_primary"
                 android:textSize="13sp"
                 android:textStyle="bold"
                 tools:text="户外跑步" />
@@ -140,7 +139,7 @@
                 android:layout_marginTop="2dp"
                 android:fontFamily="monospace"
                 android:text="00:00:00"
-                android:textColor="#FFFFFF"
+                android:textColor="@color/tracking_on_primary"
                 android:textSize="32sp"
                 android:textStyle="bold"
                 tools:text="00:12:35" />
@@ -151,13 +150,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
-                android:background="@drawable/tab_bg_unselected"
+                android:background="@drawable/tracking_chip_bg"
                 android:paddingStart="10dp"
                 android:paddingTop="2dp"
                 android:paddingEnd="10dp"
                 android:paddingBottom="2dp"
                 android:text="运动中"
-                android:textColor="#FFFFFF"
+                android:textColor="@color/tracking_on_primary"
                 android:textSize="10sp" />
 
             <TextView
@@ -166,7 +165,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:text="热身步行"
-                android:textColor="#FFFFFF"
+                android:textColor="@color/tracking_on_primary"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:visibility="gone"
@@ -205,28 +204,28 @@
                     android:layout_width="wrap_content"
                     android:layout_height="28dp"
                     android:layout_marginEnd="8dp"
-                    android:background="@drawable/tab_bg_unselected"
+                    android:background="@drawable/tracking_chip_bg"
                     android:clickable="true"
                     android:focusable="true"
                     android:gravity="center"
                     android:paddingStart="12dp"
                     android:paddingEnd="12dp"
                     android:text="分段"
-                    android:textColor="#FFFFFF"
+                    android:textColor="@color/tracking_on_primary"
                     android:textSize="11sp" />
 
                 <TextView
                     android:id="@+id/chip_metronome"
                     android:layout_width="wrap_content"
                     android:layout_height="28dp"
-                    android:background="@drawable/tab_bg_unselected"
+                    android:background="@drawable/tracking_chip_bg"
                     android:clickable="true"
                     android:focusable="true"
                     android:gravity="center"
                     android:paddingStart="12dp"
                     android:paddingEnd="12dp"
                     android:text="节拍器"
-                    android:textColor="#FFFFFF"
+                    android:textColor="@color/tracking_on_primary"
                     android:textSize="11sp" />
             </LinearLayout>
 
@@ -245,7 +244,7 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="monospace"
                     android:text="6&#39;00&#39;&#39;"
-                    android:textColor="#FF6B35"
+                    android:textColor="@color/tracking_metric_running"
                     android:textSize="44sp"
                     android:textStyle="bold"
                     tools:text="6'00&quot;" />
@@ -277,7 +276,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="0.00"
-                            android:textColor="#FFFFFF"
+                            android:textColor="@color/tracking_on_primary"
                             android:textSize="16sp"
                             android:textStyle="bold"
                             tools:text="3.25" />
@@ -295,7 +294,7 @@
                         android:layout_height="28dp"
                         android:layout_marginStart="14dp"
                         android:layout_marginEnd="14dp"
-                        android:background="#33FFFFFF" />
+                        android:background="@color/tracking_divider" />
 
                     <LinearLayout
                         android:layout_width="wrap_content"
@@ -309,7 +308,7 @@
                             android:layout_height="wrap_content"
                             android:fontFamily="monospace"
                             android:text="00:00:00"
-                            android:textColor="#FFFFFF"
+                            android:textColor="@color/tracking_on_primary"
                             android:textSize="16sp"
                             android:textStyle="bold"
                             tools:text="00:12:35" />
@@ -547,7 +546,7 @@
         android:id="@+id/control_bar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="#1A1A2E"
+        android:background="@color/tracking_surface"
         android:paddingStart="20dp"
         android:paddingTop="12dp"
         android:paddingEnd="20dp"
@@ -561,12 +560,12 @@
             android:id="@+id/btn_stop"
             android:layout_width="52dp"
             android:layout_height="52dp"
-            android:background="@drawable/circle_bg"
+            android:background="@drawable/tracking_control_circle_bg"
             android:clickable="true"
             android:focusable="true"
             android:gravity="center"
             android:text="■"
-            android:textColor="#E74C3C"
+            android:textColor="@color/tracking_stop_text"
             android:textSize="20sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -577,14 +576,14 @@
             android:id="@+id/btn_pause_resume"
             android:layout_width="82dp"
             android:layout_height="82dp"
-            android:background="@drawable/start_button_bg"
+            android:background="@drawable/tracking_primary_btn_bg"
             android:clickable="true"
             android:focusable="true"
             android:drawableTop="@drawable/ic_pause"
             android:gravity="center"
             android:paddingTop="16dp"
             android:text="暂停"
-            android:textColor="#FFFFFF"
+            android:textColor="@color/tracking_primary_button_text"
             android:textSize="12sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -608,11 +607,12 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_marginEnd="8dp"
-                android:background="@drawable/circle_bg"
+                android:background="@drawable/tracking_control_circle_bg"
                 android:clickable="true"
                 android:focusable="true"
                 android:gravity="center"
                 android:text="🔒"
+                android:textColor="@color/tracking_on_primary"
                 android:textSize="14sp"
                 android:visibility="gone"
                 tools:visibility="visible" />
@@ -622,11 +622,12 @@
                 android:id="@+id/btn_voice"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:background="@drawable/circle_bg"
+                android:background="@drawable/tracking_control_circle_bg"
                 android:clickable="true"
                 android:focusable="true"
                 android:gravity="center"
                 android:text="🔊"
+                android:textColor="@color/tracking_on_primary"
                 android:textSize="14sp" />
 
             <!-- 自动暂停（骑行） -->
@@ -635,18 +636,70 @@
                 android:layout_width="wrap_content"
                 android:layout_height="32dp"
                 android:layout_marginStart="8dp"
-                android:background="@drawable/tab_bg_unselected"
+                android:background="@drawable/tracking_chip_bg"
                 android:clickable="true"
                 android:focusable="true"
                 android:gravity="center"
                 android:paddingStart="10dp"
                 android:paddingEnd="10dp"
                 android:text="自动暂停: 开"
-                android:textColor="#FFFFFF"
+                android:textColor="@color/tracking_on_primary"
                 android:textSize="10sp"
                 android:visibility="gone"
                 tools:visibility="visible" />
         </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- ============================================================
+         锁屏遮罩层
+         ============================================================ -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout_lock_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#CC000000"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:background="@drawable/tracking_control_circle_bg"
+                android:gravity="center"
+                android:text="🔒"
+                android:textSize="32sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="已进入锁屏模式"
+                android:textColor="@color/white"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_unlock_hint"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="长按此区域解锁"
+                android:textColor="#BBBBBB"
+                android:textSize="14sp" />
+        </LinearLayout>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

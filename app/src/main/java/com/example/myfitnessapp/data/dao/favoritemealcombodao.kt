@@ -17,6 +17,9 @@ interface FavoriteMealComboDao {
     @Delete
     suspend fun delete(combo: FavoriteMealCombo)
 
-    @Query("SELECT * FROM favorite_meal_combos ORDER BY created_at DESC")
-    fun getAllCombos(): LiveData<List<FavoriteMealCombo>>
+    @Query("SELECT * FROM favorite_meal_combos WHERE owner_username = :ownerUsername ORDER BY created_at DESC")
+    fun getAllCombos(ownerUsername: String): LiveData<List<FavoriteMealCombo>>
+
+    @Query("DELETE FROM favorite_meal_combos WHERE owner_username = :ownerUsername")
+    suspend fun deleteByOwnerUsername(ownerUsername: String)
 }

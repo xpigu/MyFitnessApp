@@ -17,15 +17,18 @@ interface AchievementBadgeDao {
     @Update
     suspend fun updateBadge(badge: AchievementBadge)
 
-    @Query("SELECT * FROM achievement_badges ORDER BY is_unlocked DESC, unlocked_date DESC, category ASC, id ASC")
-    fun getAllBadges(): LiveData<List<AchievementBadge>>
+    @Query("SELECT * FROM achievement_badges WHERE owner_username = :ownerUsername ORDER BY is_unlocked DESC, unlocked_date DESC, category ASC, id ASC")
+    fun getAllBadges(ownerUsername: String): LiveData<List<AchievementBadge>>
 
-    @Query("SELECT * FROM achievement_badges WHERE is_unlocked = 1 ORDER BY unlocked_date DESC")
-    fun getUnlockedBadges(): LiveData<List<AchievementBadge>>
+    @Query("SELECT * FROM achievement_badges WHERE owner_username = :ownerUsername AND is_unlocked = 1 ORDER BY unlocked_date DESC")
+    fun getUnlockedBadges(ownerUsername: String): LiveData<List<AchievementBadge>>
 
-    @Query("SELECT * FROM achievement_badges WHERE id = :id")
-    suspend fun getBadgeById(id: String): AchievementBadge?
+    @Query("SELECT * FROM achievement_badges WHERE owner_username = :ownerUsername AND id = :id")
+    suspend fun getBadgeById(ownerUsername: String, id: String): AchievementBadge?
 
-    @Query("SELECT COUNT(*) FROM achievement_badges WHERE is_unlocked = 1")
-    fun getUnlockedCount(): LiveData<Int>
+    @Query("SELECT COUNT(*) FROM achievement_badges WHERE owner_username = :ownerUsername AND is_unlocked = 1")
+    fun getUnlockedCount(ownerUsername: String): LiveData<Int>
+
+    @Query("DELETE FROM achievement_badges WHERE owner_username = :ownerUsername")
+    suspend fun deleteByOwnerUsername(ownerUsername: String)
 }

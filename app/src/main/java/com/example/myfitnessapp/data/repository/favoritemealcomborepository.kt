@@ -4,11 +4,14 @@ import androidx.lifecycle.LiveData
 import com.example.myfitnessapp.data.dao.FavoriteMealComboDao
 import com.example.myfitnessapp.data.entity.FavoriteMealCombo
 
-class FavoriteMealComboRepository(private val dao: FavoriteMealComboDao) {
+class FavoriteMealComboRepository(
+    private val dao: FavoriteMealComboDao,
+    private val ownerUsername: String
+) {
 
-    val allCombos: LiveData<List<FavoriteMealCombo>> = dao.getAllCombos()
+    val allCombos: LiveData<List<FavoriteMealCombo>> = dao.getAllCombos(ownerUsername)
 
-    suspend fun insert(combo: FavoriteMealCombo): Long = dao.insert(combo)
+    suspend fun insert(combo: FavoriteMealCombo): Long = dao.insert(combo.copy(ownerUsername = ownerUsername))
 
     suspend fun delete(combo: FavoriteMealCombo) = dao.delete(combo)
 }

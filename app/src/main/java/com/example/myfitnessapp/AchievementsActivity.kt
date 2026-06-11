@@ -11,7 +11,6 @@ import android.widget.ArrayAdapter
 import android.widget.ImageView
 import android.widget.Spinner
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SwitchCompat
 import androidx.lifecycle.ViewModelProvider
@@ -43,7 +42,6 @@ class AchievementsActivity : AppCompatActivity() {
     private var currentProfile = UserProfile()
     private var currentWorkouts: List<WorkoutRecord> = emptyList()
     private var currentCheckins: List<DailyCheckin> = emptyList()
-    private var renderedUnlockedBadgeIds: Set<String>? = null
     private var currentBadges: List<AchievementBadge> = emptyList()
 
     private enum class AchievementSortOption(val label: String) {
@@ -181,15 +179,14 @@ class AchievementsActivity : AppCompatActivity() {
     }
 
     private fun handleUnlockedBadgeFeedback(badges: List<AchievementBadge>) {
+        val username = CurrentAccount.requireUsername(this)
         val currentUnlockedIds = badges.filter { it.isUnlocked }.map { it.id }.toSet()
-        val previousUnlockedIds = renderedUnlockedBadgeIds
-        renderedUnlockedBadgeIds = currentUnlockedIds
+        val newUnlockedIds = SettingsPrefs.consumeNewUnlockedBadgeIds(this, username, currentUnlockedIds)
+        if (newUnlockedIds.isEmpty()) return
 
-        if (previousUnlockedIds == null) return
-
-        val newUnlockedBadges = badges.filter { it.isUnlocked && it.id !in previousUnlockedIds }
+        val newUnlockedBadges = badges.filter { it.isUnlocked && it.id in newUnlockedIds }
         newUnlockedBadges.forEach { badge ->
-            Toast.makeText(this, "已解锁徽章：${badge.name}", Toast.LENGTH_SHORT).show()
+            showAppFeedback("已解锁徽章：${badge.name}", FeedbackType.SUCCESS)
         }
     }
 
@@ -207,7 +204,7 @@ class AchievementsActivity : AppCompatActivity() {
                 if (badge.isUnlocked) R.drawable.category_chip_selected else R.drawable.category_chip_unselected
             )
             setTextColor(
-                getColor(if (badge.isUnlocked) R.color.white else R.color.gray_600)
+                getColor(if (badge.isUnlocked) R.color.white else R.color.text_secondary)
             )
         }
         dialogView.findViewById<TextView>(R.id.tv_badge_detail_category).text = "分类：${badgeCategoryLabel(badge.category)}"

@@ -9,6 +9,9 @@ data class CustomFood(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
 
+    @ColumnInfo(name = "owner_username")
+    val ownerUsername: String = "",
+
     @ColumnInfo(name = "name")
     val name: String,
 

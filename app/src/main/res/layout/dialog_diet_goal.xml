@@ -66,7 +66,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="18dp"
-            android:background="@drawable/dialog_goal_preview_bg"
+            android:background="@drawable/health_dialog_preview_bg"
             android:orientation="vertical"
             android:padding="14dp">
 
@@ -74,7 +74,7 @@
                 android:id="@+id/tv_diet_goal_preview_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@color/indigo_primary"
+                android:textColor="@color/health_action_text"
                 android:textSize="14sp"
                 android:textStyle="bold" />
 
@@ -136,7 +136,7 @@
                         android:paddingTop="4dp"
                         android:paddingRight="10dp"
                         android:paddingBottom="4dp"
-                        android:textColor="@color/gray_600"
+                        android:textColor="@color/text_secondary"
                         android:textSize="12sp"
                         android:textStyle="bold" />
                 </LinearLayout>
@@ -151,7 +151,7 @@
                     android:paddingRight="10dp"
                     android:paddingBottom="4dp"
                     android:text="@string/diet_goal_dialog_current"
-                    android:textColor="@color/indigo_primary"
+                    android:textColor="@color/health_action_text"
                     android:textSize="12sp"
                     android:textStyle="bold"
                     android:visibility="gone" />
@@ -175,7 +175,7 @@
                 android:paddingTop="5dp"
                 android:paddingRight="10dp"
                 android:paddingBottom="5dp"
-                android:textColor="@color/gray_600"
+                android:textColor="@color/text_secondary"
                 android:textSize="12sp" />
 
             <TextView
@@ -236,7 +236,7 @@
                         android:paddingTop="4dp"
                         android:paddingRight="10dp"
                         android:paddingBottom="4dp"
-                        android:textColor="@color/gray_600"
+                        android:textColor="@color/text_secondary"
                         android:textSize="12sp"
                         android:textStyle="bold" />
                 </LinearLayout>
@@ -251,7 +251,7 @@
                     android:paddingRight="10dp"
                     android:paddingBottom="4dp"
                     android:text="@string/diet_goal_dialog_current"
-                    android:textColor="@color/indigo_primary"
+                    android:textColor="@color/health_action_text"
                     android:textSize="12sp"
                     android:textStyle="bold"
                     android:visibility="gone" />
@@ -275,7 +275,7 @@
                 android:paddingTop="5dp"
                 android:paddingRight="10dp"
                 android:paddingBottom="5dp"
-                android:textColor="@color/gray_600"
+                android:textColor="@color/text_secondary"
                 android:textSize="12sp" />
 
             <TextView
@@ -336,7 +336,7 @@
                         android:paddingTop="4dp"
                         android:paddingRight="10dp"
                         android:paddingBottom="4dp"
-                        android:textColor="@color/gray_600"
+                        android:textColor="@color/text_secondary"
                         android:textSize="12sp"
                         android:textStyle="bold" />
                 </LinearLayout>
@@ -351,7 +351,7 @@
                     android:paddingRight="10dp"
                     android:paddingBottom="4dp"
                     android:text="@string/diet_goal_dialog_current"
-                    android:textColor="@color/indigo_primary"
+                    android:textColor="@color/health_action_text"
                     android:textSize="12sp"
                     android:textStyle="bold"
                     android:visibility="gone" />
@@ -375,7 +375,7 @@
                 android:paddingTop="5dp"
                 android:paddingRight="10dp"
                 android:paddingBottom="5dp"
-                android:textColor="@color/gray_600"
+                android:textColor="@color/text_secondary"
                 android:textSize="12sp" />
 
             <TextView

@@ -2,7 +2,6 @@ package com.example.myfitnessapp
 
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SwitchCompat
 
@@ -54,6 +53,6 @@ class PrivacySettingsActivity : AppCompatActivity() {
                 allowAnonymousUsageStats = switchAnalytics.isChecked
             )
         )
-        Toast.makeText(this, R.string.privacy_settings_saved, Toast.LENGTH_SHORT).show()
+        showAppFeedback(getString(R.string.privacy_settings_saved), FeedbackType.SUCCESS)
     }
 }

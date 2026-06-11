@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.viewModelScope
+import com.example.myfitnessapp.CurrentAccount
 import com.example.myfitnessapp.data.database.AppDatabase
 import com.example.myfitnessapp.data.entity.DailyCheckin
 import com.example.myfitnessapp.data.entity.UserProfile
@@ -24,6 +25,7 @@ class UserProfileViewModel(application: Application) : AndroidViewModel(applicat
     private val repository: UserProfileRepository
     private val workoutRepository: WorkoutRecordRepository
     private val checkinRepository: DailyCheckinRepository
+    private val currentUsername = CurrentAccount.requireUsername(application)
 
     val userProfile: LiveData<UserProfile>
 
@@ -51,9 +53,9 @@ class UserProfileViewModel(application: Application) : AndroidViewModel(applicat
 
     init {
         val db = AppDatabase.getInstance(application)
-        repository = UserProfileRepository(db.userProfileDao())
-        workoutRepository = WorkoutRecordRepository(db.workoutRecordDao())
-        checkinRepository = DailyCheckinRepository(db.dailyCheckinDao())
+        repository = UserProfileRepository(db.userProfileDao(), currentUsername)
+        workoutRepository = WorkoutRecordRepository(db.workoutRecordDao(), currentUsername)
+        checkinRepository = DailyCheckinRepository(db.dailyCheckinDao(), currentUsername)
         userProfile = repository.getUserProfile()
 
         userProfile.observeForever(userProfileObserver)
@@ -64,7 +66,10 @@ class UserProfileViewModel(application: Application) : AndroidViewModel(applicat
         viewModelScope.launch {
             val existing = repository.getUserProfileSync()
             if (existing == null) {
-                val defaultProfile = UserProfile()
+                val defaultProfile = UserProfile(
+                    accountUsername = currentUsername,
+                    username = currentUsername
+                )
                 repository.insertUserProfile(defaultProfile)
             }
         }

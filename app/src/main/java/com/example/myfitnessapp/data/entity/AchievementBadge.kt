@@ -2,11 +2,14 @@ package com.example.myfitnessapp.data.entity
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
-import androidx.room.PrimaryKey
-
-@Entity(tableName = "achievement_badges")
+@Entity(
+    tableName = "achievement_badges",
+    primaryKeys = ["owner_username", "id"]
+)
 data class AchievementBadge(
-    @PrimaryKey
+    @ColumnInfo(name = "owner_username")
+    val ownerUsername: String = "",
+
     val id: String, // 徽章唯一标识，如 "first_workout", "10k_steps"
 
     @ColumnInfo(name = "name")

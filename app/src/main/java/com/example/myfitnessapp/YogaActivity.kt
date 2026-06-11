@@ -3,11 +3,15 @@ package com.example.myfitnessapp
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.widget.LinearLayout
+import android.widget.RadioGroup
 import android.view.View
 import android.widget.TextView
-import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.AppCompatRadioButton
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.example.myfitnessapp.course.data.ActiveCourseSessionStore
 import com.example.myfitnessapp.course.data.TrainingCourseRepository
@@ -82,10 +86,15 @@ class YogaActivity : AppCompatActivity() {
         tvCourseInfo = findViewById(R.id.tv_yoga_course_info)
 
         loadCourseRuntime()
+        setupBackPress()
 
-        findViewById<View>(R.id.btn_yoga_back).setOnClickListener { finish() }
+        findViewById<View>(R.id.btn_yoga_back).setOnClickListener {
+            handleBackPressed()
+        }
         findViewById<View>(R.id.btn_yoga_skip).setOnClickListener { nextPose() }
-        findViewById<View>(R.id.btn_yoga_end).setOnClickListener { showFinishDialog() }
+        findViewById<View>(R.id.btn_yoga_end).setOnClickListener {
+            showFinishOptionsDialog()
+        }
 
         btnPause.setOnClickListener {
             if (isPaused) {
@@ -97,6 +106,14 @@ class YogaActivity : AppCompatActivity() {
 
         loadPose(currentPoseIndex)
         handler.post(poseTimer)
+    }
+
+    private fun setupBackPress() {
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                this@YogaActivity.handleBackPressed()
+            }
+        })
     }
 
     private fun loadCourseRuntime() {
@@ -162,7 +179,7 @@ class YogaActivity : AppCompatActivity() {
             finishSession()
         } else {
             loadPose(currentPoseIndex)
-            Toast.makeText(this, "下一个体式: ${poses[currentPoseIndex].name}", Toast.LENGTH_SHORT).show()
+            showAppFeedback("下一个体式: ${poses[currentPoseIndex].name}", FeedbackType.INFO)
             persistCourseSessionProgress()
             handler.post(poseTimer)
         }
@@ -179,49 +196,160 @@ class YogaActivity : AppCompatActivity() {
         btnPause.text = "暂停"
     }
 
-    private fun showFinishDialog() {
+    private fun showFinishOptionsDialog() {
         handler.removeCallbacks(poseTimer)
         isActive = false
 
         val completedPoses = (currentPoseIndex + 1).coerceAtMost(poses.size)
         val completionRate = ((completedPoses * 100f) / poses.size.coerceAtLeast(1)).toInt()
+        createAppAlertDialogBuilder()
+            .setTitle(activeCourseTitle ?: "结束瑜伽")
+            .setMessage("已完成 $completedPoses/${poses.size} 个步骤，完成度 $completionRate%\n是否保存本次瑜伽记录？")
+            .setPositiveButton("保存记录", null)
+            .setNegativeButton("放弃记录") { _, _ ->
+                finishSessionWithoutSaving()
+            }
+            .setNeutralButton("继续练习") { _, _ ->
+                resumeActiveSession()
+            }
+            .create()
+            .also { dialog ->
+                dialog.show()
+                dialog.applyAppDialogStyling(this)
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+                    if (!canSaveYogaRecord(completedPoses)) {
+                        return@setOnClickListener
+                    }
+                    dialog.dismiss()
+                    showDifficultyDialog(completedPoses, completionRate)
+                }
+            }
+    }
+
+    private fun hasSessionProgress(): Boolean {
+        return totalElapsedSeconds > 0 || currentPoseIndex > 0 || restoredPoseElapsedSeconds > 0
+    }
+
+    private fun handleBackPressed() {
+        if (hasSessionProgress()) {
+            showFinishOptionsDialog()
+        } else {
+            finish()
+        }
+    }
+
+    private fun showDifficultyDialog(completedPoses: Int, completionRate: Int) {
         val difficulties = arrayOf("轻松", "适中", "有挑战", "困难")
-        AlertDialog.Builder(this)
+        val density = resources.displayMetrics.density
+        val radioGroup = RadioGroup(this).apply {
+            orientation = RadioGroup.VERTICAL
+            setPadding(
+                (4 * density).toInt(),
+                (8 * density).toInt(),
+                (4 * density).toInt(),
+                0
+            )
+        }
+        difficulties.forEachIndexed { index, label ->
+            val button = AppCompatRadioButton(this).apply {
+                id = View.generateViewId()
+                text = label
+                textSize = 16f
+                buttonTintList = ContextCompat.getColorStateList(context, R.color.training_yoga_badge_fill)
+                setTextColor(ContextCompat.getColor(context, R.color.text_primary))
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                ).apply {
+                    bottomMargin = (6 * density).toInt()
+                }
+                setPadding(0, (2 * density).toInt(), 0, (2 * density).toInt())
+                isChecked = index == 1
+            }
+            radioGroup.addView(button)
+        }
+
+        createAppAlertDialogBuilder()
             .setTitle(activeCourseTitle ?: "课程完成")
             .setMessage("已完成 $completedPoses/${poses.size} 个步骤，完成度 $completionRate%\n请评价本次瑜伽难度")
-            .setItems(difficulties) { _, which ->
-                val diff = which + 1
-                val cal = (totalElapsedSeconds * 0.06).toInt()
-                val record = com.example.myfitnessapp.data.entity.WorkoutRecord(
-                    sportType = "YOGA",
-                    sportIconResId = WorkoutRecordHelper.getIconRes("YOGA"),
-                    elapsedSeconds = totalElapsedSeconds,
-                    totalDistance = 0.0,
-                    totalCalories = cal,
-                    pace = activeCourse?.title ?: "$completedPoses 个体式",
-                    timestamp = WorkoutRecordHelper.nowTimestamp(),
-                    date = WorkoutRecordHelper.todayDate(),
-                    yogaPosesCompleted = completedPoses,
-                    yogaDifficulty = diff
+            .setView(radioGroup)
+            .setPositiveButton("保存记录") { _, _ ->
+                val checkedId = radioGroup.checkedRadioButtonId
+                val selectedIndex = radioGroup.indexOfChild(radioGroup.findViewById(checkedId)).coerceAtLeast(0)
+                saveYogaRecord(
+                    completedPoses = completedPoses,
+                    difficulty = selectedIndex + 1,
+                    difficultyLabel = difficulties[selectedIndex]
                 )
-                viewModel.saveRecord(record)
-                shouldPersistCourseSession = false
-                sessionStore.clear(CourseNavigator.courseIdOf(intent))
-                Toast.makeText(this, "难度评价: ${difficulties[which]}, 已完成 $completedPoses/${poses.size} 个步骤", Toast.LENGTH_SHORT).show()
-                finish()
             }
-            .setOnCancelListener {
-                shouldPersistCourseSession = false
-                sessionStore.clear(CourseNavigator.courseIdOf(intent))
-                finish()
+            .setNegativeButton("返回") { _, _ ->
+                showFinishOptionsDialog()
             }
-            .show()
+            .create()
+            .also {
+                it.show()
+                it.applyAppDialogStyling(this)
+            }
+    }
+
+    private fun saveYogaRecord(completedPoses: Int, difficulty: Int, difficultyLabel: String) {
+        if (!canSaveYogaRecord(completedPoses)) {
+            return
+        }
+        val cal = (totalElapsedSeconds * 0.06).toInt()
+        val record = com.example.myfitnessapp.data.entity.WorkoutRecord(
+            sportType = "YOGA",
+            sportIconResId = WorkoutRecordHelper.getIconRes("YOGA"),
+            elapsedSeconds = totalElapsedSeconds,
+            totalDistance = 0.0,
+            totalCalories = cal,
+            pace = activeCourse?.title ?: "$completedPoses 个体式",
+            timestamp = WorkoutRecordHelper.nowTimestamp(),
+            date = WorkoutRecordHelper.todayDate(),
+            yogaPosesCompleted = completedPoses,
+            yogaDifficulty = difficulty
+        )
+        viewModel.saveRecord(record) {
+            shouldPersistCourseSession = false
+            sessionStore.clear(CourseNavigator.courseIdOf(intent))
+            showAppFeedback("已保存瑜伽记录，难度：$difficultyLabel", FeedbackType.SUCCESS)
+            finish()
+        }
+    }
+
+    private fun canSaveYogaRecord(completedPoses: Int): Boolean {
+        val guardMessage = currentYogaSaveGuardMessage(completedPoses)
+        if (guardMessage == null) {
+            return true
+        }
+        showAppFeedback(guardMessage, FeedbackType.WARNING)
+        return false
+    }
+
+    private fun currentYogaSaveGuardMessage(completedPoses: Int): String? {
+        if (completedPoses >= MIN_YOGA_SAVE_POSES && totalElapsedSeconds >= MIN_YOGA_SAVE_DURATION_SECONDS) {
+            return null
+        }
+        return "本次瑜伽未达到保存条件，至少需要完成 ${MIN_YOGA_SAVE_POSES} 个体式，且时长不少于 ${MIN_YOGA_SAVE_DURATION_SECONDS} 秒。"
     }
 
     private fun finishSession() {
         isActive = false
         handler.removeCallbacks(poseTimer)
-        showFinishDialog()
+        showFinishOptionsDialog()
+    }
+
+    private fun finishSessionWithoutSaving() {
+        shouldPersistCourseSession = false
+        sessionStore.clear(CourseNavigator.courseIdOf(intent))
+        showAppFeedback("已放弃本次瑜伽记录", FeedbackType.WARNING)
+        finish()
+    }
+
+    private fun resumeActiveSession() {
+        isActive = true
+        handler.removeCallbacks(poseTimer)
+        handler.post(poseTimer)
     }
 
     private fun persistCourseSessionProgress() {
@@ -270,6 +398,11 @@ class YogaActivity : AppCompatActivity() {
             YogaPose("仰卧扭转", 30, "仰卧，双膝倒向一侧，转头看对侧", true),
             YogaPose("挺尸式", 60, "仰卧，全身放松，自然呼吸", false)
         )
+    }
+
+    companion object {
+        private const val MIN_YOGA_SAVE_POSES = 1
+        private const val MIN_YOGA_SAVE_DURATION_SECONDS = 30
     }
 }
 

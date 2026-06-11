@@ -6,7 +6,7 @@
             android:innerRadiusRatio="3"
             android:thicknessRatio="8"
             android:useLevel="false">
-            <solid android:color="@color/gray_200" />
+            <solid android:color="@color/health_ring_track" />
         </shape>
     </item>
     <item android:id="@android:id/progress">
@@ -20,7 +20,7 @@
                 android:innerRadiusRatio="3"
                 android:thicknessRatio="8"
                 android:useLevel="true">
-                <solid android:color="@color/gold_accent" />
+                <solid android:color="@color/health_ring_gold" />
             </shape>
         </rotate>
     </item>

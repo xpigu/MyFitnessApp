@@ -1,19 +1,21 @@
 package com.example.myfitnessapp
 
-import android.app.DatePickerDialog
 import android.os.Bundle
 import android.view.View
 import android.widget.EditText
 import android.widget.RadioGroup
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.myfitnessapp.data.viewmodel.UserProfileViewModel
+import com.google.android.material.datepicker.CalendarConstraints
+import com.google.android.material.datepicker.DateValidatorPointBackward
+import com.google.android.material.datepicker.MaterialDatePicker
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import java.util.TimeZone
 
 class EditProfileActivity : AppCompatActivity() {
 
@@ -89,30 +91,28 @@ class EditProfileActivity : AppCompatActivity() {
     }
 
     private fun showDatePicker() {
-        val calendar = Calendar.getInstance()
-        // 尝试解析现有日期
-        val currentStr = etBirthday.text.toString()
-        if (currentStr.isNotBlank()) {
-            val parts = currentStr.split("-")
-            if (parts.size == 3) {
-                calendar.set(Calendar.YEAR, parts[0].toInt())
-                calendar.set(Calendar.MONTH, parts[1].toInt() - 1)
-                calendar.set(Calendar.DAY_OF_MONTH, parts[2].toInt())
+        val selection = parseBirthdaySelection(etBirthday.text.toString())
+            ?: MaterialDatePicker.todayInUtcMilliseconds()
+
+        val constraints = CalendarConstraints.Builder()
+            .setValidator(DateValidatorPointBackward.now())
+            .build()
+
+        val picker = MaterialDatePicker.Builder.datePicker()
+            .setTitleText("选择生日")
+            .setSelection(selection)
+            .setCalendarConstraints(constraints)
+            .setTheme(R.style.ThemeOverlay_MyFitnessApp_MaterialCalendar)
+            .build()
+
+        picker.addOnPositiveButtonClickListener { selectedDate ->
+            val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).apply {
+                timeZone = TimeZone.getTimeZone("UTC")
             }
+            etBirthday.setText(formatter.format(Date(selectedDate)))
         }
 
-        val dialog = DatePickerDialog(
-            this,
-            { _, year, month, dayOfMonth ->
-                val dateStr = String.format("%d-%02d-%02d", year, month + 1, dayOfMonth)
-                etBirthday.setText(dateStr)
-            },
-            calendar.get(Calendar.YEAR),
-            calendar.get(Calendar.MONTH),
-            calendar.get(Calendar.DAY_OF_MONTH)
-        )
-        dialog.datePicker.maxDate = System.currentTimeMillis()
-        dialog.show()
+        picker.show(supportFragmentManager, "birthdayPicker")
     }
 
     private fun saveProfile() {
@@ -162,7 +162,7 @@ class EditProfileActivity : AppCompatActivity() {
             lastUpdated = System.currentTimeMillis()
         )
         viewModel.updateUserProfile(updated)
-        Toast.makeText(this, R.string.profile_save_success, Toast.LENGTH_SHORT).show()
+        showAppFeedback(getString(R.string.profile_save_success), FeedbackType.SUCCESS)
         finish()
     }
 
@@ -176,5 +176,18 @@ class EditProfileActivity : AppCompatActivity() {
             null
         } ?: return false
         return !birthdayDate.after(Date())
+    }
+
+    private fun parseBirthdaySelection(value: String): Long? {
+        if (value.isBlank()) return null
+        val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).apply {
+            isLenient = false
+            timeZone = TimeZone.getTimeZone("UTC")
+        }
+        return try {
+            formatter.parse(value)?.time
+        } catch (_: ParseException) {
+            null
+        }
     }
 }

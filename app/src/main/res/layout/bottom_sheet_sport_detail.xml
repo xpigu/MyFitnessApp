@@ -19,7 +19,7 @@
         android:layout_height="4dp"
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="16dp"
-        android:background="@color/gray_400" />
+        android:background="@color/tracking_divider" />
 
     <!-- 标题行：运动类型 + 名称 -->
     <LinearLayout
@@ -96,7 +96,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
-                android:textColor="@color/indigo_primary"
+                android:textColor="@color/training_course_action_text"
                 android:textSize="22sp"
                 android:textStyle="bold"
                 tools:text="32:15" />
@@ -126,7 +126,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
-                android:textColor="@color/emerald_dark"
+                android:textColor="@color/tracking_summary_distance"
                 android:textSize="22sp"
                 android:textStyle="bold"
                 tools:text="5.20" />
@@ -171,7 +171,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
-                android:textColor="@color/gold_dark"
+                android:textColor="@color/tracking_summary_primary"
                 android:textSize="22sp"
                 android:textStyle="bold"
                 tools:text="9.7" />
@@ -209,7 +209,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
-                android:textColor="#E74C3C"
+                android:textColor="@color/tracking_stop_text"
                 android:textSize="22sp"
                 android:textStyle="bold"
                 tools:text="6&apos;12&quot;" />
@@ -246,7 +246,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
-            android:textColor="#E67E22"
+            android:textColor="@color/tracking_summary_calories"
             android:textSize="22sp"
             android:textStyle="bold"
             tools:text="450 kcal" />

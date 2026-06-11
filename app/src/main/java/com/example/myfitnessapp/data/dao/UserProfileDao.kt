@@ -17,9 +17,12 @@ interface UserProfileDao {
     @Update
     suspend fun update(profile: UserProfile)
 
-    @Query("SELECT * FROM user_profiles WHERE id = 1")
-    fun getUserProfile(): LiveData<UserProfile>
+    @Query("SELECT * FROM user_profiles WHERE account_username = :accountUsername LIMIT 1")
+    fun getUserProfile(accountUsername: String): LiveData<UserProfile>
 
-    @Query("SELECT * FROM user_profiles WHERE id = 1")
-    suspend fun getUserProfileSync(): UserProfile?
+    @Query("SELECT * FROM user_profiles WHERE account_username = :accountUsername LIMIT 1")
+    suspend fun getUserProfileSync(accountUsername: String): UserProfile?
+
+    @Query("DELETE FROM user_profiles WHERE account_username = :accountUsername")
+    suspend fun deleteByAccountUsername(accountUsername: String)
 }

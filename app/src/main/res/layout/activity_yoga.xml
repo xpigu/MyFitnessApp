@@ -9,7 +9,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#1A1A2E"
+    android:background="@color/tracking_surface"
     android:orientation="vertical"
     android:fitsSystemWindows="true"
     tools:context=".YogaActivity">
@@ -32,7 +32,8 @@
             android:contentDescription="返回"
             android:padding="8dp"
             android:rotation="90"
-            android:src="@drawable/ic_chevron_down" />
+            android:src="@drawable/ic_chevron_down"
+            app:tint="@color/tracking_on_primary" />
 
         <TextView
             android:id="@+id/tv_yoga_header_title"
@@ -41,7 +42,7 @@
             android:layout_marginStart="8dp"
             android:layout_weight="1"
             android:text="瑜伽"
-            android:textColor="#FFFFFF"
+            android:textColor="@color/tracking_on_primary"
             android:textSize="18sp"
             android:textStyle="bold" />
 
@@ -50,7 +51,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="1/12"
-            android:textColor="#CCFFFFFF"
+            android:textColor="@color/sport_header_secondary_text"
             android:textSize="14sp" />
     </LinearLayout>
 
@@ -60,13 +61,13 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="8dp"
-        android:background="@drawable/tab_bg_unselected"
+        android:background="@drawable/tracking_chip_bg"
         android:paddingStart="12dp"
         android:paddingTop="4dp"
         android:paddingEnd="12dp"
         android:paddingBottom="4dp"
         android:text="晨间唤醒 · 9 个步骤"
-        android:textColor="#CCFFFFFF"
+        android:textColor="@color/sport_header_secondary_text"
         android:textSize="12sp"
         android:visibility="gone"
         tools:text="晨间唤醒 · 9 个步骤"
@@ -78,7 +79,7 @@
         android:layout_height="0dp"
         android:layout_margin="20dp"
         android:layout_weight="1"
-        app:cardBackgroundColor="#2A2A3E"
+        app:cardBackgroundColor="@color/tracking_map_surface"
         app:cardCornerRadius="20dp"
         app:cardElevation="0dp">
 
@@ -93,6 +94,7 @@
                 android:layout_width="120dp"
                 android:layout_height="120dp"
                 android:background="@drawable/start_button_bg"
+                android:backgroundTint="@color/training_yoga_badge_fill"
                 android:contentDescription="体式"
                 android:padding="30dp"
                 android:src="@drawable/ic_yoga" />
@@ -103,7 +105,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:text="山式"
-                android:textColor="#FFFFFF"
+                android:textColor="@color/tracking_on_primary"
                 android:textSize="22sp"
                 android:textStyle="bold" />
 
@@ -144,7 +146,7 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="monospace"
                 android:text="30"
-                android:textColor="#FFFFFF"
+                android:textColor="@color/tracking_on_primary"
                 android:textSize="28sp"
                 android:textStyle="bold" />
 
@@ -173,7 +175,8 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:contentDescription="呼吸"
-            android:src="@drawable/ic_lightbulb" />
+            android:src="@drawable/ic_lightbulb"
+            app:tint="@color/health_hint_icon" />
 
         <TextView
             android:id="@+id/tv_breath_text"
@@ -198,12 +201,12 @@
             android:id="@+id/btn_yoga_skip"
             android:layout_width="64dp"
             android:layout_height="64dp"
-            android:background="@drawable/circle_bg"
+            android:background="@drawable/tracking_control_circle_bg"
             android:clickable="true"
             android:focusable="true"
             android:gravity="center"
             android:text="跳过"
-            android:textColor="#FFFFFF"
+            android:textColor="@color/tracking_on_primary"
             android:textSize="12sp" />
 
         <TextView
@@ -217,7 +220,7 @@
             android:focusable="true"
             android:gravity="center"
             android:text="暂停"
-            android:textColor="#FFFFFF"
+            android:textColor="@color/tracking_primary_button_text"
             android:textSize="14sp"
             android:textStyle="bold" />
 
@@ -225,13 +228,13 @@
             android:id="@+id/btn_yoga_end"
             android:layout_width="64dp"
             android:layout_height="64dp"
-            android:background="@drawable/circle_bg"
+            android:background="@drawable/tracking_control_circle_bg"
             android:clickable="true"
             android:drawableTop="@drawable/ic_stop"
             android:focusable="true"
             android:gravity="center"
             android:text="结束"
-            android:textColor="#FFFFFF"
+            android:textColor="@color/tracking_on_primary"
             android:textSize="11sp" />
     </LinearLayout>
 </LinearLayout>

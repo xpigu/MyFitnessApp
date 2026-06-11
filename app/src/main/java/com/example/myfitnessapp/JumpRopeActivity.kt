@@ -1,15 +1,19 @@
 package com.example.myfitnessapp
 
 import android.animation.ValueAnimator
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.os.SystemClock
 import android.view.View
-import android.view.animation.AnimationUtils
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.ViewModelProvider
 import com.example.myfitnessapp.course.data.ActiveCourseSessionStore
 import com.example.myfitnessapp.course.data.TrainingCourseRepository
@@ -18,11 +22,16 @@ import com.example.myfitnessapp.course.domain.CourseStep
 import com.example.myfitnessapp.course.domain.TrainingCourse
 import com.example.myfitnessapp.course.navigation.CourseNavigator
 import com.example.myfitnessapp.data.WorkoutRecordHelper
+import com.example.myfitnessapp.data.database.AppDatabase
 import com.example.myfitnessapp.data.viewmodel.WorkoutRecordViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import kotlinx.coroutines.launch
 import java.util.Locale
+import kotlin.math.abs
+import kotlin.math.roundToInt
+import kotlin.math.sqrt
 
-class JumpRopeActivity : AppCompatActivity() {
+class JumpRopeActivity : AppCompatActivity(), SensorEventListener {
 
     private lateinit var tvCount: TextView
     private lateinit var tvTimer: TextView
@@ -46,19 +55,27 @@ class JumpRopeActivity : AppCompatActivity() {
     private lateinit var viewModel: WorkoutRecordViewModel
     private val sessionStore by lazy { ActiveCourseSessionStore(this) }
     private val courseRepository by lazy { TrainingCourseRepository() }
+    private val sensorManager by lazy { getSystemService(SENSOR_SERVICE) as SensorManager }
+    private val accelerometer by lazy { sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) }
     private var activeCourse: TrainingCourse? = null
     private val handler = Handler(Looper.getMainLooper())
-    private val countAnimatorInterval = 800L
+    private var countAnimator: ValueAnimator? = null
+    private var currentWeightKg = DEFAULT_WEIGHT_KG
+    private var isSensorRegistered = false
+    private var gravityEstimate = SensorManager.GRAVITY_EARTH
+    private var smoothedMotion = 0f
+    private var motionBaseline = 0.35f
+    private var lastJumpTimestampMs = 0L
+    private var jumpThresholdArmed = true
+    private val recentJumpTimestamps = ArrayDeque<Long>()
 
     private val timerRunnable = object : Runnable {
         override fun run() {
             if (isActive && !isPaused) {
                 elapsedSeconds++
                 currentRoundElapsedSeconds++
-                count += currentJumpIncrement()
                 syncRoundProgress()
                 updateTimerDisplay()
-                updateCountDisplay()
                 updateCalories()
                 updateFrequency()
                 persistCourseSessionProgress()
@@ -85,6 +102,7 @@ class JumpRopeActivity : AppCompatActivity() {
         tvRoundDetail = findViewById(R.id.tv_jump_round_detail)
 
         loadCourseRuntime()
+        loadUserWeight()
 
         findViewById<View>(R.id.btn_jump_back).setOnClickListener {
             handleExitNavigation()
@@ -122,9 +140,14 @@ class JumpRopeActivity : AppCompatActivity() {
     }
 
     private fun startWorkout() {
+        if (accelerometer == null) {
+            showAppFeedback("设备不支持加速度传感器，暂时无法进行真实跳绳计数", FeedbackType.WARNING)
+            return
+        }
         shouldPersistCourseSession = true
         isActive = true
         isPaused = false
+        registerJumpSensor()
         btnStart.text = "暂停"
         updateJumpStatus()
         handler.post(timerRunnable)
@@ -135,21 +158,34 @@ class JumpRopeActivity : AppCompatActivity() {
         btnStart.text = "继续"
         updateJumpStatus()
         handler.removeCallbacks(timerRunnable)
+        unregisterJumpSensor()
         persistCourseSessionProgress()
     }
 
     private fun resumeWorkout() {
+        if (accelerometer == null) {
+            showAppFeedback("设备不支持加速度传感器，暂时无法继续真实计数", FeedbackType.WARNING)
+            return
+        }
         isPaused = false
         btnStart.text = "暂停"
+        registerJumpSensor()
         updateJumpStatus()
         handler.post(timerRunnable)
     }
 
     private fun updateCountDisplay() {
-        val anim = ValueAnimator.ofInt(tvCount.text.toString().toIntOrNull() ?: 0, count)
-        anim.duration = 300
-        anim.addUpdateListener { tvCount.text = it.animatedValue.toString() }
-        anim.start()
+        countAnimator?.cancel()
+        val currentShown = tvCount.text.toString().toIntOrNull() ?: 0
+        if (abs(count - currentShown) <= 1) {
+            tvCount.text = count.toString()
+            return
+        }
+        countAnimator = ValueAnimator.ofInt(currentShown, count).apply {
+            duration = 180
+            addUpdateListener { tvCount.text = it.animatedValue.toString() }
+            start()
+        }
     }
 
     private fun updateTimerDisplay() {
@@ -159,60 +195,105 @@ class JumpRopeActivity : AppCompatActivity() {
     }
 
     private fun updateCalories() {
-        calories = (elapsedSeconds * 0.15).toInt()
+        if (elapsedSeconds <= 0 || count <= 0) {
+            calories = 0
+            tvCalories.text = "0"
+            return
+        }
+        val averageFrequency = averageJumpFrequency()
+        val met = when {
+            averageFrequency >= 140 -> 12.8
+            averageFrequency >= 120 -> 12.3
+            averageFrequency >= 100 -> 11.8
+            averageFrequency >= 80 -> 10.5
+            else -> 8.8
+        }
+        val caloriesBurned = met * 3.5 * currentWeightKg / 200.0 * (elapsedSeconds / 60.0)
+        calories = caloriesBurned.roundToInt()
         tvCalories.text = calories.toString()
     }
 
     private fun updateFrequency() {
-        if (elapsedSeconds > 0) {
-            val freq = (count * 60) / elapsedSeconds
-            tvFrequency.text = freq.toString()
-        }
+        val currentFrequency = currentJumpFrequency()
+        tvFrequency.text = currentFrequency.toString()
     }
 
     private fun showSummary() {
         isActive = false
         isPaused = false
         handler.removeCallbacks(timerRunnable)
+        unregisterJumpSensor()
         btnStart.text = "开始"
         tvStatus.text = "已完成"
 
         val dialog = BottomSheetDialog(this)
         val sheetView = layoutInflater.inflate(R.layout.bottom_sheet_workout_summary, null)
         dialog.setContentView(sheetView)
+        val averageFrequency = averageJumpFrequency()
+        val saveButton = sheetView.findViewById<TextView>(R.id.summary_btn_save)
+        val saveGuardHint = sheetView.findViewById<TextView>(R.id.summary_tv_save_guard_hint)
 
         sheetView.findViewById<TextView>(R.id.summary_tv_duration).text = tvTimer.text
         sheetView.findViewById<TextView>(R.id.summary_tv_distance).text = "$count 个"
         sheetView.findViewById<TextView>(R.id.summary_tv_calories).text = "$calories kcal"
-        sheetView.findViewById<TextView>(R.id.summary_tv_avg_pace).text = "频率: ${tvFrequency.text} 个/分钟"
+        sheetView.findViewById<TextView>(R.id.summary_tv_avg_pace).text = "平均频率: $averageFrequency 个/分钟"
         bindCourseSummary(sheetView)
+
+        val saveGuardMessage = currentJumpRopeSaveGuardMessage()
+        val canSaveRecord = saveGuardMessage == null
+        saveButton.isEnabled = canSaveRecord
+        saveButton.isClickable = canSaveRecord
+        saveButton.isFocusable = canSaveRecord
+        saveButton.alpha = if (canSaveRecord) 1f else 0.45f
+        saveButton.text = if (canSaveRecord) "保存记录" else "暂不可保存"
+        saveGuardHint.visibility = if (saveGuardMessage.isNullOrBlank()) View.GONE else View.VISIBLE
+        saveGuardHint.text = saveGuardMessage
 
         sheetView.findViewById<View>(R.id.summary_btn_discard).setOnClickListener {
             dialog.dismiss()
             resetWorkout()
         }
 
-        sheetView.findViewById<View>(R.id.summary_btn_save).setOnClickListener {
-            val freq = if (elapsedSeconds > 0) (count * 60) / elapsedSeconds else 0
+        saveButton.setOnClickListener {
+            if (!canSaveJumpRopeRecord()) {
+                return@setOnClickListener
+            }
             val record = com.example.myfitnessapp.data.entity.WorkoutRecord(
                 sportType = "JUMP_ROPE",
                 sportIconResId = WorkoutRecordHelper.getIconRes("JUMP_ROPE"),
                 elapsedSeconds = elapsedSeconds,
                 totalDistance = 0.0,
                 totalCalories = calories,
-                pace = activeCourse?.title ?: "$freq 个/分钟",
+                pace = activeCourse?.title ?: "$averageFrequency 个/分钟",
                 timestamp = WorkoutRecordHelper.nowTimestamp(),
                 date = WorkoutRecordHelper.todayDate(),
                 jumpCount = count,
-                jumpFrequency = freq
+                jumpFrequency = averageFrequency
             )
-            viewModel.saveRecord(record)
-            Toast.makeText(this, "记录已保存", Toast.LENGTH_SHORT).show()
-            dialog.dismiss()
-            resetWorkout()
+            viewModel.saveRecord(record) {
+                showAppFeedback("记录已保存", FeedbackType.SUCCESS)
+                dialog.dismiss()
+                resetWorkout()
+            }
         }
 
         dialog.show()
+    }
+
+    private fun canSaveJumpRopeRecord(): Boolean {
+        val guardMessage = currentJumpRopeSaveGuardMessage()
+        if (guardMessage == null) {
+            return true
+        }
+        showAppFeedback(guardMessage, FeedbackType.WARNING)
+        return false
+    }
+
+    private fun currentJumpRopeSaveGuardMessage(): String? {
+        if (count >= MIN_JUMP_ROPE_SAVE_COUNT && elapsedSeconds >= MIN_JUMP_ROPE_SAVE_DURATION_SECONDS) {
+            return null
+        }
+        return "本次跳绳未达到保存条件，至少需要 ${MIN_JUMP_ROPE_SAVE_COUNT} 个，且时长不少于 ${MIN_JUMP_ROPE_SAVE_DURATION_SECONDS} 秒。"
     }
 
     private fun resetWorkout() {
@@ -225,6 +306,7 @@ class JumpRopeActivity : AppCompatActivity() {
         isPaused = false
         currentRoundIndex = 0
         currentRoundElapsedSeconds = 0
+        clearJumpSensorState()
         tvCount.text = "0"
         tvTimer.text = "00:00"
         tvFrequency.text = "0"
@@ -240,6 +322,8 @@ class JumpRopeActivity : AppCompatActivity() {
             persistCourseSessionProgress()
         }
         handler.removeCallbacks(timerRunnable)
+        unregisterJumpSensor()
+        countAnimator?.cancel()
     }
 
     private fun loadCourseRuntime() {
@@ -268,13 +352,6 @@ class JumpRopeActivity : AppCompatActivity() {
         updateJumpStatus()
     }
 
-    private fun currentJumpIncrement(): Int {
-        val step = currentCourseStep()
-        val target = step?.target ?: return 1
-        val perMinute = Regex("""(\d+)""").find(target)?.groupValues?.get(1)?.toIntOrNull() ?: return 1
-        return (perMinute / 60f).coerceAtLeast(1f).toInt()
-    }
-
     private fun syncRoundProgress() {
         val course = activeCourse ?: return
         val steps = course.plan.steps
@@ -286,7 +363,7 @@ class JumpRopeActivity : AppCompatActivity() {
             currentRoundElapsedSeconds -= step.durationSeconds
             currentRoundIndex++
             if (currentRoundIndex < steps.size) {
-                Toast.makeText(this, "进入回合：${steps[currentRoundIndex].title}", Toast.LENGTH_SHORT).show()
+                showAppFeedback("进入回合：${steps[currentRoundIndex].title}", FeedbackType.INFO)
             }
         }
         updateRoundDetail()
@@ -366,5 +443,125 @@ class JumpRopeActivity : AppCompatActivity() {
             "课程进度：$completedRounds/${course.plan.steps.size} 步，完成度 $completionRate%"
         sheetView.findViewById<TextView>(R.id.summary_tv_course_goal).text =
             if (completedRounds >= course.plan.steps.size) "目标达成：已完成全部跳绳回合" else "目标达成：已完成部分回合，下次可继续挑战"
+    }
+
+    private fun loadUserWeight() {
+        lifecycleScope.launch {
+            val username = CurrentAccount.requireUsername(this@JumpRopeActivity)
+            val profile = AppDatabase.getInstance(this@JumpRopeActivity)
+                .userProfileDao()
+                .getUserProfileSync(username)
+            val weight = profile?.weightKg ?: 0.0
+            if (weight > 0.0) {
+                currentWeightKg = weight
+                updateCalories()
+            }
+        }
+    }
+
+    private fun registerJumpSensor() {
+        val sensor = accelerometer ?: return
+        if (isSensorRegistered) return
+        sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_GAME)
+        isSensorRegistered = true
+    }
+
+    private fun unregisterJumpSensor() {
+        if (!isSensorRegistered) return
+        sensorManager.unregisterListener(this, accelerometer)
+        isSensorRegistered = false
+    }
+
+    private fun clearJumpSensorState() {
+        unregisterJumpSensor()
+        gravityEstimate = SensorManager.GRAVITY_EARTH
+        smoothedMotion = 0f
+        motionBaseline = 0.35f
+        lastJumpTimestampMs = 0L
+        jumpThresholdArmed = true
+        recentJumpTimestamps.clear()
+    }
+
+    override fun onSensorChanged(event: SensorEvent?) {
+        if (!isActive || isPaused || event == null || event.sensor.type != Sensor.TYPE_ACCELEROMETER) {
+            return
+        }
+
+        val x = event.values[0]
+        val y = event.values[1]
+        val z = event.values[2]
+        val magnitude = sqrt(x * x + y * y + z * z)
+
+        gravityEstimate = gravityEstimate * 0.92f + magnitude * 0.08f
+        val linearAcceleration = magnitude - gravityEstimate
+        val motionLevel = abs(linearAcceleration)
+        smoothedMotion = smoothedMotion * 0.78f + motionLevel * 0.22f
+
+        if (smoothedMotion < 2.2f) {
+            motionBaseline = motionBaseline * 0.985f + smoothedMotion * 0.015f
+        }
+        val dynamicThreshold = maxOf(MIN_JUMP_THRESHOLD, motionBaseline * 2.7f)
+        if (smoothedMotion < dynamicThreshold * 0.55f) {
+            jumpThresholdArmed = true
+        }
+
+        val timestampMs = event.timestamp / 1_000_000L
+        if (jumpThresholdArmed && smoothedMotion > dynamicThreshold && isValidJumpInterval(timestampMs)) {
+            registerJump(timestampMs)
+            jumpThresholdArmed = false
+        }
+    }
+
+    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
+        // no-op
+    }
+
+    private fun isValidJumpInterval(timestampMs: Long): Boolean {
+        if (lastJumpTimestampMs == 0L) return true
+        return timestampMs - lastJumpTimestampMs >= MIN_JUMP_INTERVAL_MS
+    }
+
+    private fun registerJump(timestampMs: Long) {
+        lastJumpTimestampMs = timestampMs
+        count++
+        recentJumpTimestamps.addLast(timestampMs)
+        trimRecentJumpTimestamps(timestampMs)
+        updateCountDisplay()
+        updateFrequency()
+        updateCalories()
+    }
+
+    private fun trimRecentJumpTimestamps(nowMs: Long) {
+        while (recentJumpTimestamps.isNotEmpty() && nowMs - recentJumpTimestamps.first() > FREQUENCY_WINDOW_MS) {
+            recentJumpTimestamps.removeFirst()
+        }
+    }
+
+    private fun currentJumpFrequency(): Int {
+        val nowMs = SystemClock.elapsedRealtime()
+        trimRecentJumpTimestamps(nowMs)
+        if (recentJumpTimestamps.size < 2) {
+            return 0
+        }
+        val first = recentJumpTimestamps.first()
+        val last = recentJumpTimestamps.last()
+        val windowMs = (last - first).coerceAtLeast(1L)
+        return (((recentJumpTimestamps.size - 1) * 60_000f) / windowMs).roundToInt()
+    }
+
+    private fun averageJumpFrequency(): Int {
+        if (elapsedSeconds <= 0 || count <= 0) {
+            return 0
+        }
+        return ((count * 60.0) / elapsedSeconds).roundToInt()
+    }
+
+    companion object {
+        private const val MIN_JUMP_INTERVAL_MS = 280L
+        private const val FREQUENCY_WINDOW_MS = 10_000L
+        private const val MIN_JUMP_THRESHOLD = 1.15f
+        private const val DEFAULT_WEIGHT_KG = 70.0
+        private const val MIN_JUMP_ROPE_SAVE_COUNT = 20
+        private const val MIN_JUMP_ROPE_SAVE_DURATION_SECONDS = 30
     }
 }

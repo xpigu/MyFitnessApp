@@ -91,7 +91,8 @@
                             android:contentDescription="通知"
                             android:padding="8dp"
                             android:scaleType="fitCenter"
-                            android:src="@drawable/ic_notification" />
+                            android:src="@drawable/ic_notification"
+                            app:tint="@color/text_primary" />
 
                         <View
                             android:id="@+id/view_notification_badge"
@@ -222,7 +223,7 @@
                             android:background="@drawable/diet_action_btn_bg"
                             android:gravity="center"
                             android:text="@string/health_focus_primary_action"
-                            android:textColor="@color/indigo_primary"
+                            android:textColor="@color/health_action_text"
                             android:textSize="13sp"
                             android:textStyle="bold" />
 
@@ -234,7 +235,7 @@
                             android:background="@drawable/diet_action_btn_bg"
                             android:gravity="center"
                             android:text="@string/health_focus_secondary_action"
-                            android:textColor="@color/indigo_primary"
+                            android:textColor="@color/health_action_text"
                             android:textSize="13sp"
                             android:textStyle="bold" />
                     </LinearLayout>
@@ -287,7 +288,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center"
                                 android:text="0"
-                                android:textColor="@color/indigo_primary"
+                                android:textColor="@color/health_action_text"
                                 android:textSize="20sp"
                                 android:textStyle="bold"
                                 tools:text="82" />
@@ -326,7 +327,7 @@
                         android:layout_height="1dp"
                         android:layout_marginTop="14dp"
                         android:layout_marginBottom="12dp"
-                        android:background="@color/gray_200" />
+                        android:background="@color/settings_divider" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -491,7 +492,7 @@
                         android:background="@drawable/diet_action_btn_bg"
                         android:gravity="center"
                         android:text="@string/health_risk_default_action"
-                        android:textColor="@color/indigo_primary"
+                            android:textColor="@color/health_action_text"
                         android:textSize="13sp"
                         android:textStyle="bold" />
                 </LinearLayout>
@@ -556,7 +557,7 @@
                                     android:layout_height="wrap_content"
                                     android:layout_gravity="center"
                                     android:text="0"
-                                    android:textColor="@color/indigo_primary"
+                                    android:textColor="@color/health_action_text"
                                     android:textSize="18sp"
                                     android:textStyle="bold"
                                     tools:text="8,523" />
@@ -711,7 +712,8 @@
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:contentDescription="饮食"
-                            android:src="@drawable/ic_diet" />
+                            android:src="@drawable/ic_diet"
+                            app:tint="@color/health_diet_icon" />
 
                         <TextView
                             android:layout_width="0dp"
@@ -731,7 +733,8 @@
                             android:background="?attr/selectableItemBackgroundBorderless"
                             android:contentDescription="设置"
                             android:padding="4dp"
-                            android:src="@drawable/ic_settings" />
+                            android:src="@drawable/ic_settings"
+                            app:tint="@color/text_secondary" />
                     </LinearLayout>
 
                     <!-- 热量仪表盘区域 -->
@@ -893,7 +896,7 @@
                         android:layout_height="1dp"
                         android:layout_marginTop="12dp"
                         android:layout_marginBottom="4dp"
-                        android:background="@color/gray_200" />
+                        android:background="@color/settings_divider" />
 
                     <!-- 三餐时段列表 -->
                     <LinearLayout
@@ -948,7 +951,8 @@
                                     android:layout_marginStart="8dp"
                                     android:contentDescription="展开"
                                     android:rotation="0"
-                                    android:src="@drawable/ic_chevron_down" />
+                                    android:src="@drawable/ic_chevron_down"
+                                    app:tint="@color/text_secondary" />
                             </LinearLayout>
 
                             <LinearLayout
@@ -985,13 +989,13 @@
                                         android:id="@+id/tv_breakfast_add_food"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
-                                        android:background="@drawable/add_food_btn_bg"
+                                        android:background="@drawable/health_chip_button_bg"
                                         android:paddingStart="10dp"
                                         android:paddingTop="4dp"
                                         android:paddingEnd="10dp"
                                         android:paddingBottom="4dp"
                                         android:text="@string/diet_add_food"
-                                        android:textColor="@color/indigo_primary"
+                                        android:textColor="@color/health_chip_text"
                                         android:textSize="11sp" />
                                 </LinearLayout>
                             </LinearLayout>
@@ -999,7 +1003,7 @@
                             <View
                                 android:layout_width="match_parent"
                                 android:layout_height="1dp"
-                                android:background="@color/gray_200" />
+                                android:background="@color/settings_divider" />
                         </LinearLayout>
 
                         <!-- 午餐 -->
@@ -1048,7 +1052,8 @@
                                     android:layout_marginStart="8dp"
                                     android:contentDescription="展开"
                                     android:rotation="0"
-                                    android:src="@drawable/ic_chevron_down" />
+                                    android:src="@drawable/ic_chevron_down"
+                                    app:tint="@color/text_secondary" />
                             </LinearLayout>
 
                             <LinearLayout
@@ -1085,13 +1090,13 @@
                                         android:id="@+id/tv_lunch_add_food"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
-                                        android:background="@drawable/add_food_btn_bg"
+                                        android:background="@drawable/health_chip_button_bg"
                                         android:paddingStart="10dp"
                                         android:paddingTop="4dp"
                                         android:paddingEnd="10dp"
                                         android:paddingBottom="4dp"
                                         android:text="@string/diet_add_food"
-                                        android:textColor="@color/indigo_primary"
+                                        android:textColor="@color/health_chip_text"
                                         android:textSize="11sp" />
                                 </LinearLayout>
                             </LinearLayout>
@@ -1099,7 +1104,7 @@
                             <View
                                 android:layout_width="match_parent"
                                 android:layout_height="1dp"
-                                android:background="@color/gray_200" />
+                                android:background="@color/settings_divider" />
                         </LinearLayout>
 
                         <!-- 晚餐 -->
@@ -1148,7 +1153,8 @@
                                     android:layout_marginStart="8dp"
                                     android:contentDescription="展开"
                                     android:rotation="0"
-                                    android:src="@drawable/ic_chevron_down" />
+                                    android:src="@drawable/ic_chevron_down"
+                                    app:tint="@color/text_secondary" />
                             </LinearLayout>
 
                             <LinearLayout
@@ -1185,13 +1191,13 @@
                                         android:id="@+id/tv_dinner_add_food"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
-                                        android:background="@drawable/add_food_btn_bg"
+                                        android:background="@drawable/health_chip_button_bg"
                                         android:paddingStart="10dp"
                                         android:paddingTop="4dp"
                                         android:paddingEnd="10dp"
                                         android:paddingBottom="4dp"
                                         android:text="@string/diet_add_food"
-                                        android:textColor="@color/indigo_primary"
+                                        android:textColor="@color/health_chip_text"
                                         android:textSize="11sp" />
                                 </LinearLayout>
                             </LinearLayout>
@@ -1199,7 +1205,7 @@
                             <View
                                 android:layout_width="match_parent"
                                 android:layout_height="1dp"
-                                android:background="@color/gray_200" />
+                                android:background="@color/settings_divider" />
                         </LinearLayout>
 
                         <!-- 加餐 -->
@@ -1248,7 +1254,8 @@
                                     android:layout_marginStart="8dp"
                                     android:contentDescription="展开"
                                     android:rotation="0"
-                                    android:src="@drawable/ic_chevron_down" />
+                                    android:src="@drawable/ic_chevron_down"
+                                    app:tint="@color/text_secondary" />
                             </LinearLayout>
 
                             <LinearLayout
@@ -1285,13 +1292,13 @@
                                         android:id="@+id/tv_snack_add_food"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
-                                        android:background="@drawable/add_food_btn_bg"
+                                        android:background="@drawable/health_chip_button_bg"
                                         android:paddingStart="10dp"
                                         android:paddingTop="4dp"
                                         android:paddingEnd="10dp"
                                         android:paddingBottom="4dp"
                                         android:text="@string/diet_add_food"
-                                        android:textColor="@color/indigo_primary"
+                                        android:textColor="@color/health_chip_text"
                                         android:textSize="11sp" />
                                 </LinearLayout>
                             </LinearLayout>
@@ -1304,7 +1311,7 @@
                         android:layout_height="1dp"
                         android:layout_marginTop="4dp"
                         android:layout_marginBottom="8dp"
-                        android:background="@color/gray_200" />
+                        android:background="@color/settings_divider" />
 
                     <!-- 饮食建议 -->
                     <LinearLayout
@@ -1319,7 +1326,8 @@
                             android:layout_width="18dp"
                             android:layout_height="18dp"
                             android:contentDescription="建议"
-                            android:src="@drawable/ic_lightbulb" />
+                            android:src="@drawable/ic_lightbulb"
+                            app:tint="@color/health_hint_icon" />
 
                         <TextView
                             android:id="@+id/tv_diet_advice"
@@ -1370,13 +1378,13 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="12dp"
-                            android:background="@drawable/add_food_btn_bg"
+                            android:background="@drawable/health_chip_button_bg"
                             android:paddingStart="10dp"
                             android:paddingTop="6dp"
                             android:paddingEnd="10dp"
                             android:paddingBottom="6dp"
                             android:text="@string/diet_goal_change"
-                            android:textColor="@color/indigo_primary"
+                            android:textColor="@color/health_chip_text"
                             android:textSize="12sp"
                             android:textStyle="bold" />
                     </LinearLayout>
@@ -1485,7 +1493,7 @@
                             android:background="@drawable/diet_action_btn_bg"
                             android:gravity="center"
                             android:text="@string/diet_generate_meal_plan"
-                            android:textColor="@color/indigo_primary"
+                            android:textColor="@color/health_action_text"
                             android:textSize="13sp"
                             android:textStyle="bold" />
 
@@ -1497,7 +1505,7 @@
                             android:background="@drawable/diet_action_btn_bg"
                             android:gravity="center"
                             android:text="@string/diet_apply_recommendation"
-                            android:textColor="@color/indigo_primary"
+                            android:textColor="@color/health_action_text"
                             android:textSize="13sp"
                             android:textStyle="bold" />
                     </LinearLayout>
@@ -1523,7 +1531,8 @@
                                 android:layout_width="20dp"
                                 android:layout_height="20dp"
                                 android:contentDescription="饮水"
-                                android:src="@drawable/ic_water" />
+                                android:src="@drawable/ic_water"
+                                app:tint="@color/health_water_icon" />
 
                             <TextView
                                 android:id="@+id/tv_water_count"
@@ -1531,7 +1540,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="6dp"
                                 android:text="5 杯"
-                                android:textColor="@color/indigo_primary"
+                                android:textColor="@color/health_action_text"
                                 android:textSize="13sp"
                                 android:textStyle="bold" />
                         </LinearLayout>
@@ -1549,14 +1558,15 @@
                                 android:layout_width="20dp"
                                 android:layout_height="20dp"
                                 android:contentDescription="加餐"
-                                android:src="@drawable/ic_apple" />
+                                android:src="@drawable/ic_apple"
+                                app:tint="@color/health_snack_icon" />
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="6dp"
                                 android:text="@string/diet_smart_snack"
-                                android:textColor="@color/indigo_primary"
+                                android:textColor="@color/health_action_text"
                                 android:textSize="13sp"
                                 android:textStyle="bold" />
                         </LinearLayout>
@@ -1785,12 +1795,13 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:minHeight="80dp"
+        android:background="@drawable/bottom_nav_background"
         app:menu="@menu/bottom_nav_menu"
-        app:itemIconTint="@color/indigo_primary"
-        app:itemTextColor="@color/indigo_primary"
-        app:itemRippleColor="@color/indigo_light"
+        app:itemBackground="@drawable/bottom_nav_item_bg"
+        app:itemIconTint="@color/bottom_nav_item_tint"
+        app:itemTextColor="@color/bottom_nav_item_tint"
+        app:itemRippleColor="@color/health_action_stroke"
         app:labelVisibilityMode="labeled"
-        android:background="@color/card_background"
         app:elevation="8dp" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

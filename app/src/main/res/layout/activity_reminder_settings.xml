@@ -30,7 +30,7 @@
                     android:id="@+id/btn_reminder_back"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
-                    android:background="@drawable/category_chip_unselected"
+                    android:background="@drawable/reminder_secondary_action_bg"
                     android:gravity="center"
                     android:text="←"
                     android:textColor="@color/text_primary"
@@ -106,7 +106,7 @@
                         android:layout_height="0.5dp"
                         android:layout_marginStart="16dp"
                         android:layout_marginEnd="16dp"
-                        android:background="@color/gray_200" />
+                        android:background="@color/settings_divider" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -136,14 +136,14 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="6dp"
-                            android:background="@drawable/tab_bg_unselected"
+                            android:background="@drawable/reminder_secondary_action_bg"
                             android:gravity="center"
                             android:paddingStart="12dp"
                             android:paddingTop="8dp"
                             android:paddingEnd="12dp"
                             android:paddingBottom="8dp"
                             android:text="@string/reminder_add_time"
-                            android:textColor="@color/indigo_primary"
+                            android:textColor="@color/reminder_action_text"
                             android:textSize="12sp"
                             android:textStyle="bold" />
 
@@ -246,7 +246,7 @@
                         android:layout_height="0.5dp"
                         android:layout_marginStart="16dp"
                         android:layout_marginEnd="16dp"
-                        android:background="@color/gray_200" />
+                        android:background="@color/settings_divider" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -276,14 +276,14 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="6dp"
-                            android:background="@drawable/tab_bg_unselected"
+                            android:background="@drawable/reminder_secondary_action_bg"
                             android:gravity="center"
                             android:paddingStart="12dp"
                             android:paddingTop="8dp"
                             android:paddingEnd="12dp"
                             android:paddingBottom="8dp"
                             android:text="@string/reminder_add_time"
-                            android:textColor="@color/indigo_primary"
+                            android:textColor="@color/reminder_action_text"
                             android:textSize="12sp"
                             android:textStyle="bold" />
 
@@ -386,7 +386,7 @@
                         android:layout_height="0.5dp"
                         android:layout_marginStart="16dp"
                         android:layout_marginEnd="16dp"
-                        android:background="@color/gray_200" />
+                        android:background="@color/settings_divider" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -416,14 +416,14 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="6dp"
-                            android:background="@drawable/tab_bg_unselected"
+                            android:background="@drawable/reminder_secondary_action_bg"
                             android:gravity="center"
                             android:paddingStart="12dp"
                             android:paddingTop="8dp"
                             android:paddingEnd="12dp"
                             android:paddingBottom="8dp"
                             android:text="@string/reminder_add_time"
-                            android:textColor="@color/indigo_primary"
+                            android:textColor="@color/reminder_action_text"
                             android:textSize="12sp"
                             android:textStyle="bold" />
 
@@ -476,7 +476,7 @@
                 android:id="@+id/btn_save_reminders"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/start_button_bg"
+                android:background="@drawable/reminder_primary_btn_bg"
                 android:gravity="center"
                 android:paddingTop="14dp"
                 android:paddingBottom="14dp"
@@ -490,12 +490,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:background="@drawable/tab_bg_unselected"
+                android:background="@drawable/reminder_secondary_action_bg"
                 android:gravity="center"
                 android:paddingTop="12dp"
                 android:paddingBottom="12dp"
                 android:text="@string/reminder_test_button"
-                android:textColor="@color/indigo_primary"
+                android:textColor="@color/reminder_action_text"
                 android:textSize="14sp"
                 android:textStyle="bold" />
 

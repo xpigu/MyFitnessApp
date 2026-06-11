@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.viewModelScope
+import com.example.myfitnessapp.CurrentAccount
 import com.example.myfitnessapp.R
 import com.example.myfitnessapp.data.database.AppDatabase
 import com.example.myfitnessapp.data.entity.AchievementBadge
@@ -28,6 +29,7 @@ class AchievementBadgeViewModel(application: Application) : AndroidViewModel(app
     private val workoutRepository: WorkoutRecordRepository
     private val checkinRepository: DailyCheckinRepository
     private val profileLiveData: LiveData<UserProfile>
+    private val currentUsername = CurrentAccount.requireUsername(application)
 
     val allBadges: LiveData<List<AchievementBadge>>
     val unlockedBadges: LiveData<List<AchievementBadge>>
@@ -54,10 +56,10 @@ class AchievementBadgeViewModel(application: Application) : AndroidViewModel(app
 
     init {
         val db = AppDatabase.getInstance(application)
-        repository = AchievementBadgeRepository(db.achievementBadgeDao())
-        profileRepository = UserProfileRepository(db.userProfileDao())
-        workoutRepository = WorkoutRecordRepository(db.workoutRecordDao())
-        checkinRepository = DailyCheckinRepository(db.dailyCheckinDao())
+        repository = AchievementBadgeRepository(db.achievementBadgeDao(), currentUsername)
+        profileRepository = UserProfileRepository(db.userProfileDao(), currentUsername)
+        workoutRepository = WorkoutRecordRepository(db.workoutRecordDao(), currentUsername)
+        checkinRepository = DailyCheckinRepository(db.dailyCheckinDao(), currentUsername)
         profileLiveData = profileRepository.getUserProfile()
         allBadges = repository.allBadges
         unlockedBadges = repository.unlockedBadges
@@ -72,19 +74,19 @@ class AchievementBadgeViewModel(application: Application) : AndroidViewModel(app
     private fun initializeBadges() {
         viewModelScope.launch {
             val defaultBadges = listOf(
-                AchievementBadge("first_workout", "初出茅庐", "完成第一次运动", R.drawable.ic_achievement, category = "WORKOUT"),
-                AchievementBadge("workout_3_days", "坚持不懈", "连续运动3天", R.drawable.ic_achievement, category = "STREAK"),
-                AchievementBadge("workout_7_days", "运动达人", "连续运动7天", R.drawable.ic_achievement, category = "STREAK"),
-                AchievementBadge("calories_1000", "燃烧卡路里", "单次运动消耗1000千卡", R.drawable.ic_achievement, category = "WORKOUT"),
-                AchievementBadge("water_master", "水之源", "连续3天完成饮水目标", R.drawable.ic_achievement, category = "DIET"),
-                AchievementBadge("early_bird", "早起鸟", "早上6点前完成一次运动", R.drawable.ic_achievement, category = "WORKOUT"),
-                AchievementBadge("active_7_days", "活跃新星", "累计活跃 7 天", R.drawable.ic_achievement, category = "ACTIVE"),
-                AchievementBadge("active_30_days", "稳定高光", "累计活跃 30 天", R.drawable.ic_achievement, category = "ACTIVE"),
-                AchievementBadge("checkin_streak_3", "签到开局", "连续签到 3 天", R.drawable.ic_achievement, category = "CHECKIN"),
-                AchievementBadge("checkin_streak_7", "自律连击", "连续签到 7 天", R.drawable.ic_achievement, category = "CHECKIN"),
-                AchievementBadge("level_5", "成长进阶", "运动等级达到 Lv.5", R.drawable.ic_achievement, category = "LEVEL"),
-                AchievementBadge("level_10", "高能觉醒", "运动等级达到 Lv.10", R.drawable.ic_achievement, category = "LEVEL"),
-                AchievementBadge("workout_20_sessions", "训练积累者", "累计完成 20 次训练", R.drawable.ic_achievement, category = "WORKOUT")
+                AchievementBadge(id = "first_workout", name = "初出茅庐", description = "完成第一次运动", iconResId = R.drawable.ic_achievement, category = "WORKOUT"),
+                AchievementBadge(id = "workout_3_days", name = "坚持不懈", description = "连续运动3天", iconResId = R.drawable.ic_achievement, category = "STREAK"),
+                AchievementBadge(id = "workout_7_days", name = "运动达人", description = "连续运动7天", iconResId = R.drawable.ic_achievement, category = "STREAK"),
+                AchievementBadge(id = "calories_1000", name = "燃烧卡路里", description = "单次运动消耗1000千卡", iconResId = R.drawable.ic_achievement, category = "WORKOUT"),
+                AchievementBadge(id = "water_master", name = "水之源", description = "连续3天完成饮水目标", iconResId = R.drawable.ic_achievement, category = "DIET"),
+                AchievementBadge(id = "early_bird", name = "早起鸟", description = "早上6点前完成一次运动", iconResId = R.drawable.ic_achievement, category = "WORKOUT"),
+                AchievementBadge(id = "active_7_days", name = "活跃新星", description = "累计活跃 7 天", iconResId = R.drawable.ic_achievement, category = "ACTIVE"),
+                AchievementBadge(id = "active_30_days", name = "稳定高光", description = "累计活跃 30 天", iconResId = R.drawable.ic_achievement, category = "ACTIVE"),
+                AchievementBadge(id = "checkin_streak_3", name = "签到开局", description = "连续签到 3 天", iconResId = R.drawable.ic_achievement, category = "CHECKIN"),
+                AchievementBadge(id = "checkin_streak_7", name = "自律连击", description = "连续签到 7 天", iconResId = R.drawable.ic_achievement, category = "CHECKIN"),
+                AchievementBadge(id = "level_5", name = "成长进阶", description = "运动等级达到 Lv.5", iconResId = R.drawable.ic_achievement, category = "LEVEL"),
+                AchievementBadge(id = "level_10", name = "高能觉醒", description = "运动等级达到 Lv.10", iconResId = R.drawable.ic_achievement, category = "LEVEL"),
+                AchievementBadge(id = "workout_20_sessions", name = "训练积累者", description = "累计完成 20 次训练", iconResId = R.drawable.ic_achievement, category = "WORKOUT")
             )
             repository.initializeDefaultBadges(defaultBadges)
             syncBadges()

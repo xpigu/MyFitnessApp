@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.example.myfitnessapp.CurrentAccount
 import com.example.myfitnessapp.data.dao.TypeCount
 import com.example.myfitnessapp.data.database.AppDatabase
 import com.example.myfitnessapp.data.entity.WorkoutRecord
@@ -14,6 +15,7 @@ import kotlinx.coroutines.launch
 class WorkoutRecordViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository: WorkoutRecordRepository
+    private val currentUsername = CurrentAccount.requireUsername(application)
 
     /** 所有记录，按时间倒序 */
     val allRecords: LiveData<List<WorkoutRecord>>
@@ -34,7 +36,7 @@ class WorkoutRecordViewModel(application: Application) : AndroidViewModel(applic
 
     init {
         val dao = AppDatabase.getInstance(application).workoutRecordDao()
-        repository = WorkoutRecordRepository(dao)
+        repository = WorkoutRecordRepository(dao, currentUsername)
         allRecords = repository.allRecords
         allDates = repository.allDates
         refreshSummary()
@@ -53,10 +55,11 @@ class WorkoutRecordViewModel(application: Application) : AndroidViewModel(applic
     }
 
     /** 保存一条运动记录 */
-    fun saveRecord(record: WorkoutRecord) {
+    fun saveRecord(record: WorkoutRecord, onComplete: (() -> Unit)? = null) {
         viewModelScope.launch {
             repository.insert(record)
             refreshSummary()
+            onComplete?.invoke()
         }
     }
 
@@ -102,13 +105,13 @@ class WorkoutRecordViewModel(application: Application) : AndroidViewModel(applic
 
         for (date in dates) {
             val dayRecords = recordsByDate[date] ?: emptyList()
-            grouped.add(DateGroup(date, dayRecords))
+            grouped.add(DateGroup(date, date, dayRecords))
         }
         return grouped
     }
 
     // ============================================================
-    // 统计方法 — Phase 2 增强
+    // 统计方法 - Phase 2 增强
     // ============================================================
 
     /** 获取最佳成绩 */
@@ -128,7 +131,7 @@ class WorkoutRecordViewModel(application: Application) : AndroidViewModel(applic
         fun get30DaysAgoDate(): String {
             val sdf = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
             val calendar = java.util.Calendar.getInstance()
-            calendar.add(java.util.Calendar.DAY_OF_MONTH, -29) // 包含今天是30天
+            calendar.add(java.util.Calendar.DAY_OF_MONTH, -29) // 包含今天是 30 天
             return sdf.format(calendar.time)
         }
 
@@ -154,6 +157,7 @@ data class SummaryData(
 
 /** 日期分组 */
 data class DateGroup(
-    val date: String,       // "2026-06-05"
+    val date: String,       // 分组 key，如 "2026-06-05" / "2026-06"
+    val title: String,      // 展示标题
     val records: List<WorkoutRecord>
 )

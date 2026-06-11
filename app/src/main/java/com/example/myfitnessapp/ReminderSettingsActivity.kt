@@ -1,7 +1,6 @@
 package com.example.myfitnessapp
 
 import android.Manifest
-import android.app.TimePickerDialog
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -9,11 +8,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SwitchCompat
 import androidx.core.content.ContextCompat
+import com.google.android.material.timepicker.MaterialTimePicker
+import com.google.android.material.timepicker.TimeFormat
 import java.util.Locale
 
 class ReminderSettingsActivity : AppCompatActivity() {
@@ -43,9 +43,9 @@ class ReminderSettingsActivity : AppCompatActivity() {
     ) { granted ->
         if (granted) {
             ReminderScheduler.rescheduleAll(this)
-            Toast.makeText(this, R.string.reminder_permission_granted, Toast.LENGTH_SHORT).show()
+            showAppFeedback(getString(R.string.reminder_permission_granted), FeedbackType.SUCCESS)
         } else {
-            Toast.makeText(this, R.string.reminder_permission_denied, Toast.LENGTH_SHORT).show()
+            showAppFeedback(getString(R.string.reminder_permission_denied), FeedbackType.WARNING)
         }
     }
 
@@ -105,7 +105,7 @@ class ReminderSettingsActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.btn_test_notification).setOnClickListener {
             if (ensureNotificationPermission()) {
                 ReminderScheduler.showTestNotification(this)
-                Toast.makeText(this, R.string.reminder_test_sent, Toast.LENGTH_SHORT).show()
+                showAppFeedback(getString(R.string.reminder_test_sent), FeedbackType.INFO)
             }
         }
 
@@ -148,7 +148,14 @@ class ReminderSettingsActivity : AppCompatActivity() {
             ReminderScheduler.rescheduleAll(this)
         }
 
-        Toast.makeText(this, R.string.reminder_save_success, Toast.LENGTH_SHORT).show()
+        if (
+            (switchWorkout.isChecked || switchWater.isChecked || switchCheckin.isChecked) &&
+            !ReminderScheduler.canScheduleExactAlarms(this)
+        ) {
+            showAppFeedback(getString(R.string.reminder_exact_alarm_fallback), FeedbackType.WARNING)
+        }
+
+        showAppFeedback(getString(R.string.reminder_save_success), FeedbackType.SUCCESS)
     }
 
     private fun ensureNotificationPermissionForEnabledItems(): Boolean {
@@ -171,15 +178,15 @@ class ReminderSettingsActivity : AppCompatActivity() {
 
     private fun validateReminderTimes(): Boolean {
         if (switchWorkout.isChecked && workoutTimes.isEmpty()) {
-            Toast.makeText(this, R.string.reminder_need_time, Toast.LENGTH_SHORT).show()
+            showAppFeedback(getString(R.string.reminder_need_time), FeedbackType.WARNING)
             return false
         }
         if (switchWater.isChecked && waterTimes.isEmpty()) {
-            Toast.makeText(this, R.string.reminder_need_time, Toast.LENGTH_SHORT).show()
+            showAppFeedback(getString(R.string.reminder_need_time), FeedbackType.WARNING)
             return false
         }
         if (switchCheckin.isChecked && checkinTimes.isEmpty()) {
-            Toast.makeText(this, R.string.reminder_need_time, Toast.LENGTH_SHORT).show()
+            showAppFeedback(getString(R.string.reminder_need_time), FeedbackType.WARNING)
             return false
         }
         return true
@@ -287,9 +294,19 @@ class ReminderSettingsActivity : AppCompatActivity() {
     }
 
     private fun showTimePicker(hour: Int, minute: Int, onSelected: (Int, Int) -> Unit) {
-        TimePickerDialog(this, { _, selectedHour, selectedMinute ->
-            onSelected(selectedHour, selectedMinute)
-        }, hour, minute, true).show()
+        val picker = MaterialTimePicker.Builder()
+            .setTimeFormat(TimeFormat.CLOCK_24H)
+            .setHour(hour)
+            .setMinute(minute)
+            .setTitleText("选择提醒时间")
+            .setTheme(R.style.ThemeOverlay_MyFitnessApp_MaterialTimePicker)
+            .build()
+
+        picker.addOnPositiveButtonClickListener {
+            onSelected(picker.hour, picker.minute)
+        }
+
+        picker.show(supportFragmentManager, "reminderTimePicker")
     }
 
     private fun formatTime(hour: Int, minute: Int): String {

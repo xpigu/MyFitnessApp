@@ -8,20 +8,23 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
-class DailyCheckinRepository(private val checkinDao: DailyCheckinDao) {
+class DailyCheckinRepository(
+    private val checkinDao: DailyCheckinDao,
+    private val ownerUsername: String
+) {
 
-    val allCheckins: LiveData<List<DailyCheckin>> = checkinDao.getAllCheckins()
-    val totalCheckinCount: LiveData<Int> = checkinDao.getTotalCheckinCount()
+    val allCheckins: LiveData<List<DailyCheckin>> = checkinDao.getAllCheckins(ownerUsername)
+    val totalCheckinCount: LiveData<Int> = checkinDao.getTotalCheckinCount(ownerUsername)
 
     suspend fun checkinToday(): Boolean {
         val todayStr = getTodayString()
-        val existingCheckin = checkinDao.getCheckinByDate(todayStr)
+        val existingCheckin = checkinDao.getCheckinByDate(ownerUsername, todayStr)
         
         if (existingCheckin != null) {
             return false // 今天已经签到过了
         }
 
-        val latestCheckin = checkinDao.getLatestCheckin()
+        val latestCheckin = checkinDao.getLatestCheckin(ownerUsername)
         var newStreak = 1
 
         if (latestCheckin != null) {
@@ -33,6 +36,7 @@ class DailyCheckinRepository(private val checkinDao: DailyCheckinDao) {
         }
 
         val newCheckin = DailyCheckin(
+            ownerUsername = ownerUsername,
             date = todayStr,
             streakCount = newStreak
         )
@@ -42,18 +46,18 @@ class DailyCheckinRepository(private val checkinDao: DailyCheckinDao) {
 
     suspend fun isCheckedInToday(): Boolean {
         val todayStr = getTodayString()
-        return checkinDao.getCheckinByDate(todayStr) != null
+        return checkinDao.getCheckinByDate(ownerUsername, todayStr) != null
     }
 
     suspend fun getCurrentStreak(): Int {
         val todayStr = getTodayString()
-        val todayCheckin = checkinDao.getCheckinByDate(todayStr)
+        val todayCheckin = checkinDao.getCheckinByDate(ownerUsername, todayStr)
         if (todayCheckin != null) {
             return todayCheckin.streakCount
         }
 
         val yesterdayStr = getYesterdayString()
-        val yesterdayCheckin = checkinDao.getCheckinByDate(yesterdayStr)
+        val yesterdayCheckin = checkinDao.getCheckinByDate(ownerUsername, yesterdayStr)
         if (yesterdayCheckin != null) {
             return yesterdayCheckin.streakCount
         }

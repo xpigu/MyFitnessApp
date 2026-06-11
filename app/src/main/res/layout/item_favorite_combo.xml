@@ -19,14 +19,15 @@
         <FrameLayout
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:background="@drawable/dialog_tool_icon_bg">
+            android:background="@drawable/health_dialog_tool_icon_bg">
 
             <ImageView
                 android:id="@+id/iv_combo_icon"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
                 android:layout_gravity="center"
-                android:src="@drawable/ic_lightbulb" />
+                android:src="@drawable/ic_lightbulb"
+                android:tint="@color/health_hint_icon" />
         </FrameLayout>
 
         <LinearLayout
@@ -54,7 +55,7 @@
                 android:paddingTop="2dp"
                 android:paddingRight="8dp"
                 android:paddingBottom="2dp"
-                android:textColor="@color/gray_600"
+                android:textColor="@color/text_secondary"
                 android:textSize="11sp" />
         </LinearLayout>
 
@@ -62,7 +63,7 @@
             android:id="@+id/tv_combo_calories"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/indigo_primary"
+            android:textColor="@color/health_action_text"
             android:textSize="14sp"
             android:textStyle="bold" />
     </LinearLayout>

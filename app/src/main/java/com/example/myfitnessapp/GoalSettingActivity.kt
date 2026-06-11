@@ -3,7 +3,6 @@ package com.example.myfitnessapp
 import android.os.Bundle
 import android.view.View
 import android.widget.EditText
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.myfitnessapp.data.viewmodel.UserProfileViewModel
@@ -70,7 +69,7 @@ class GoalSettingActivity : AppCompatActivity() {
         val workoutsStr = etTargetWorkouts.text.toString()
 
         if (caloriesStr.isEmpty() || waterStr.isEmpty() || stepsStr.isEmpty() || workoutsStr.isEmpty()) {
-            Toast.makeText(this, "请填写所有目标", Toast.LENGTH_SHORT).show()
+            showAppFeedback("请填写所有目标", FeedbackType.WARNING)
             return
         }
 
@@ -85,7 +84,7 @@ class GoalSettingActivity : AppCompatActivity() {
         )
 
         viewModel.updateUserProfile(updatedProfile)
-        Toast.makeText(this, "目标已保存", Toast.LENGTH_SHORT).show()
+        showAppFeedback("目标已保存", FeedbackType.SUCCESS)
         finish()
     }
 }

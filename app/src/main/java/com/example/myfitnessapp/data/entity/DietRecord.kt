@@ -9,6 +9,10 @@ data class DietRecord(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
 
+    /** 所属账号用户名 */
+    @ColumnInfo(name = "owner_username")
+    val ownerUsername: String = "",
+
     /** 膳食类型: BREAKFAST, LUNCH, DINNER, SNACK */
     @ColumnInfo(name = "meal_type")
     val mealType: String,

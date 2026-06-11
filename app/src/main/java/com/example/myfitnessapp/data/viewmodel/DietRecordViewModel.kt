@@ -4,7 +4,9 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import androidx.lifecycle.viewModelScope
+import com.example.myfitnessapp.CurrentAccount
 import com.example.myfitnessapp.data.database.AppDatabase
 import com.example.myfitnessapp.data.entity.CustomFood
 import com.example.myfitnessapp.data.entity.DietRecord
@@ -23,6 +25,9 @@ class DietRecordViewModel(application: Application) : AndroidViewModel(applicati
     private val customFoodRepository: CustomFoodRepository
     private val favoriteMealComboRepository: FavoriteMealComboRepository
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    private val currentUsername = CurrentAccount.requireUsername(application)
+    private var todayRecordsSource: LiveData<List<DietRecord>>? = null
+    private var todayRecordsObserver: Observer<List<DietRecord>>? = null
 
     /** 所有膳食记录，按时间倒序 */
     val allRecords: LiveData<List<DietRecord>>
@@ -47,16 +52,16 @@ class DietRecordViewModel(application: Application) : AndroidViewModel(applicati
 
     init {
         val database = AppDatabase.getInstance(application)
-        repository = DietRecordRepository(database.dietRecordDao())
-        customFoodRepository = CustomFoodRepository(database.customFoodDao())
-        favoriteMealComboRepository = FavoriteMealComboRepository(database.favoriteMealComboDao())
+        repository = DietRecordRepository(database.dietRecordDao(), currentUsername)
+        customFoodRepository = CustomFoodRepository(database.customFoodDao(), currentUsername)
+        favoriteMealComboRepository = FavoriteMealComboRepository(database.favoriteMealComboDao(), currentUsername)
         allRecords = repository.allRecords
         customFoods = customFoodRepository.allFoods
         favoriteCombos = favoriteMealComboRepository.allCombos
 
         // 初始化水分摄入计数（从 SharedPreferences 读取或默认为 0）
         val prefs = application.getSharedPreferences("fitness_prefs", 0)
-        _waterCount.value = prefs.getInt("water_count_${todayDate()}", 0)
+        _waterCount.value = prefs.getInt(waterCountKey(todayDate()), 0)
 
         refreshTodayData()
     }
@@ -129,20 +134,26 @@ class DietRecordViewModel(application: Application) : AndroidViewModel(applicati
         _waterCount.value = current + 1
         // 保存到 SharedPreferences
         val prefs = getApplication<Application>().getSharedPreferences("fitness_prefs", 0)
-        prefs.edit().putInt("water_count_${todayDate()}", current + 1).apply()
+        prefs.edit().putInt(waterCountKey(todayDate()), current + 1).apply()
     }
 
-    /** 重置每日饮水（每天午夜自动调用）*/
+    /** 重置每日饮水（每天午夜自动调用），并确保当前账号的水计数正确*/
     fun resetDailyWaterIfNeeded() {
         val prefs = getApplication<Application>().getSharedPreferences("fitness_prefs", 0)
-        val lastDate = prefs.getString("last_water_reset_date", "")
+        val lastDate = prefs.getString(lastWaterResetKey(), "")
         val today = todayDate()
+        val todayWaterKey = waterCountKey(today)
+        
         if (lastDate != today) {
             _waterCount.value = 0
             prefs.edit()
-                .putInt("water_count_$today", 0)
-                .putString("last_water_reset_date", today)
+                .putInt(todayWaterKey, 0)
+                .putString(lastWaterResetKey(), today)
                 .apply()
+        } else {
+            // 如果日期相同，确保加载的是当前账号正确的水计数值
+            val currentWaterCount = prefs.getInt(todayWaterKey, 0)
+            _waterCount.value = currentWaterCount
         }
     }
 
@@ -153,12 +164,33 @@ class DietRecordViewModel(application: Application) : AndroidViewModel(applicati
             val totalCal = repository.getTotalCaloriesByDate(today)
             _todayTotalCalories.value = totalCal
 
-            // 获取今天的所有记录
-            repository.getRecordsByDate(today).observeForever { records ->
+            val previousSource = todayRecordsSource
+            val previousObserver = todayRecordsObserver
+            if (previousSource != null && previousObserver != null) {
+                previousSource.removeObserver(previousObserver)
+            }
+            val source = repository.getRecordsByDate(today)
+            val observer = Observer<List<DietRecord>> { records ->
                 _todayRecords.value = records
             }
+            todayRecordsSource = source
+            todayRecordsObserver = observer
+            source.observeForever(observer)
         }
     }
+
+    override fun onCleared() {
+        val source = todayRecordsSource
+        val observer = todayRecordsObserver
+        if (source != null && observer != null) {
+            source.removeObserver(observer)
+        }
+        super.onCleared()
+    }
+
+    private fun waterCountKey(date: String): String = "water_count_${currentUsername}_$date"
+
+    private fun lastWaterResetKey(): String = "last_water_reset_date_$currentUsername"
 
     companion object {
         fun todayDate(): String {

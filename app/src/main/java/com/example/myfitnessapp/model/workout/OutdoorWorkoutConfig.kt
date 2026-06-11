@@ -1,5 +1,7 @@
 package com.example.myfitnessapp.model.workout
 
+import com.example.myfitnessapp.R
+
 /**
  * 户外运动配置
  * 通过配置类实现跑步/骑行的差异化，避免代码中散落硬编码类型判断
@@ -9,12 +11,11 @@ data class OutdoorWorkoutConfig(
     val primaryLabel: String,           // 一级数据标签：配速 / 速度
     val primaryUnit: String,            // 一级数据单位：/km / km/h
     val primaryFormat: (Double) -> String, // 格式化函数
-    val primaryColor: Int,              // 主色调
+    val primaryColorRes: Int,           // 主色调
     val mapHeightRatio: Float,          // 地图占屏比例
     val mapCollapsible: Boolean,        // 地图是否可折叠
     val mapTrailWidth: Float,           // 轨迹线宽 dp
     val distanceMultiplier: Double,     // 每秒距离增量
-    val caloriesMultiplier: Double,     // 每秒热量增量
     val secondaryCards: List<SecondaryCard>, // 二级数据卡
     val showLapButton: Boolean,         // 是否显示分段计时
     val showMetronome: Boolean,         // 是否显示节拍器
@@ -38,16 +39,15 @@ data class OutdoorWorkoutConfig(
                 val sec = secPerKm.toInt() % 60
                 "${min}'${String.format("%02d", sec)}\""
             },
-            primaryColor = 0xFFFF6B35.toInt(),
+            primaryColorRes = R.color.tracking_metric_running,
             mapHeightRatio = 0.40f,
             mapCollapsible = true,
             mapTrailWidth = 2f,
             distanceMultiplier = 0.0033,
-            caloriesMultiplier = 0.12,
             secondaryCards = listOf(
-                SecondaryCard("步频", "步/分钟", 0xFF9B59B6.toInt()),
-                SecondaryCard("卡路里", "kcal", 0xFFE67E22.toInt()),
-                SecondaryCard("总步数", "步", 0xFF3498DB.toInt())
+                SecondaryCard("步频", "步/分钟", R.color.tracking_card_running),
+                SecondaryCard("卡路里", "kcal", R.color.tracking_card_calories),
+                SecondaryCard("总步数", "步", R.color.tracking_card_steps)
             ),
             showLapButton = true,
             showMetronome = true,
@@ -66,17 +66,16 @@ data class OutdoorWorkoutConfig(
             primaryFormat = { speedKmh ->
                 String.format("%.1f", speedKmh)
             },
-            primaryColor = 0xFF1E88E5.toInt(),
+            primaryColorRes = R.color.tracking_metric_cycling,
             mapHeightRatio = 0.55f,
             mapCollapsible = true,
             mapTrailWidth = 3f,
             distanceMultiplier = 0.0069,
-            caloriesMultiplier = 0.08,
             secondaryCards = listOf(
-                SecondaryCard("海拔爬升", "m", 0xFF2ECC71.toInt()),
-                SecondaryCard("平均坡度", "%", 0xFF9B59B6.toInt()),
-                SecondaryCard("卡路里", "kcal", 0xFFE67E22.toInt()),
-                SecondaryCard("最高速度", "km/h", 0xFFE74C3C.toInt())
+                SecondaryCard("海拔爬升", "m", R.color.tracking_card_elevation),
+                SecondaryCard("平均坡度", "%", R.color.tracking_card_grade),
+                SecondaryCard("卡路里", "kcal", R.color.tracking_card_calories),
+                SecondaryCard("最高速度", "km/h", R.color.tracking_card_max_speed)
             ),
             showLapButton = false,
             showMetronome = false,
@@ -93,5 +92,5 @@ data class OutdoorWorkoutConfig(
 data class SecondaryCard(
     val label: String,
     val unit: String,
-    val color: Int
+    val colorRes: Int
 )
